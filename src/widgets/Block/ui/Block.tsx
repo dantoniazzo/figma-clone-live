@@ -8,7 +8,6 @@ import { updateConnectionsFromEvent } from "features/connection";
 import { useRef } from "react";
 import { BlockEvents, mutationEvent } from "features/block-mutation";
 import { getSnapSize } from "features/grid";
-import { getRectFromGroup } from "entities/node";
 import type { Rect as RectType } from "konva/lib/shapes/Rect";
 
 export const Block = (props: IBlock) => {
@@ -39,7 +38,7 @@ export const Block = (props: IBlock) => {
       text={props.text}
       position={props.position}
       draggable
-      /*  onDragMove={updateConnectionsFromEvent} */
+      onDragMove={updateConnectionsFromEvent}
       onDragEnd={onDragEnd}
       onTransform={(e) => {
         const rect = imageRef.current;
@@ -58,7 +57,7 @@ export const Block = (props: IBlock) => {
       }}
     >
       <Rect ref={imageRef} {...rest} />
-      {/*  <Connection connection={props.connection} position={props.position} /> */}
+      <Connection connection={props.connection} position={props.position} />
     </Group>
   );
 };
