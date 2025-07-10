@@ -212,7 +212,7 @@ export const getSnapSize = (size: Size) => {
   });
 
   return {
-    width: calculatedSize.x,
-    height: calculatedSize.y,
+    width: calculatedSize.x + GAP_SIZE,
+    height: calculatedSize.y + GAP_SIZE,
   };
 };

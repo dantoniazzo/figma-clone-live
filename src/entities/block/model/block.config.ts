@@ -1,10 +1,11 @@
 import { getColor } from "shared";
 import { BlockTypes } from "./block.types";
+import { FULL_SIZE } from "features/grid";
 
 export const config = {
   name: "block",
-  width: 200,
-  height: 200,
+  width: FULL_SIZE * 5,
+  height: FULL_SIZE * 5,
   fill: getColor("--color-gray-500"),
   cornerRadius: 6,
 };

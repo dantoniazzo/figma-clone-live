@@ -1,10 +1,10 @@
-import Konva from 'konva';
-import { getNodeFromEvent } from 'entities/node';
-import { type KonvaDragEvent } from 'entities/stage';
-import { calculateGridCoordinates } from 'features/grid';
-import { Group } from 'konva/lib/Group';
-import type { Node } from 'konva/lib/Node';
-import { config } from 'entities/block';
+import Konva from "konva";
+import { getNodeFromEvent } from "entities/node";
+import { type KonvaDragEvent } from "entities/stage";
+import { calculateGridCoordinates } from "features/grid";
+import { Group } from "konva/lib/Group";
+import type { Node } from "konva/lib/Node";
+import { config } from "entities/block";
 
 export interface UpdateProps {
   fromNode: Node;
@@ -12,14 +12,15 @@ export interface UpdateProps {
 }
 
 export const updateConnectionsFromEvent = (e: KonvaDragEvent) => {
-  const connection = e.target.getAttr('connection');
+  console.log("Here");
+  const connection = e.target.getAttr("connection");
   if (!connection) return;
   const gridPosition = calculateGridCoordinates({
     x: e.target.attrs.x,
     y: e.target.attrs.y,
   });
   e.target.position(gridPosition);
-  const connectionFromNode = getNodeFromEvent(connection.from, e);
+  /*   const connectionFromNode = getNodeFromEvent(connection.from, e);
   const connectionToNode = getNodeFromEvent(connection.to, e);
   if (connectionFromNode) {
     (
@@ -45,7 +46,7 @@ export const updateConnectionsFromEvent = (e: KonvaDragEvent) => {
         toNode: connectionToNode,
       })
     );
-  }
+  } */
 };
 
 export const getUpdatedPoints = (props: UpdateProps) => {

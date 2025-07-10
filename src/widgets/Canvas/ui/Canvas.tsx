@@ -1,5 +1,6 @@
 import Konva from "konva";
 import { Stage, Layer, Transformer } from "react-konva";
+import { type Box } from "konva/lib/shapes/Transformer";
 import { getLayerId } from "entities/layer";
 import { useEffect, useMemo, useRef } from "react";
 import { scaleStageOnScroll } from "features/scale";
@@ -14,8 +15,12 @@ import {
   handlePointerMove,
   handlePointerUp,
 } from "features/pointer";
-import { getGridLayerId } from "features/grid";
-import { getStageElementId, getStageIdFromEvent } from "entities/stage";
+import { FULL_SIZE, getGridLayerId } from "features/grid";
+import {
+  getStage,
+  getStageElementId,
+  getStageIdFromEvent,
+} from "entities/stage";
 import { getCanvasContainerId } from "../lib";
 import { setStageSize } from "features/size";
 import { observeResize } from "shared/model";
@@ -211,11 +216,33 @@ export const Canvas = (props: CanvasProps) => {
             keepRatio={false}
             anchorCornerRadius={2}
             anchorStroke={getColor("--color-primary-100")}
+            anchorStrokeWidth={2}
             anchorFill="black"
             resizeEnabled={true}
             rotateEnabled={false}
-            borderEnabled={false}
+            borderEnabled={true}
+            borderStroke={getColor("--color-primary-100")}
+            borderStrokeWidth={2}
             ignoreStroke={true}
+            boundBoxFunc={(oldBox: Box, newBox: Box) => {
+              const stage = getStage(id);
+              if (!stage) return newBox;
+              const maxSize = FULL_SIZE * stage.scaleX();
+              // limit resize
+              if (newBox.width < maxSize || newBox.height < maxSize) {
+                if (newBox.width < maxSize) {
+                  // Calculate the new width and x position if the width is less than the minimum size
+                  newBox.width = maxSize;
+                  newBox.x = oldBox.x;
+                }
+                if (newBox.height < maxSize) {
+                  // Calculate the new height and y position if the height is less than the minimum size
+                  newBox.height = maxSize;
+                  newBox.y = oldBox.y;
+                }
+              }
+              return newBox;
+            }}
           />
           <Presences stageId={id} />
         </Layer>
