@@ -1,8 +1,5 @@
-import Konva from "konva";
-import { getNodeFromEvent } from "entities/node";
 import { type KonvaDragEvent } from "entities/stage";
 import { calculateGridCoordinates } from "features/grid";
-import { Group } from "konva/lib/Group";
 import type { Node } from "konva/lib/Node";
 import { config } from "entities/block";
 
