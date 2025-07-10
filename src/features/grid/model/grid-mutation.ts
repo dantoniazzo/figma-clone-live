@@ -1,14 +1,11 @@
-import { getGridLayer } from './grid-layer';
+import { getGridLayer } from "./grid-layer";
 import {
   clipGridLayer,
   getFullPoints,
   getFullPosition,
   getFullQty,
-  getStepPoints,
-  getStepPosition,
-  getStepQty,
-} from './grid.helpers';
-import { GridLine } from '../ui';
+} from "./grid.helpers";
+import { GridLine } from "../ui";
 
 export const drawFull = (id: string) => {
   const qty = getFullQty(id);
@@ -20,30 +17,6 @@ export const drawFull = (id: string) => {
     if (!position?.x) return;
     const gridLayer = getGridLayer(id);
     gridLayer?.add(GridLine(position.x, points.x));
-  }
-  /*   for (let i = 0; i <= qty?.y; i++) {
-    const position = getFullPosition(id, i);
-    if (!position?.y) return;
-    const gridLayer = getGridLayer(id);
-    gridLayer?.add(GridLine(position.y, points.y));
-  } */
-};
-
-export const drawStep = (id: string) => {
-  const qty = getStepQty(id);
-  const points = getStepPoints(id);
-  if (!qty || !points || !points.x || !points.y) return;
-  for (let i = 0; i <= qty?.x; i++) {
-    const position = getStepPosition(id, i);
-    if (!position?.x) return;
-    const gridLayer = getGridLayer(id);
-    gridLayer?.add(GridLine(position.x, points.x));
-  }
-  for (let i = 0; i <= qty?.y; i++) {
-    const position = getStepPosition(id, i);
-    if (!position?.y) return;
-    const gridLayer = getGridLayer(id);
-    gridLayer?.add(GridLine(position.y, points.y));
   }
 };
 
