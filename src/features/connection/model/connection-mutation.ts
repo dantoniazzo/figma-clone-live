@@ -1,4 +1,3 @@
-import { type KonvaDragEvent } from 'entities/stage';
 import type { Node } from 'konva/lib/Node';
 import { config } from 'entities/block';
 
@@ -7,7 +6,7 @@ export interface UpdateProps {
   toNode: Node;
 }
 
-export const updateConnectionsFromEvent = (e: KonvaDragEvent) => {
+export const updateConnectionsFromEvent = () => {
   /*   const connectionFromNode = getNodeFromEvent(connection.from, e);
   const connectionToNode = getNodeFromEvent(connection.to, e);
   if (connectionFromNode) {
