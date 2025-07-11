@@ -1,30 +1,23 @@
-import { getTransformer } from "entities/transformer";
-import { Node } from "konva/lib/Node";
+import { getTransformer } from 'entities/transformer';
+import { Node } from 'konva/lib/Node';
 
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
-    deselectPreviouslySelectedNodes(stageId, node);
     transformer.nodes([node]);
   }
 };
 
-export const deselectPreviouslySelectedNodes = (
-  stageId: string,
-  exclude?: Node
-) => {
+export const selectNodes = (stageId: string, nodes: Node[]) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
-    transformer.nodes().forEach((node) => {
-      if (node === exclude) return;
-    });
+    transformer.nodes(nodes);
   }
 };
 
 export const unSelectAllNodes = (stageId: string) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
-    deselectPreviouslySelectedNodes(stageId);
     transformer.nodes([]);
   }
 };

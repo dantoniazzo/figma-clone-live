@@ -1,11 +1,10 @@
-import { BlockTypes } from 'entities/block';
+import { BlockTypes, config, getFarRightNode } from 'entities/block';
 import { getRectFromGroup } from 'entities/node';
 import { getCenteredBlockPosition } from 'features/position';
 import { calculateGridCoordinates, FULL_SIZE } from 'features/grid';
 import { v4 as uuidv4 } from 'uuid';
 import { setTool, Tools } from 'widgets';
 import { BlockEvents, mutationEvent } from './block-events';
-import { config, getFarRightNode } from 'entities/block';
 import type { Group } from 'konva/lib/Group';
 
 export const createBlock = (stageId: string) => {

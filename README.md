@@ -1,3 +1,3 @@
-# Figjam clone
+# Figma clone
 
-Clone of the Figjam app
+Clone of the Figma app

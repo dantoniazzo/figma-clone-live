@@ -1,5 +1,5 @@
 import type { ISpace } from "entities/space";
 
-export interface FigjamUserUnsafeMetadata {
+export interface FigmaUserUnsafeMetadata {
   spaces?: ISpace[];
 }

@@ -1,7 +1,6 @@
-import { type KonvaDragEvent } from "entities/stage";
-import { calculateGridCoordinates } from "features/grid";
-import type { Node } from "konva/lib/Node";
-import { config } from "entities/block";
+import { type KonvaDragEvent } from 'entities/stage';
+import type { Node } from 'konva/lib/Node';
+import { config } from 'entities/block';
 
 export interface UpdateProps {
   fromNode: Node;
@@ -9,14 +8,6 @@ export interface UpdateProps {
 }
 
 export const updateConnectionsFromEvent = (e: KonvaDragEvent) => {
-  console.log("Here");
-  const connection = e.target.getAttr("connection");
-  if (!connection) return;
-  const gridPosition = calculateGridCoordinates({
-    x: e.target.attrs.x,
-    y: e.target.attrs.y,
-  });
-  e.target.position(gridPosition);
   /*   const connectionFromNode = getNodeFromEvent(connection.from, e);
   const connectionToNode = getNodeFromEvent(connection.to, e);
   if (connectionFromNode) {

@@ -5,6 +5,7 @@ import {
   getSelectionBox,
   removeSelectionBoxes,
   selectNode,
+  selectNodesIntersectingWithBoundingBox,
   unSelectAllNodes,
   updateSelectionBox,
 } from 'features/selection';
@@ -116,6 +117,7 @@ export const handlePointerUp = (
   const stage = getStage(id);
   if (stage) {
     if (getSelectionBox(id)) {
+      selectNodesIntersectingWithBoundingBox(id);
       removeSelectionBoxes(id);
     }
     if (getTool() === Tools.HAND) {

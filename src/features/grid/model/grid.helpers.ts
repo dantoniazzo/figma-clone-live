@@ -1,9 +1,9 @@
-import { type Position, type Size } from "shared/model";
-import { FULL_SIZE } from "../lib/grid.constants";
-import { getStage, getStageRect, getViewRect } from "entities/stage";
-import { unScale } from "features/scale";
-import { getGridLayer } from "./grid-layer";
-import { getCanvasContainer } from "widgets";
+import { type Position, type Rect } from 'shared/model';
+import { FULL_SIZE } from '../lib/grid.constants';
+import { getStage, getStageRect, getViewRect } from 'entities/stage';
+import { unScale } from 'features/scale';
+import { getGridLayer } from './grid-layer';
+import { getCanvasContainer } from 'widgets';
 
 // =========== Grid layer ===========
 
@@ -113,21 +113,22 @@ export const getFullPoints = (id: string) => {
   };
 };
 
+export const snapToGrid = (value: number) => {
+  return Math.round(value / FULL_SIZE) * FULL_SIZE;
+};
+
 export const calculateGridCoordinates = (position: Position) => {
   return {
-    x: Math.round(position.x / FULL_SIZE) * FULL_SIZE,
-    y: Math.round(position.y / FULL_SIZE) * FULL_SIZE,
+    x: snapToGrid(position.x),
+    y: snapToGrid(position.y),
   };
 };
 
-export const getSnapSize = (size: Size) => {
-  const calculatedSize = calculateGridCoordinates({
-    x: size.width,
-    y: size.height,
-  });
-
+export const calculateGridRect = (rect: Rect): Rect => {
   return {
-    width: calculatedSize.x,
-    height: calculatedSize.y,
+    x: snapToGrid(rect.x),
+    y: snapToGrid(rect.y),
+    width: snapToGrid(rect.width),
+    height: snapToGrid(rect.height),
   };
 };

@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { Home } from "../ui";
-import { ClerkProvider } from "@clerk/clerk-react";
-import { env } from "app/config";
+import { render, screen } from '@testing-library/react';
+import { Home } from '../ui';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { env } from 'app/config';
 
-describe("Home", () => {
-  it("should render", () => {
+describe('Home', () => {
+  it('should render', () => {
     render(
       <ClerkProvider
         publishableKey={env.clerk.publishableKey}
@@ -13,8 +13,8 @@ describe("Home", () => {
         <Home />
       </ClerkProvider>
     );
-    const heading = screen.getByRole("heading", {
-      name: /Welcome to Figjam/i,
+    const heading = screen.getByRole('heading', {
+      name: /Welcome to Figma Clone/i,
     });
     expect(heading).toBeInTheDocument();
   });

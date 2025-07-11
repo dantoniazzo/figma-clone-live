@@ -1,7 +1,7 @@
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-import { SignInButton } from "features/auth";
-import { useViewer } from "entities/viewer";
-import { SpaceListTable } from "widgets/SpaceList";
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { SignInButton } from 'features/auth';
+import { useViewer } from 'entities/viewer';
+import { SpaceListTable } from 'widgets/SpaceList';
 
 export const Home = () => {
   const { viewer, isSignedIn } = useViewer();
@@ -13,7 +13,7 @@ export const Home = () => {
         </div>
       </SignedIn>
       <h1 className="text-6xl font-bold text-white text-center">
-        Welcome {isSignedIn ? viewer?.firstName : "to Figjam"}
+        Welcome {isSignedIn ? viewer?.firstName : 'to Figma clone'}
       </h1>
 
       <SignedOut>
