@@ -14,12 +14,7 @@ import {
   handlePointerMove,
   handlePointerUp,
 } from 'features/pointer';
-import {
-  FULL_SIZE,
-  getGridLayerId,
-  drawLines,
-  snapToGrid,
-} from 'features/grid';
+import { FULL_SIZE, getGridLayerId, drawLines } from 'features/grid';
 import {
   getStage,
   getStageElementId,
@@ -231,48 +226,40 @@ export const Canvas = (props: CanvasProps) => {
             boundBoxFunc={(oldBox, newBox) => {
               const stage = getStage(id);
               if (!stage) return newBox;
-              // Calculate snapped dimensions
-              const maxSize = FULL_SIZE;
-              const snappedWidth = Math.max(maxSize, snapToGrid(newBox.width));
-              const snappedHeight = Math.max(
-                maxSize,
-                snapToGrid(newBox.height)
-              );
 
-              // Calculate position adjustments to maintain anchor behavior
+              const scaleX = stage.scaleX();
+              const gridSize = FULL_SIZE * scaleX;
+
+              const snap = (value: number) =>
+                Math.round(value / gridSize) * gridSize;
+
+              const snappedWidth = Math.max(gridSize, snap(newBox.width));
+              const snappedHeight = Math.max(gridSize, snap(newBox.height));
+
               const deltaWidth = snappedWidth - newBox.width;
               const deltaHeight = snappedHeight - newBox.height;
 
-              // Determine which anchor is being used based on position changes
               let adjustedX = newBox.x;
               let adjustedY = newBox.y;
 
-              // If width changed, adjust x position to maintain proper anchor behavior
               if (deltaWidth !== 0) {
-                // Check if this is a left-side anchor (position should stay the same)
-                // or right-side anchor (position should adjust)
                 if (newBox.x === oldBox.x) {
-                  // Left side is fixed, no x adjustment needed
-                  adjustedX = snapToGrid(newBox.x);
+                  adjustedX = snap(newBox.x);
                 } else {
-                  // Right side resize, adjust x to maintain right edge position
-                  adjustedX = snapToGrid(newBox.x - deltaWidth);
+                  adjustedX = snap(newBox.x - deltaWidth);
                 }
               } else {
-                adjustedX = snapToGrid(newBox.x);
+                adjustedX = snap(newBox.x);
               }
 
-              // Same logic for height
               if (deltaHeight !== 0) {
                 if (newBox.y === oldBox.y) {
-                  // Top side is fixed
-                  adjustedY = snapToGrid(newBox.y);
+                  adjustedY = snap(newBox.y);
                 } else {
-                  // Bottom side resize, adjust y to maintain bottom edge position
-                  adjustedY = snapToGrid(newBox.y - deltaHeight);
+                  adjustedY = snap(newBox.y - deltaHeight);
                 }
               } else {
-                adjustedY = snapToGrid(newBox.y);
+                adjustedY = snap(newBox.y);
               }
 
               return {
