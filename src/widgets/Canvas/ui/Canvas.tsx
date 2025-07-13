@@ -96,7 +96,9 @@ export const LiveCanvas = () => {
 export const Canvas = (props: CanvasProps) => {
   const { id } = props;
   const blocks = useStorage((storage) => storage.blocks);
+  console.log("blocks", blocks);
   const createBlock = useMutation(({ storage }, params: IBlock) => {
+    console.log("Creating block with params:", params);
     const newBlock = new LiveObject<IBlock>(params);
     const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
     if (blocks) {

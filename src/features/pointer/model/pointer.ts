@@ -1,5 +1,5 @@
-import Konva from 'konva';
-import { getStage, getStageIdFromEvent } from 'entities/stage';
+import Konva from "konva";
+import { getStage, getStageIdFromEvent } from "entities/stage";
 import {
   createSelectionBox,
   getSelectionBox,
@@ -8,20 +8,20 @@ import {
   selectNodesIntersectingWithBoundingBox,
   unSelectAllNodes,
   updateSelectionBox,
-} from 'features/selection';
-import { getTool, Tools } from 'widgets/Toolbar';
+} from "features/selection";
+import { getTool, Tools } from "widgets/Toolbar";
 import {
   createRectangle,
   finishDrawingRectangle,
   getDrawnRectangleBox,
   updateRectangle,
-} from 'features/rectangle';
-import { createLine, drawLine, finishDrawingLine } from 'features/line';
-import { reScalePosition, unScalePosition } from 'features/scale';
-import { handleDragEnd, handleDragStart } from 'features/hand';
-import { createFirstTextNode } from 'features/text';
-import { getGridLayerId } from 'features/grid';
-import type { Position } from 'shared/model';
+} from "features/rectangle";
+import { createLine, drawLine, finishDrawingLine } from "features/line";
+import { reScalePosition, unScalePosition } from "features/scale";
+import { handleDragEnd, handleDragStart } from "features/hand";
+import { createFirstTextNode } from "features/text";
+import { getGridLayerId, calculateGridCoordinates } from "features/grid";
+import type { Position } from "shared/model";
 
 export const getPointerPosition = (stageId: string) => {
   return getStage(stageId)?.getPointerPosition();
@@ -50,7 +50,7 @@ export const handlePointerDown = (
   const selectedNode = e.target;
   const isMouseOnStage = selectedNode === e.currentTarget;
   const isMouseOnGridLayer =
-    selectedNode.parent?.getAttr('id') === getGridLayerId(id);
+    selectedNode.parent?.getAttr("id") === getGridLayerId(id);
   if (isMouseOnStage || isMouseOnGridLayer) {
     // Whenever user has pointer down on stage we remove selection from all nodes
     unSelectAllNodes(id);
@@ -62,10 +62,12 @@ export const handlePointerDown = (
     } else if (getTool() === Tools.RECTANGLE) {
       const pointerPos = getUnscaledPointerPosition(id);
       if (pointerPos) {
-        createRectangle(id, { position: pointerPos });
+        const gridCoordinates = calculateGridCoordinates(pointerPos);
+        createRectangle(id, { position: gridCoordinates, grid: true });
         const rect = getDrawnRectangleBox(id);
         if (rect) {
           selectNode(id, rect);
+          rect.moveToBottom();
         }
       }
     } else if (getTool() === Tools.LINE) {

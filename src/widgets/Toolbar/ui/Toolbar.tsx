@@ -12,6 +12,8 @@ import { ToolbarButton } from "./ToolbarButton";
 import { disableHandTool, enableHandTool } from "features/hand";
 import { useParams } from "react-router-dom";
 import { createBlock } from "features/block-mutation";
+import { config } from "entities/block";
+import { getCenteredBlockPosition } from "features/position";
 
 export const Toolbar = () => {
   const [currentTool, setCurrentTool] = useState(Tools.POINTER);
@@ -21,7 +23,20 @@ export const Toolbar = () => {
   const handleToolSelection = useCallback(
     (tool: Tools) => {
       if (tool === Tools.ADD) {
-        createBlock(params.id || "default");
+        const centeredBlockPosition = getCenteredBlockPosition(
+          params.id || "default",
+          config.width,
+          config.height
+        );
+        if (!centeredBlockPosition) return;
+        createBlock(params.id || "default", {
+          rect: {
+            x: centeredBlockPosition.x,
+            y: centeredBlockPosition.y,
+            width: config.width,
+            height: config.height,
+          },
+        });
       } else {
         setTool(tool);
       }

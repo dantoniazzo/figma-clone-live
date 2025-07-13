@@ -1,13 +1,13 @@
-import { Group, Rect } from 'react-konva';
-import { config, type IBlock } from 'entities/block';
-import { getStageIdFromEvent, type KonvaDragEvent } from 'entities/stage';
-import { selectNode } from 'features/selection';
-import { type Group as GroupType } from 'konva/lib/Group';
-import { useRef } from 'react';
-import { BlockEvents, mutationEvent } from 'features/block-mutation';
-import { onMoveOnGrid } from 'features/grid';
-import type { Image as ImageType } from 'konva/lib/shapes/Image';
-import { getRectFromGroup } from 'entities/node';
+import { Group, Rect } from "react-konva";
+import { config, type IBlock } from "entities/block";
+import { getStageIdFromEvent, type KonvaDragEvent } from "entities/stage";
+import { selectNode } from "features/selection";
+import { type Group as GroupType } from "konva/lib/Group";
+import { useRef } from "react";
+import { BlockEvents, mutationEvent } from "features/block-mutation";
+import { onMoveOnGrid } from "features/grid";
+import type { Image as ImageType } from "konva/lib/shapes/Image";
+import { getRectFromGroup } from "entities/node";
 
 export const Block = (props: IBlock) => {
   const { name, ...rest } = config;

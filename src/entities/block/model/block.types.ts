@@ -1,19 +1,16 @@
-import type { Position } from 'shared/model';
+import type { Position, Size } from "shared/model";
 
 export type IBlock = {
   position: Position;
-  connection: Connection;
+  size: Size;
+  connection?: Connection;
   id: string;
   type: BlockTypes;
-  text: string;
+  text?: string;
 };
 
 export enum BlockTypes {
-  INTEGRATION = 'integration',
-  CONDITION = 'condition',
-  INPUT = 'input',
-  OUTPUT = 'output',
-  TIME = 'time',
+  RECTANGLE = "rectangle",
 }
 
 export type Connection = {
