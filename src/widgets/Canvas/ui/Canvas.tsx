@@ -1,52 +1,63 @@
-import Konva from 'konva';
-import { Stage, Layer, Transformer } from 'react-konva';
-import { getLayerId } from 'entities/layer';
-import { useEffect, useMemo, useRef } from 'react';
-import { scaleStageOnScroll } from 'features/scale';
-import { moveStageOnScroll } from 'features/position';
+import Konva from "konva";
+import { Stage, Layer, Transformer } from "react-konva";
+import { getLayerId } from "entities/layer";
+import { useEffect, useMemo, useRef } from "react";
+import {
+  reScalePosition,
+  reScaleSize,
+  scaleStageOnScroll,
+  unScalePosition,
+  unScaleSize,
+} from "features/scale";
+import { moveStageOnScroll } from "features/position";
 import {
   handleTouchDown,
   handleTouchEnd,
   handleTouchMove,
-} from 'features/touch';
+} from "features/touch";
 import {
   handlePointerDown,
   handlePointerMove,
   handlePointerUp,
-} from 'features/pointer';
-import { FULL_SIZE, getGridLayerId, drawLines } from 'features/grid';
+} from "features/pointer";
+import {
+  FULL_SIZE,
+  getGridLayerId,
+  drawLines,
+  snapToGrid,
+} from "features/grid";
 import {
   getStage,
   getStageElementId,
   getStageIdFromEvent,
-} from 'entities/stage';
-import { getCanvasContainerId } from '../lib';
-import { setStageSize } from 'features/size';
-import { observeResize } from 'shared/model';
-import { useParams } from 'react-router-dom';
-import { Block } from '../../Block';
-import { type IBlock } from 'entities/block';
+} from "entities/stage";
+import { getCanvasContainerId } from "../lib";
+import { setStageSize } from "features/size";
+import { observeResize } from "shared/model";
+import { useParams } from "react-router-dom";
+import { Block } from "../../Block";
+import { type IBlock } from "entities/block";
 import {
   BlockEventListener,
   BlockEvents,
   removeBlockEventListener,
-} from 'features/block-mutation';
-import { getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import { selectNode } from 'features/selection';
-import { AvatarList } from 'features/avatar-list';
-import { Presences } from 'features/presence';
+} from "features/block-mutation";
+import { getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import { selectNode } from "features/selection";
+import { AvatarList } from "features/avatar-list";
+import { Presences } from "features/presence";
 import {
   ClientSideSuspense,
   RoomProvider,
   useMyPresence,
   useStorage,
   useMutation,
-} from '@liveblocks/react/suspense';
-import { LiveList, LiveObject } from '@liveblocks/client';
-import { getColor, Loading } from 'shared';
-import { Header } from 'features/header';
-import { useViewer } from 'entities/viewer';
+} from "@liveblocks/react/suspense";
+import { LiveList, LiveObject } from "@liveblocks/client";
+import { getColor, Loading } from "shared";
+import { Header } from "features/header";
+import { useViewer } from "entities/viewer";
 
 export interface CanvasProps {
   id: string;
@@ -56,18 +67,18 @@ export const LiveCanvas = () => {
   const { viewer } = useViewer();
   const params = useParams();
   const id = useMemo(() => {
-    return params.id || 'default';
+    return params.id || "default";
   }, [params]);
   return (
     <RoomProvider
       id={id}
       initialPresence={{
         user: {
-          firstName: viewer?.firstName || 'Guest',
-          lastName: viewer?.lastName || 'User',
-          email: viewer?.emailAddresses[0].emailAddress || '',
-          id: viewer?.id || 'guest',
-          imageUrl: viewer?.imageUrl || 'https://via.placeholder.com/150',
+          firstName: viewer?.firstName || "Guest",
+          lastName: viewer?.lastName || "User",
+          email: viewer?.emailAddresses[0].emailAddress || "",
+          id: viewer?.id || "guest",
+          imageUrl: viewer?.imageUrl || "https://via.placeholder.com/150",
         },
         cursor: null,
       }}
@@ -87,16 +98,16 @@ export const Canvas = (props: CanvasProps) => {
   const blocks = useStorage((storage) => storage.blocks);
   const createBlock = useMutation(({ storage }, params: IBlock) => {
     const newBlock = new LiveObject<IBlock>(params);
-    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       blocks.push(newBlock);
     }
   }, []);
   const updateBlock = useMutation(({ storage }, updatedBlock: IBlock) => {
-    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       const index = blocks.findIndex(
-        (block) => block.get('id') === updatedBlock.id
+        (block) => block.get("id") === updatedBlock.id
       );
       const block = blocks.get(index);
       if (block) {
@@ -213,60 +224,75 @@ export const Canvas = (props: CanvasProps) => {
           <Transformer
             keepRatio={false}
             anchorCornerRadius={2}
-            anchorStroke={getColor('--color-primary-100')}
+            anchorStroke={getColor("--color-primary-100")}
             anchorStrokeWidth={2}
             anchorFill="black"
             resizeEnabled={true}
             rotateEnabled={false}
             borderEnabled={true}
-            borderStroke={getColor('--color-primary-100')}
+            borderStroke={getColor("--color-primary-100")}
             borderStrokeWidth={2}
             ignoreStroke={true}
             shouldOverdrawWholeArea
             boundBoxFunc={(oldBox, newBox) => {
               const stage = getStage(id);
               if (!stage) return newBox;
+              const position = { x: newBox.x, y: newBox.y };
+              const size = { width: newBox.width, height: newBox.height };
+              const unScaledPosition = unScalePosition(id, position);
+              const unScaledSize = unScaleSize(id, size);
+              if (!unScaledPosition || !unScaledSize) return newBox;
+              const snappedWidth = Math.max(
+                FULL_SIZE,
+                snapToGrid(unScaledSize.width)
+              );
+              const snappedHeight = Math.max(
+                FULL_SIZE,
+                snapToGrid(unScaledSize.height)
+              );
 
-              const scaleX = stage.scaleX();
-              const gridSize = FULL_SIZE * scaleX;
+              const deltaWidth = snappedWidth - unScaledSize.width;
+              const deltaHeight = snappedHeight - unScaledSize.height;
 
-              const snap = (value: number) =>
-                Math.round(value / gridSize) * gridSize;
-
-              const snappedWidth = Math.max(gridSize, snap(newBox.width));
-              const snappedHeight = Math.max(gridSize, snap(newBox.height));
-
-              const deltaWidth = snappedWidth - newBox.width;
-              const deltaHeight = snappedHeight - newBox.height;
-
-              let adjustedX = newBox.x;
-              let adjustedY = newBox.y;
+              let adjustedX = unScaledPosition.x;
+              let adjustedY = unScaledPosition.y;
 
               if (deltaWidth !== 0) {
                 if (newBox.x === oldBox.x) {
-                  adjustedX = snap(newBox.x);
+                  adjustedX = snapToGrid(unScaledPosition.x);
                 } else {
-                  adjustedX = snap(newBox.x - deltaWidth);
+                  adjustedX = snapToGrid(unScaledPosition.x - deltaWidth);
                 }
               } else {
-                adjustedX = snap(newBox.x);
+                adjustedX = snapToGrid(unScaledPosition.x);
               }
 
               if (deltaHeight !== 0) {
                 if (newBox.y === oldBox.y) {
-                  adjustedY = snap(newBox.y);
+                  adjustedY = snapToGrid(unScaledPosition.y);
                 } else {
-                  adjustedY = snap(newBox.y - deltaHeight);
+                  adjustedY = snapToGrid(unScaledPosition.y - deltaHeight);
                 }
               } else {
-                adjustedY = snap(newBox.y);
+                adjustedY = snapToGrid(unScaledPosition.y);
               }
 
-              return {
+              const reScaledPosition = reScalePosition(id, {
                 x: adjustedX,
                 y: adjustedY,
+              });
+
+              const reScaledSize = reScaleSize(id, {
                 width: snappedWidth,
                 height: snappedHeight,
+              });
+              if (!reScaledPosition || !reScaledSize) return newBox;
+
+              return {
+                x: reScaledPosition.x,
+                y: reScaledPosition.y,
+                width: reScaledSize.width,
+                height: reScaledSize.height,
                 rotation: newBox.rotation,
               };
             }}

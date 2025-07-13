@@ -1,6 +1,6 @@
-import type { Position } from 'shared/model';
-import { calculateGridCoordinates } from './grid.helpers';
-import type { KonvaDragEvent } from 'entities/stage';
+import type { Position } from "shared/model";
+import { calculateGridCoordinates } from "./grid.helpers";
+import type { KonvaDragEvent } from "entities/stage";
 
 export const onMoveOnGrid = (e: KonvaDragEvent) => {
   const position = e.target.position();
