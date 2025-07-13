@@ -1,13 +1,17 @@
-import { Group, Rect } from "react-konva";
-import { config, type IBlock } from "entities/block";
-import { getStageIdFromEvent, type KonvaDragEvent } from "entities/stage";
-import { selectNode } from "features/selection";
-import { type Group as GroupType } from "konva/lib/Group";
-import { useRef } from "react";
-import { BlockEvents, mutationEvent } from "features/block-mutation";
-import { onMoveOnGrid } from "features/grid";
-import type { Image as ImageType } from "konva/lib/shapes/Image";
-import { getRectFromGroup } from "entities/node";
+import { Group, Rect } from 'react-konva';
+import { config, type IBlock } from 'entities/block';
+import { getStageIdFromEvent, type KonvaDragEvent } from 'entities/stage';
+import { selectNode } from 'features/selection';
+import { type Group as GroupType } from 'konva/lib/Group';
+import { useRef } from 'react';
+import {
+  BlockEvents,
+  mutationEvent,
+  updateBlock,
+} from 'features/block-mutation';
+import { onMoveOnGrid } from 'features/grid';
+import type { Image as ImageType } from 'konva/lib/shapes/Image';
+import { getRectFromGroup } from 'entities/node';
 
 export const Block = (props: IBlock) => {
   const { name, ...rest } = config;
@@ -56,8 +60,28 @@ export const Block = (props: IBlock) => {
         const height = rect.height() * scaleY;
         rect.size({ width, height });
       }}
+      onTransformEnd={(e) => {
+        const stageId = getStageIdFromEvent(e);
+        if (!stageId) return;
+        const group = e.target as GroupType;
+        const rect = getRectFromGroup(group);
+        updateBlock(stageId, props.id, {
+          rect: {
+            x: group.x(),
+            y: group.y(),
+            width: rect.width(),
+            height: rect.height(),
+          },
+        });
+      }}
     >
-      <Rect image={undefined} ref={imageRef} {...rest} />
+      <Rect
+        image={undefined}
+        ref={imageRef}
+        {...rest}
+        width={props.size.width}
+        height={props.size.height}
+      />
     </Group>
   );
 };

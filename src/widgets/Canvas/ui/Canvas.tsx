@@ -1,63 +1,63 @@
-import Konva from "konva";
-import { Stage, Layer, Transformer } from "react-konva";
-import { getLayerId } from "entities/layer";
-import { useEffect, useMemo, useRef } from "react";
+import Konva from 'konva';
+import { Stage, Layer, Transformer } from 'react-konva';
+import { getLayerId } from 'entities/layer';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   reScalePosition,
   reScaleSize,
   scaleStageOnScroll,
   unScalePosition,
   unScaleSize,
-} from "features/scale";
-import { moveStageOnScroll } from "features/position";
+} from 'features/scale';
+import { moveStageOnScroll } from 'features/position';
 import {
   handleTouchDown,
   handleTouchEnd,
   handleTouchMove,
-} from "features/touch";
+} from 'features/touch';
 import {
   handlePointerDown,
   handlePointerMove,
   handlePointerUp,
-} from "features/pointer";
+} from 'features/pointer';
 import {
   FULL_SIZE,
   getGridLayerId,
   drawLines,
   snapToGrid,
-} from "features/grid";
+} from 'features/grid';
 import {
   getStage,
   getStageElementId,
   getStageIdFromEvent,
-} from "entities/stage";
-import { getCanvasContainerId } from "../lib";
-import { setStageSize } from "features/size";
-import { observeResize } from "shared/model";
-import { useParams } from "react-router-dom";
-import { Block } from "../../Block";
-import { type IBlock } from "entities/block";
+} from 'entities/stage';
+import { getCanvasContainerId } from '../lib';
+import { setStageSize } from 'features/size';
+import { observeResize } from 'shared/model';
+import { useParams } from 'react-router-dom';
+import { Block } from '../../Block';
+import { type IBlock } from 'entities/block';
 import {
   BlockEventListener,
   BlockEvents,
   removeBlockEventListener,
-} from "features/block-mutation";
-import { getRectFromGroup } from "entities/node";
-import type { Group } from "konva/lib/Group";
-import { selectNode } from "features/selection";
-import { AvatarList } from "features/avatar-list";
-import { Presences } from "features/presence";
+} from 'features/block-mutation';
+import { getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import { selectNode } from 'features/selection';
+import { AvatarList } from 'features/avatar-list';
+import { Presences } from 'features/presence';
 import {
   ClientSideSuspense,
   RoomProvider,
   useMyPresence,
   useStorage,
   useMutation,
-} from "@liveblocks/react/suspense";
-import { LiveList, LiveObject } from "@liveblocks/client";
-import { getColor, Loading } from "shared";
-import { Header } from "features/header";
-import { useViewer } from "entities/viewer";
+} from '@liveblocks/react/suspense';
+import { LiveList, LiveObject } from '@liveblocks/client';
+import { getColor, Loading } from 'shared';
+import { Header } from 'features/header';
+import { useViewer } from 'entities/viewer';
 
 export interface CanvasProps {
   id: string;
@@ -67,18 +67,18 @@ export const LiveCanvas = () => {
   const { viewer } = useViewer();
   const params = useParams();
   const id = useMemo(() => {
-    return params.id || "default";
+    return params.id || 'default';
   }, [params]);
   return (
     <RoomProvider
       id={id}
       initialPresence={{
         user: {
-          firstName: viewer?.firstName || "Guest",
-          lastName: viewer?.lastName || "User",
-          email: viewer?.emailAddresses[0].emailAddress || "",
-          id: viewer?.id || "guest",
-          imageUrl: viewer?.imageUrl || "https://via.placeholder.com/150",
+          firstName: viewer?.firstName || 'Guest',
+          lastName: viewer?.lastName || 'User',
+          email: viewer?.emailAddresses[0].emailAddress || '',
+          id: viewer?.id || 'guest',
+          imageUrl: viewer?.imageUrl || 'https://via.placeholder.com/150',
         },
         cursor: null,
       }}
@@ -96,20 +96,18 @@ export const LiveCanvas = () => {
 export const Canvas = (props: CanvasProps) => {
   const { id } = props;
   const blocks = useStorage((storage) => storage.blocks);
-  console.log("blocks", blocks);
   const createBlock = useMutation(({ storage }, params: IBlock) => {
-    console.log("Creating block with params:", params);
     const newBlock = new LiveObject<IBlock>(params);
-    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       blocks.push(newBlock);
     }
   }, []);
   const updateBlock = useMutation(({ storage }, updatedBlock: IBlock) => {
-    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       const index = blocks.findIndex(
-        (block) => block.get("id") === updatedBlock.id
+        (block) => block.get('id') === updatedBlock.id
       );
       const block = blocks.get(index);
       if (block) {
@@ -226,13 +224,13 @@ export const Canvas = (props: CanvasProps) => {
           <Transformer
             keepRatio={false}
             anchorCornerRadius={2}
-            anchorStroke={getColor("--color-primary-100")}
+            anchorStroke={getColor('--color-primary-100')}
             anchorStrokeWidth={2}
             anchorFill="black"
             resizeEnabled={true}
             rotateEnabled={false}
             borderEnabled={true}
-            borderStroke={getColor("--color-primary-100")}
+            borderStroke={getColor('--color-primary-100')}
             borderStrokeWidth={2}
             ignoreStroke={true}
             shouldOverdrawWholeArea
