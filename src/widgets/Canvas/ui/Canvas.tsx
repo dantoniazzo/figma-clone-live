@@ -36,11 +36,12 @@ import { setStageSize } from 'features/size';
 import { observeResize } from 'shared/model';
 import { useParams } from 'react-router-dom';
 import { Block } from '../../Block';
-import { type IBlock } from 'entities/block';
+import { BlockTypes, type IBlock } from 'entities/block';
 import {
   BlockEventListener,
   BlockEvents,
   removeBlockEventListener,
+  type Params,
 } from 'features/block-mutation';
 import { getRectFromGroup } from 'entities/node';
 import type { Group } from 'konva/lib/Group';
@@ -58,6 +59,7 @@ import { LiveList, LiveObject } from '@liveblocks/client';
 import { getColor, Loading } from 'shared';
 import { Header } from 'features/header';
 import { useViewer } from 'entities/viewer';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface CanvasProps {
   id: string;
@@ -96,22 +98,29 @@ export const LiveCanvas = () => {
 export const Canvas = (props: CanvasProps) => {
   const { id } = props;
   const blocks = useStorage((storage) => storage.blocks);
-  const createBlock = useMutation(({ storage }, params: IBlock) => {
-    const newBlock = new LiveObject<IBlock>(params);
+  const createBlock = useMutation(({ storage }, params: Params) => {
+    const id = uuidv4();
+    const newBlock = new LiveObject<IBlock>({
+      ...params,
+      id,
+      type: params.type || BlockTypes.RECTANGLE,
+    });
     const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       blocks.push(newBlock);
     }
   }, []);
-  const updateBlock = useMutation(({ storage }, updatedBlock: IBlock) => {
+  const updateBlock = useMutation(({ storage }, params: Params) => {
     const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
     if (blocks) {
-      const index = blocks.findIndex(
-        (block) => block.get('id') === updatedBlock.id
-      );
+      const index = blocks.findIndex((block) => block.get('id') === params.id);
       const block = blocks.get(index);
       if (block) {
-        const newLiveBlock = new LiveObject<IBlock>(updatedBlock);
+        const newLiveBlock = new LiveObject<IBlock>({
+          ...block.toObject(),
+          position: params.position,
+          size: params.size,
+        });
         blocks.set(index, newLiveBlock);
       }
     }
@@ -153,22 +162,22 @@ export const Canvas = (props: CanvasProps) => {
         });
         drawLines(id);
       });
-      BlockEventListener(id, (data) => {
-        if (data.eventType === BlockEvents.CREATE) {
-          createBlock(data.block);
+      BlockEventListener(id, (detail) => {
+        if (detail.eventType === BlockEvents.CREATE) {
+          createBlock(detail.data);
         }
-        if (data.eventType === BlockEvents.UPDATE) {
-          updateBlock(data.block);
+        if (detail.eventType === BlockEvents.UPDATE) {
+          updateBlock(detail.data);
         }
-        /*   if (data.eventType === BlockEvents.DELETE) {
+        /*   if (detail.eventType === BlockEvents.DELETE) {
           setBlocks((prev) =>
-            prev.filter((block) => block.id !== data.block.id)
+            prev.filter((block) => block.id !== detail.block.id)
           );
         } */
-        if (data.eventType === BlockEvents.SELECT) {
+        if (detail.eventType === BlockEvents.SELECT) {
           const layer = layerRef.current;
           if (layer) {
-            const group = layer.findOne(`#${data.block.id}`);
+            const group = layer.findOne(`#${detail.data.id}`);
             if (!group) return;
             const rect = getRectFromGroup(group as Group);
             selectNode(id, rect);

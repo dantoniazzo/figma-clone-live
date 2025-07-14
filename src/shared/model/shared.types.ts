@@ -9,3 +9,8 @@ export type Size = {
 };
 
 export type Rect = Position & Size;
+
+export type Scale = {
+  x: number;
+  y: number;
+};

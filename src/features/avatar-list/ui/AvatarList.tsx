@@ -5,7 +5,7 @@ export const AvatarList = () => {
   const others = useOthers();
   const self = useSelf();
   return (
-    <div className="absolute top-5 right-5 flex w-fit items-center">
+    <div className="absolute top-5 right-5 gap-1 flex w-fit items-center">
       {self && (
         <Avatar
           name={(self.presence.user as IUser).firstName || 'User'}
@@ -13,24 +13,20 @@ export const AvatarList = () => {
             (self.presence.user as IUser).imageUrl ||
             'https://via.placeholder.com/150'
           }
-          className={`relative -mr-3 z-1000`}
         />
       )}
-      <div className="flex flex-row-reverse">
-        {others.map((other, i) => {
-          return (
-            <Avatar
-              name={(other.presence.user as IUser).firstName || 'User'}
-              key={`other-${i}`}
-              src={
-                (other.presence.user as IUser).imageUrl ||
-                'https://via.placeholder.com/150'
-              }
-              className={`relative z-${i}`}
-            />
-          );
-        })}
-      </div>
+      {others.map((other, i) => {
+        return (
+          <Avatar
+            name={(other.presence.user as IUser).firstName || 'User'}
+            key={`other-${i}`}
+            src={
+              (other.presence.user as IUser).imageUrl ||
+              'https://via.placeholder.com/150'
+            }
+          />
+        );
+      })}
     </div>
   );
 };

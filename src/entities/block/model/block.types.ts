@@ -1,8 +1,9 @@
-import type { Position, Size } from "shared/model";
+import type { Position, Size, Scale } from 'shared/model';
 
 export type IBlock = {
   position: Position;
   size: Size;
+  scale?: Scale;
   connection?: Connection;
   id: string;
   type: BlockTypes;
@@ -10,7 +11,8 @@ export type IBlock = {
 };
 
 export enum BlockTypes {
-  RECTANGLE = "rectangle",
+  RECTANGLE = 'rectangle',
+  TEXT = 'text',
 }
 
 export type Connection = {

@@ -1,7 +1,16 @@
 import { getCanvasContainer } from 'widgets';
-import { type IBlock } from 'entities/block';
+import { BlockTypes } from 'entities/block';
+import type { Position, Scale, Size } from 'shared/model';
 
 export const EVENT_NAME = 'block-event';
+
+export type Params = {
+  id?: string;
+  type?: BlockTypes;
+  position: Position;
+  size: Size;
+  scale?: Scale;
+};
 
 export enum BlockEvents {
   CREATE = 'create-block',
@@ -13,7 +22,7 @@ export enum BlockEvents {
 
 export type BlockEventType = {
   type: BlockEvents;
-  detail: { eventType: BlockEvents; block: IBlock };
+  detail: { eventType: BlockEvents; data: Params };
 };
 
 // Listener management
@@ -47,13 +56,13 @@ export const removeBlockEventListener = (stageId: string) => {
 export const mutationEvent = (
   stageId: string,
   type: BlockEvents,
-  block: IBlock
+  data: Params
 ) => {
   const canvas = getCanvasContainer(stageId);
   if (!canvas) return;
   canvas.dispatchEvent(
     new CustomEvent(EVENT_NAME, {
-      detail: { eventType: type, block },
+      detail: { eventType: type, data },
     })
   );
 };

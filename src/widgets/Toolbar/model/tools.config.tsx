@@ -7,17 +7,17 @@ import {
   Spline,
   Type,
   Frame,
-} from "lucide-react";
+} from 'lucide-react';
 
 export enum Tools {
-  POINTER = "pointer",
-  HAND = "hand",
-  ADD = "add",
-  PENCIL = "pencil",
-  RECTANGLE = "rectangle",
-  LINE = "line",
-  TEXT = "text",
-  FRAME = "frame",
+  POINTER = 'pointer',
+  HAND = 'hand',
+  ADD = 'add',
+  PENCIL = 'pencil',
+  RECTANGLE = 'rectangle',
+  LINE = 'line',
+  TEXT = 'text',
+  FRAME = 'frame',
 }
 
 export interface ToolConfig {
@@ -60,7 +60,7 @@ export const toolsConfig: { [key in Tools]: ToolConfig } = {
   [Tools.TEXT]: {
     icon: <Type />,
     enabled: true,
-    show: false,
+    show: true,
   },
   [Tools.FRAME]: {
     icon: <Frame />,

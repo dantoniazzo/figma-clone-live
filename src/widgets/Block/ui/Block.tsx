@@ -65,12 +65,19 @@ export const Block = (props: IBlock) => {
         if (!stageId) return;
         const group = e.target as GroupType;
         const rect = getRectFromGroup(group);
-        updateBlock(stageId, props.id, {
-          rect: {
+        updateBlock(stageId, {
+          id: props.id,
+          position: {
             x: group.x(),
             y: group.y(),
+          },
+          size: {
             width: rect.width(),
             height: rect.height(),
+          },
+          scale: {
+            x: group.scaleX(),
+            y: group.scaleY(),
           },
         });
       }}

@@ -7,6 +7,7 @@ import { basicRectangleConfig } from './rectangle.config';
 import { selectNode, unSelectAllNodes } from 'features/selection';
 import { snapToGrid } from 'features/grid';
 import { createBlock } from 'features/block-mutation';
+import { BlockTypes } from 'entities/block';
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -73,9 +74,12 @@ export const finishDrawingRectangle = (stageId: string, id?: string) => {
   const rect = getDrawnRectangleBox(stageId, id || DRAWN_RECTANGLE_ID);
   if (!rect) return;
   createBlock(stageId, {
-    rect: {
+    type: BlockTypes.RECTANGLE,
+    position: {
       x: rect.x(),
       y: rect.y(),
+    },
+    size: {
       width: rect.width(),
       height: rect.height(),
     },
