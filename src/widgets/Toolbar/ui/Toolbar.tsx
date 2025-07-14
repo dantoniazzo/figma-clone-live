@@ -29,10 +29,13 @@ export const Toolbar = () => {
           config.height
         );
         if (!centeredBlockPosition) return;
-        createBlock(params.id || 'default', BlockTypes.RECTANGLE, {
-          rect: {
+        createBlock(params.id || 'default', {
+          type: BlockTypes.RECTANGLE,
+          position: {
             x: centeredBlockPosition.x,
             y: centeredBlockPosition.y,
+          },
+          size: {
             width: config.width,
             height: config.height,
           },
