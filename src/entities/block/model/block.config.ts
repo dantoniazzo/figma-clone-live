@@ -5,6 +5,6 @@ export const config = {
   name: 'block',
   width: FULL_SIZE * 5,
   height: FULL_SIZE * 5,
-  fill: getColor('--color-gray-400'),
+  fill: getColor('--color-gray-500'),
   cornerRadius: 6,
 };

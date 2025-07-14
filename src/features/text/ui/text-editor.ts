@@ -1,4 +1,4 @@
-import Quill from "quill";
+import Quill from 'quill';
 
 export interface TextEditorProps {
   id: string;
@@ -6,9 +6,9 @@ export interface TextEditorProps {
 
 export const TextEditor = (props: TextEditorProps) => {
   const quill = new Quill(`#${props.id}`, {
-    placeholder: "Write something...",
+    placeholder: 'Add text',
     bounds: `#${props.id}`,
-    theme: "snow",
+    theme: 'snow',
   });
 
   return quill;

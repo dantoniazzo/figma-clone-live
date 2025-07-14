@@ -7,7 +7,7 @@ import {
 } from 'entities/stage';
 import { selectNode } from 'features/selection';
 import { type Group as GroupType } from 'konva/lib/Group';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BlockEvents,
   mutationEvent,
@@ -20,8 +20,13 @@ import { Html } from 'react-konva-utils';
 import { getBlockHtmlElement, getBlockHtmlId } from '../lib';
 import { unScaleSize } from 'features/scale';
 import type { Size } from 'shared/model';
+import { getQlEditorElement, getQuillId } from 'features/text';
+import { TextEditor } from 'features/text/ui/text-editor';
+import { listenToClickOutside, removeClickOutsideListener } from 'shared';
 
 export const Block = (props: IBlock) => {
+  const [loaded, setLoaded] = useState(false);
+  const [editing, setEditing] = useState(false);
   const { name, ...rest } = config;
   const ref = useRef<GroupType>(null);
   const imageRef = useRef<ImageType | null>(null);
@@ -58,16 +63,27 @@ export const Block = (props: IBlock) => {
     updateHtmlSize(unScaledGroupSize);
   };
 
-  const updateHtmlSize = (size: Size) => {
-    const html = getBlockHtmlElement(props.id);
-    if (!html) return;
-    html.style.width = `${size.width}px`;
-    html.style.height = `${size.height}px`;
-  };
+  const updateHtmlSize = useCallback(
+    (size: Size) => {
+      const html = getBlockHtmlElement(props.id);
+      if (!html) return;
+      html.style.width = `${size.width}px`;
+      html.style.height = `${size.height}px`;
+    },
+    [props.id]
+  );
 
   useEffect(() => {
     updateHtmlSize(props.size);
-  }, [props.size]);
+  }, [props.size, updateHtmlSize]);
+
+  useEffect(() => {
+    return () => {
+      const qlEditorElement = getQlEditorElement(props.id);
+      if (!qlEditorElement) return;
+      removeClickOutsideListener(qlEditorElement);
+    };
+  }, []);
 
   return (
     <Group
@@ -75,6 +91,9 @@ export const Block = (props: IBlock) => {
         const stageId = getStageIdFromEvent(e);
         if (!stageId || !ref.current) return;
         selectNode(stageId, ref.current);
+      }}
+      onClick={() => {
+        setEditing(true);
       }}
       connection={props.connection}
       name={name}
@@ -135,7 +154,7 @@ export const Block = (props: IBlock) => {
         divProps={{
           id: getBlockHtmlId(props.id),
           style: {
-            pointerEvents: 'none',
+            pointerEvents: editing ? 'auto' : 'none',
             borderRadius: '6px',
             display: 'flex',
             justifyContent: 'center',
@@ -144,7 +163,19 @@ export const Block = (props: IBlock) => {
           },
         }}
       >
-        Hello world
+        <div
+          id={getQuillId(props.id)}
+          ref={(node) => {
+            if (!node || loaded) return;
+            TextEditor({ id: getQuillId(props.id) });
+            setLoaded(true);
+
+            const handleClickOutside = () => {
+              setEditing(false);
+            };
+            listenToClickOutside(node, handleClickOutside);
+          }}
+        />
       </Html>
     </Group>
   );

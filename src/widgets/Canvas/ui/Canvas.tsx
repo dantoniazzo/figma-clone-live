@@ -197,7 +197,7 @@ export const Canvas = (props: CanvasProps) => {
 
   return (
     <div
-      className="w-full h-full bg-background-400"
+      className="w-full h-full bg-background-400 overflow-hidden"
       ref={ref}
       id={getCanvasContainerId(id)}
     >
@@ -243,7 +243,6 @@ export const Canvas = (props: CanvasProps) => {
             borderStroke={getColor('--color-primary-100')}
             borderStrokeWidth={2}
             ignoreStroke={true}
-            shouldOverdrawWholeArea
             boundBoxFunc={(oldBox, newBox) => {
               const stage = getStage(id);
               if (!stage) return newBox;
