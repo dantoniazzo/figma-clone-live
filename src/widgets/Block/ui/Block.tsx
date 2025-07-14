@@ -7,7 +7,7 @@ import {
 } from 'entities/stage';
 import { selectNode } from 'features/selection';
 import { type Group as GroupType } from 'konva/lib/Group';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BlockEvents,
   mutationEvent,
@@ -20,9 +20,15 @@ import { Html } from 'react-konva-utils';
 import { getBlockHtmlElement, getBlockHtmlId } from '../lib';
 import { unScaleSize } from 'features/scale';
 import type { Size } from 'shared/model';
-import { getQlEditorElement, getQuillId } from 'features/text';
+import { getEditor, getQlEditorElement, getQuillId } from 'features/text';
 import { TextEditor } from 'features/text/ui/text-editor';
-import { listenToClickOutside, removeClickOutsideListener } from 'shared';
+import {
+  isJsonString,
+  listenToClickOutside,
+  removeClickOutsideListener,
+} from 'shared';
+import { debounce } from 'lodash';
+import type { Delta } from 'quill';
 
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
@@ -84,6 +90,50 @@ export const Block = (props: IBlock) => {
       removeClickOutsideListener(qlEditorElement);
     };
   }, []);
+
+  const debounceChange = useMemo(
+    () =>
+      debounce((delta: Delta) => {
+        const group = ref.current;
+        if (!group) return;
+        const rect = getRectFromGroup(group);
+        const stageId = getStageIdFromNode(group);
+        if (!stageId) return;
+        updateBlock(stageId, {
+          id: props.id,
+          position: {
+            x: group.x(),
+            y: group.y(),
+          },
+          size: {
+            width: rect.width(),
+            height: rect.height(),
+          },
+          scale: {
+            x: group.scaleX(),
+            y: group.scaleY(),
+          },
+          text: JSON.stringify(delta),
+        });
+      }, 300),
+    [props.id]
+  );
+
+  const setQuillContents = useCallback(() => {
+    const quill = getEditor(getQuillId(props.id));
+    if (quill && props.text) {
+      if (isJsonString(props.text)) {
+        const parsedDelta = JSON.parse(props.text);
+        quill.setContents(parsedDelta);
+      } else {
+        quill.setText(props.text);
+      }
+    }
+  }, [props.id, props.text]);
+
+  useEffect(() => {
+    setQuillContents();
+  }, [props.text, setQuillContents]);
 
   return (
     <Group
@@ -167,7 +217,14 @@ export const Block = (props: IBlock) => {
           id={getQuillId(props.id)}
           ref={(node) => {
             if (!node || loaded) return;
-            TextEditor({ id: getQuillId(props.id) });
+            const quill = TextEditor({ id: getQuillId(props.id) });
+            setQuillContents();
+            quill.on('text-change', (_, __, source) => {
+              if (source !== 'user') return;
+
+              const contents = quill.getContents();
+              debounceChange(contents);
+            });
             setLoaded(true);
 
             const handleClickOutside = () => {

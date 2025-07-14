@@ -10,6 +10,7 @@ export type Params = {
   position: Position;
   size: Size;
   scale?: Scale;
+  text?: string;
 };
 
 export enum BlockEvents {

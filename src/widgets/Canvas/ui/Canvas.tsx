@@ -121,6 +121,7 @@ export const Canvas = (props: CanvasProps) => {
           position: params.position,
           size: params.size,
           scale: params.scale,
+          text: params.text,
         });
         blocks.set(index, newLiveBlock);
       }
