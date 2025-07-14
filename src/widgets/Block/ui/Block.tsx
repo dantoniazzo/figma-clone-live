@@ -140,6 +140,7 @@ export const Block = (props: IBlock) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            color: 'var(--color-gray-300)',
           },
         }}
       >

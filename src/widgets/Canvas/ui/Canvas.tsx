@@ -98,7 +98,6 @@ export const LiveCanvas = () => {
 export const Canvas = (props: CanvasProps) => {
   const { id } = props;
   const blocks = useStorage((storage) => storage.blocks);
-  console.log('Blocks: ', blocks);
   const createBlock = useMutation(({ storage }, params: Params) => {
     const id = uuidv4();
     const newBlock = new LiveObject<IBlock>({
