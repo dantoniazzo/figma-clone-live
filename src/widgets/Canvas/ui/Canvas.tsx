@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import { Stage, Layer, Transformer } from 'react-konva';
 import { getLayerId } from 'entities/layer';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   reScalePosition,
   reScaleSize,
@@ -33,7 +33,7 @@ import {
 } from 'entities/stage';
 import { getCanvasContainerId } from '../lib';
 import { setStageSize } from 'features/size';
-import { observeResize } from 'shared/model';
+import { observeResize, type Position } from 'shared/model';
 import { useParams } from 'react-router-dom';
 import { Block } from '../../Block';
 import { BlockTypes, type IBlock } from 'entities/block';
@@ -196,6 +196,32 @@ export const Canvas = (props: CanvasProps) => {
     };
   }, [id, createBlock, updateBlock]);
 
+  const handlePresenceUpdate = useCallback(
+    (position: Position) => {
+      const unScaledPosition = unScalePosition(id, position);
+      updatePresence({
+        cursor: {
+          ...unScaledPosition,
+        },
+      });
+    },
+    [id, updatePresence]
+  );
+
+  const onPointerMove = useCallback(
+    (e: PointerEvent) => {
+      handlePresenceUpdate({ x: e.clientX, y: e.clientY });
+    },
+    [handlePresenceUpdate]
+  );
+  useEffect(() => {
+    window.addEventListener('pointermove', onPointerMove);
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+    };
+  }, [onPointerMove]);
+
   return (
     <div
       className="w-full h-full bg-background-400 overflow-hidden"
@@ -208,15 +234,7 @@ export const Canvas = (props: CanvasProps) => {
         onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
         onMouseDown={handlePointerDown}
-        onMouseMove={(e) => {
-          handlePointerMove(e, (position) => {
-            updatePresence({
-              cursor: {
-                ...position,
-              },
-            });
-          });
-        }}
+        onMouseMove={handlePointerMove}
         onMouseUp={handlePointerUp}
         onDragMove={(e) => {
           const stageId = getStageIdFromEvent(e);
