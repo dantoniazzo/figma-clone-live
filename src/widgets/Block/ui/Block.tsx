@@ -1,9 +1,13 @@
 import { Group, Rect } from 'react-konva';
 import { config, type IBlock } from 'entities/block';
-import { getStageIdFromEvent, type KonvaDragEvent } from 'entities/stage';
+import {
+  getStageIdFromEvent,
+  getStageIdFromNode,
+  type KonvaDragEvent,
+} from 'entities/stage';
 import { selectNode } from 'features/selection';
 import { type Group as GroupType } from 'konva/lib/Group';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   BlockEvents,
   mutationEvent,
@@ -12,6 +16,10 @@ import {
 import { onMoveOnGrid } from 'features/grid';
 import type { Image as ImageType } from 'konva/lib/shapes/Image';
 import { getRectFromGroup } from 'entities/node';
+import { Html } from 'react-konva-utils';
+import { getBlockHtmlElement, getBlockHtmlId } from '../lib';
+import { unScaleSize } from 'features/scale';
+import type { Size } from 'shared/model';
 
 export const Block = (props: IBlock) => {
   const { name, ...rest } = config;
@@ -31,6 +39,36 @@ export const Block = (props: IBlock) => {
     } as IBlock);
   };
 
+  const getUnScaledGroupSize = () => {
+    const group = ref.current;
+    if (!group) return;
+    const stageId = getStageIdFromNode(group);
+    if (!stageId) return;
+    const clientRect = group.getClientRect();
+    if (!clientRect) return;
+    return unScaleSize(stageId, {
+      width: clientRect.width,
+      height: clientRect.height,
+    });
+  };
+
+  const updateHtmlSizeFromGroup = () => {
+    const unScaledGroupSize = getUnScaledGroupSize();
+    if (!unScaledGroupSize) return;
+    updateHtmlSize(unScaledGroupSize);
+  };
+
+  const updateHtmlSize = (size: Size) => {
+    const html = getBlockHtmlElement(props.id);
+    if (!html) return;
+    html.style.width = `${size.width}px`;
+    html.style.height = `${size.height}px`;
+  };
+
+  useEffect(() => {
+    updateHtmlSize(props.size);
+  }, [props.size]);
+
   return (
     <Group
       onPointerDown={(e) => {
@@ -45,10 +83,13 @@ export const Block = (props: IBlock) => {
       blockType={props.type}
       text={props.text}
       position={props.position}
+      scale={props.scale}
       draggable
       onDragMove={onDragMove}
       onDragEnd={onDragEnd}
       onTransform={(e) => {
+        const stageId = getStageIdFromEvent(e);
+        if (!stageId) return;
         const group = e.target as GroupType;
         const scaleX = group.scaleX();
         const scaleY = group.scaleY();
@@ -59,6 +100,7 @@ export const Block = (props: IBlock) => {
         const width = rect.width() * scaleX;
         const height = rect.height() * scaleY;
         rect.size({ width, height });
+        updateHtmlSizeFromGroup();
       }}
       onTransformEnd={(e) => {
         const stageId = getStageIdFromEvent(e);
@@ -89,6 +131,20 @@ export const Block = (props: IBlock) => {
         width={props.size.width}
         height={props.size.height}
       />
+      <Html
+        divProps={{
+          id: getBlockHtmlId(props.id),
+          style: {
+            pointerEvents: 'none',
+            borderRadius: '6px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        }}
+      >
+        Hello world
+      </Html>
     </Group>
   );
 };
