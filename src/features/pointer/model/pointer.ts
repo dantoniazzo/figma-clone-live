@@ -19,7 +19,6 @@ import {
 import { createLine, drawLine, finishDrawingLine } from 'features/line';
 import { reScalePosition, unScalePosition } from 'features/scale';
 import { handleDragEnd, handleDragStart } from 'features/hand';
-import { createFirstTextNode } from 'features/text';
 import { getGridLayerId, calculateGridCoordinates } from 'features/grid';
 import type { Position } from 'shared/model';
 import { createBlock } from 'features/block-mutation';
