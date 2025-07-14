@@ -1,5 +1,5 @@
-import { Avatar, type IUser } from "entities/user";
-import { useOthers, useSelf } from "@liveblocks/react/suspense";
+import { Avatar, type IUser } from 'entities/user';
+import { useOthers, useSelf } from '@liveblocks/react/suspense';
 
 export const AvatarList = () => {
   const others = useOthers();
@@ -8,25 +8,29 @@ export const AvatarList = () => {
     <div className="absolute top-5 right-5 flex w-fit items-center">
       {self && (
         <Avatar
-          name={(self.presence.user as IUser).firstName || "User"}
+          name={(self.presence.user as IUser).firstName || 'User'}
           src={
             (self.presence.user as IUser).imageUrl ||
-            "https://via.placeholder.com/150"
+            'https://via.placeholder.com/150'
           }
+          className={`relative -mr-3 z-1000`}
         />
       )}
-      {others.map((other, i) => {
-        return (
-          <Avatar
-            name={(other.presence.user as IUser).firstName || "User"}
-            key={`other-${i}`}
-            src={
-              (other.presence.user as IUser).imageUrl ||
-              "https://via.placeholder.com/150"
-            }
-          />
-        );
-      })}
+      <div className="flex flex-row-reverse">
+        {others.map((other, i) => {
+          return (
+            <Avatar
+              name={(other.presence.user as IUser).firstName || 'User'}
+              key={`other-${i}`}
+              src={
+                (other.presence.user as IUser).imageUrl ||
+                'https://via.placeholder.com/150'
+              }
+              className={`relative z-${i}`}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
