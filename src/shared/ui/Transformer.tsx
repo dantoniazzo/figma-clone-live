@@ -95,7 +95,7 @@ export const Transformer = () => {
         };
       }}
     >
-      <ConnectionAnchors />
+      {ref.current && <ConnectionAnchors transformer={ref.current} />}
     </KonvaTransformer>
   );
 };

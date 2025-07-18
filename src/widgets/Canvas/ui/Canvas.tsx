@@ -45,6 +45,7 @@ import { Loading, Transformer } from 'shared';
 import { Header } from 'features/header';
 import { useViewer } from 'entities/viewer';
 import { v4 as uuidv4 } from 'uuid';
+import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
 
 export interface CanvasProps {
   id: string;
@@ -56,6 +57,29 @@ export const LiveCanvas = () => {
   const id = useMemo(() => {
     return params.id || 'default';
   }, [params]);
+
+  const cancelWheel = useCallback(
+    (e: WheelEvent) => {
+      if (!id) return;
+      // Prevent zoom scrolling of DOM elements
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    },
+    [id]
+  );
+
+  useEffect(() => {
+    document
+      .getElementById('root')
+      ?.addEventListener('wheel', cancelWheel, true);
+
+    return () => {
+      document
+        .getElementById('root')
+        ?.removeEventListener('wheel', cancelWheel, true);
+    };
+  }, [id, cancelWheel]);
   return (
     <RoomProvider
       id={id}
@@ -128,6 +152,7 @@ export const Canvas = (props: CanvasProps) => {
     const id = getStageIdFromEvent(e);
     if (!id) return;
     drawLines(id);
+    setConnectionAnchors(id);
   };
 
   useEffect(() => {

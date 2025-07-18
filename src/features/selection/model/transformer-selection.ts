@@ -1,10 +1,12 @@
 import { getTransformer } from 'entities/transformer';
+import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
 import { Node } from 'konva/lib/Node';
 
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
     transformer.nodes([node]);
+    setConnectionAnchors(stageId);
   }
 };
 
@@ -12,6 +14,7 @@ export const selectNodes = (stageId: string, nodes: Node[]) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
     transformer.nodes(nodes);
+    setConnectionAnchors(stageId);
   }
 };
 
