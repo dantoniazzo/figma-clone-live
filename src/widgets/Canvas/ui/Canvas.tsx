@@ -1,14 +1,8 @@
 import Konva from 'konva';
-import { Stage, Layer, Transformer } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 import { getLayerId } from 'entities/layer';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import {
-  reScalePosition,
-  reScaleSize,
-  scaleStageOnScroll,
-  unScalePosition,
-  unScaleSize,
-} from 'features/scale';
+import { scaleStageOnScroll, unScalePosition } from 'features/scale';
 import { moveStageOnScroll } from 'features/position';
 import {
   handleTouchDown,
@@ -20,17 +14,8 @@ import {
   handlePointerMove,
   handlePointerUp,
 } from 'features/pointer';
-import {
-  FULL_SIZE,
-  getGridLayerId,
-  drawLines,
-  snapToGrid,
-} from 'features/grid';
-import {
-  getStage,
-  getStageElementId,
-  getStageIdFromEvent,
-} from 'entities/stage';
+import { getGridLayerId, drawLines } from 'features/grid';
+import { getStageElementId, getStageIdFromEvent } from 'entities/stage';
 import { getCanvasContainerId } from '../lib';
 import { setStageSize } from 'features/size';
 import { observeResize, type Position } from 'shared/model';
@@ -56,7 +41,7 @@ import {
   useMutation,
 } from '@liveblocks/react/suspense';
 import { LiveList, LiveObject } from '@liveblocks/client';
-import { getColor, Loading } from 'shared';
+import { Loading, Transformer } from 'shared';
 import { Header } from 'features/header';
 import { useViewer } from 'entities/viewer';
 import { v4 as uuidv4 } from 'uuid';
@@ -250,81 +235,7 @@ export const Canvas = (props: CanvasProps) => {
             (blocks as IBlock[]).map((block) => (
               <Block key={`block-key-${block.id}`} {...block} />
             ))}
-          <Transformer
-            keepRatio={false}
-            anchorCornerRadius={2}
-            anchorStroke={getColor('--color-primary-100')}
-            anchorStrokeWidth={2}
-            anchorFill="black"
-            resizeEnabled={true}
-            rotateEnabled={false}
-            borderEnabled={true}
-            borderStroke={getColor('--color-primary-100')}
-            borderStrokeWidth={2}
-            ignoreStroke={true}
-            boundBoxFunc={(oldBox, newBox) => {
-              const stage = getStage(id);
-              if (!stage) return newBox;
-              const position = { x: newBox.x, y: newBox.y };
-              const size = { width: newBox.width, height: newBox.height };
-              const unScaledPosition = unScalePosition(id, position);
-              const unScaledSize = unScaleSize(id, size);
-              if (!unScaledPosition || !unScaledSize) return newBox;
-              const snappedWidth = Math.max(
-                FULL_SIZE,
-                snapToGrid(unScaledSize.width)
-              );
-              const snappedHeight = Math.max(
-                FULL_SIZE,
-                snapToGrid(unScaledSize.height)
-              );
-
-              const deltaWidth = snappedWidth - unScaledSize.width;
-              const deltaHeight = snappedHeight - unScaledSize.height;
-
-              let adjustedX = unScaledPosition.x;
-              let adjustedY = unScaledPosition.y;
-
-              if (deltaWidth !== 0) {
-                if (newBox.x === oldBox.x) {
-                  adjustedX = snapToGrid(unScaledPosition.x);
-                } else {
-                  adjustedX = snapToGrid(unScaledPosition.x - deltaWidth);
-                }
-              } else {
-                adjustedX = snapToGrid(unScaledPosition.x);
-              }
-
-              if (deltaHeight !== 0) {
-                if (newBox.y === oldBox.y) {
-                  adjustedY = snapToGrid(unScaledPosition.y);
-                } else {
-                  adjustedY = snapToGrid(unScaledPosition.y - deltaHeight);
-                }
-              } else {
-                adjustedY = snapToGrid(unScaledPosition.y);
-              }
-
-              const reScaledPosition = reScalePosition(id, {
-                x: adjustedX,
-                y: adjustedY,
-              });
-
-              const reScaledSize = reScaleSize(id, {
-                width: snappedWidth,
-                height: snappedHeight,
-              });
-              if (!reScaledPosition || !reScaledSize) return newBox;
-
-              return {
-                x: reScaledPosition.x,
-                y: reScaledPosition.y,
-                width: reScaledSize.width,
-                height: reScaledSize.height,
-                rotation: newBox.rotation,
-              };
-            }}
-          />
+          <Transformer />
           <Presences stageId={id} />
         </Layer>
       </Stage>
