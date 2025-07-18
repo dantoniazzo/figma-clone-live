@@ -5,6 +5,7 @@ import type { Circle as CircleType } from 'konva/lib/shapes/Circle';
 import { getTool, Tools } from 'widgets';
 import type { Transformer } from 'konva/lib/shapes/Transformer';
 import { connectionConfig } from '../lib';
+import { getColor } from 'shared';
 
 interface ConnectionAnchorProps {
   side: ConnectionAnchorSide;
@@ -19,14 +20,37 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
     if (!circle) return;
     const transformer = circle.parent as Transformer;
     transformerRef.current = transformer;
-    const rect = transformer.getClientRect();
+    const width = transformer.width();
+    const height = transformer.height();
     switch (props.side) {
       case ConnectionAnchorSide.LEFT:
         circle.position({
           x: -connectionConfig.anchorPadding,
           // 10 is default anchor size so we shift by half of it
-          y: rect.height / 2 - 5,
+          y: height / 2,
         });
+        break;
+      case ConnectionAnchorSide.RIGHT:
+        circle.position({
+          x: width + connectionConfig.anchorPadding,
+          // 10 is default anchor size so we shift by half of it
+          y: height / 2,
+        });
+        break;
+      case ConnectionAnchorSide.TOP:
+        circle.position({
+          x: width / 2,
+          // 10 is default anchor size so we shift by half of it
+          y: -connectionConfig.anchorPadding,
+        });
+        break;
+      case ConnectionAnchorSide.BOTTOM:
+        circle.position({
+          x: width / 2,
+          // 10 is default anchor size so we shift by half of it
+          y: height + connectionConfig.anchorPadding,
+        });
+        break;
     }
   };
 
@@ -36,9 +60,6 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
     if (!circle) return;
     const transformer =
       transformerRef.current || (circle.parent as Transformer);
-    transformer.on('nodes', () => {
-      console.log('Toggled');
-    });
     transformer.on('transform', setCirclePosition);
     return () => {
       transformer.off('transform', setCirclePosition);
@@ -48,9 +69,12 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
   return (
     <Circle
       ref={ref}
-      width={20}
-      height={20}
-      fill={'red'}
+      name={connectionConfig.name}
+      width={10}
+      height={10}
+      stroke={'--color-gray-500'}
+      fill={getColor('--color-primary-100')}
+      hitStrokeWidth={20}
       onPointerEnter={(e) => {
         if (getTool() === Tools.HAND) return;
         e.target.to({

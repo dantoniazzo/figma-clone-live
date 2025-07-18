@@ -5,9 +5,9 @@ export const ConnectionAnchors = () => {
   return (
     <>
       <ConnectionAnchor side={ConnectionAnchorSide.LEFT} />
-      {/*     <ConnectionAnchor side={ConnectionAnchorSide.RIGHT} />
+      <ConnectionAnchor side={ConnectionAnchorSide.RIGHT} />
       <ConnectionAnchor side={ConnectionAnchorSide.TOP} />
-      <ConnectionAnchor side={ConnectionAnchorSide.BOTTOM} /> */}
+      <ConnectionAnchor side={ConnectionAnchorSide.BOTTOM} />
     </>
   );
 };
