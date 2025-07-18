@@ -10,6 +10,7 @@ import {
 } from 'features/scale';
 import { FULL_SIZE, snapToGrid } from 'features/grid';
 import { useRef } from 'react';
+import { ConnectionAnchors } from 'features/connection';
 
 export const Transformer = () => {
   const ref = useRef<TransformerType | null>(null);
@@ -93,6 +94,8 @@ export const Transformer = () => {
           rotation: newBox.rotation,
         };
       }}
-    />
+    >
+      <ConnectionAnchors />
+    </KonvaTransformer>
   );
 };
