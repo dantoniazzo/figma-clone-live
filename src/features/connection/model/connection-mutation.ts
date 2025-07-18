@@ -1,9 +1,12 @@
-import type { Node } from 'konva/lib/Node';
-import { config } from 'entities/block';
+import { getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import { ConnectionAnchorSide } from './connection.types';
 
 export interface UpdateProps {
-  fromNode: Node;
-  toNode: Node;
+  fromNode: Group;
+  toNode: Group;
+  fromAnchorSide: ConnectionAnchorSide;
+  toAnchorSide: ConnectionAnchorSide;
 }
 
 export const updateConnectionsFromEvent = () => {
@@ -18,6 +21,8 @@ export const updateConnectionsFromEvent = () => {
       getUpdatedPoints({
         fromNode: connectionFromNode,
         toNode: e.target,
+        fromAnchorSide: ConnectionAnchorSide.LEFT, // Example value
+        toAnchorSide: ConnectionAnchorSide.RIGHT,  // Example value
       })
     );
   }
@@ -31,107 +36,187 @@ export const updateConnectionsFromEvent = () => {
       getUpdatedPoints({
         fromNode: e.target,
         toNode: connectionToNode,
+        fromAnchorSide: ConnectionAnchorSide.LEFT, // Example value
+        toAnchorSide: ConnectionAnchorSide.RIGHT,  // Example value
       })
     );
   } */
 };
 
 export const getUpdatedPoints = (props: UpdateProps) => {
+  const fromRect = getRectFromGroup(props.fromNode); // Source node
+  const toRect = getRectFromGroup(props.toNode); // Target node
+  const fromSize = fromRect.size(); // Source size
+  const toSize = toRect.size(); // Target size
   // Get positions and dimensions of both blocks
-  const fromX = props.fromNode.x();
-  const fromY = props.fromNode.y();
-  const toX = props.toNode.x();
-  const toY = props.toNode.y();
+  const fromX = props.fromNode.x(); // Source x
+  const fromY = props.fromNode.y(); // Source y
+  const toX = props.toNode.x(); // Target x
+  const toY = props.toNode.y(); // Target y
 
-  const startX = -props.toNode.x() + props.fromNode.x() + config.width;
-  const startY = -props.toNode.y() + props.fromNode.y() + config.height / 2;
-  const endX = 0;
-  const endY = config.height / 2;
+  // Calculate start point based on fromAnchorSide
+  let startX = fromX;
+  let startY = fromY;
+  switch (props.fromAnchorSide) {
+    case ConnectionAnchorSide.RIGHT:
+      startX = fromX + fromSize.width;
+      startY = fromY + fromSize.height / 2;
+      break;
+    case ConnectionAnchorSide.LEFT:
+      startX = fromX;
+      startY = fromY + fromSize.height / 2;
+      break;
+    case ConnectionAnchorSide.TOP:
+      startX = fromX + fromSize.width / 2;
+      startY = fromY;
+      break;
+    case ConnectionAnchorSide.BOTTOM:
+      startX = fromX + fromSize.width / 2;
+      startY = fromY + fromSize.height;
+      break;
+  }
 
-  // Routing offset - how far to extend the path around blocks
-  const routingOffset = config.width * 0.2;
+  // Calculate end point based on toAnchorSide
+  let endX = toX;
+  let endY = toY;
+  switch (props.toAnchorSide) {
+    case ConnectionAnchorSide.LEFT:
+      endX = toX;
+      endY = toY + toSize.height / 2;
+      break;
+    case ConnectionAnchorSide.RIGHT:
+      endX = toX + toSize.width;
+      endY = toY + toSize.height / 2;
+      break;
+    case ConnectionAnchorSide.TOP:
+      endX = toX + toSize.width / 2;
+      endY = toY;
+      break;
+    case ConnectionAnchorSide.BOTTOM:
+      endX = toX + toSize.width / 2;
+      endY = toY + toSize.height;
+      break;
+  }
+
+  const FULL_SIZE = 40; // Grid size in pixels
+  const padding = 20; // Padding around blocks when bending
+  const bendOffset = 40; // Fixed offset for bends, matching image style
+
+  // Check if blocks are sufficiently separated on x-axis
+  const isSeparated = Math.abs(fromX + fromSize.width - toX) >= FULL_SIZE;
 
   // Check if blocks intersect on x-axis
   const intersectsOnXAxis =
-    (fromX <= toX && fromX + config.width >= toX) ||
-    (toX <= fromX && toX + config.width >= fromX);
+    (toX <= fromX && toX + toSize.width >= fromX) ||
+    (fromX <= toX && fromX + fromSize.width >= toX);
 
   // Check if blocks intersect on y-axis
   const intersectsOnYAxis =
-    (fromY <= toY && fromY + config.height >= toY) ||
-    (toY <= fromY && toY + config.height >= fromY);
+    (toY <= fromY && toY + toSize.height >= fromY) ||
+    (fromY <= toY && fromY + fromSize.height >= toY);
 
-  // Determine the block arrangement
-  const toBlockIsLeft = toX + config.width < fromX; // To block is completely to the left
+  // Check if anchor points are vertically offset
+  const isVerticallyOffset = Math.abs(startY - endY) > 1; // Small threshold to detect offset
 
-  // Case 1: Use all-around bending when:
-  // - Blocks intersect on both axes
-  // - OR when to block is completely to the left of from block and they intersect on y-axis
-  if (
-    (intersectsOnXAxis && intersectsOnYAxis) ||
-    (toBlockIsLeft && intersectsOnYAxis)
-  ) {
+  // Case 1: Blocks are separated and anchor points are aligned - use Manhattan straight path
+  if (isSeparated && !isVerticallyOffset) {
+    return [
+      startX,
+      startY, // Start at specified anchor of fromNode
+      startX,
+      endY, // Vertical to align y
+      endX,
+      endY, // Horizontal to end at toNode
+    ];
+  }
+  // Case 2: Blocks are separated but anchor points are offset - use Manhattan bend
+  else if (isSeparated && isVerticallyOffset) {
+    const midX = (startX + endX) / 2;
+    return [
+      startX,
+      startY, // Start at specified anchor of fromNode
+      startX,
+      startY + bendOffset, // Vertical down to offset
+      midX,
+      startY + bendOffset, // Horizontal to midpoint
+      midX,
+      endY - bendOffset, // Vertical up to offset
+      endX,
+      endY - bendOffset, // Horizontal to align
+      endX,
+      endY, // Vertical to end at toNode
+    ];
+  }
+  // Case 3: Blocks intersect or overlap - use Manhattan bend with padding
+  else if (intersectsOnXAxis || intersectsOnYAxis) {
     const fromAbove = fromY < toY;
     const verticalOffset = fromAbove
-      ? -routingOffset
-      : routingOffset + config.height;
+      ? Math.max(toY - fromY + padding, bendOffset)
+      : Math.max(fromY + fromSize.height + padding - toY, bendOffset);
+    const horizontalOffset =
+      fromX < toX
+        ? Math.max(toX - fromX + padding, bendOffset)
+        : Math.max(fromX + fromSize.width + padding - toX, bendOffset);
 
-    return [
-      startX, // Source x
-      startY, // Source y
-      startX + routingOffset, // Go right first
-      startY, // Same y
-      startX + routingOffset, // Continue at offset
-      -props.toNode.y() + props.fromNode.y() + verticalOffset, // Go up/down
-      -routingOffset, // Go left to approach target from left
-      -props.toNode.y() + props.fromNode.y() + verticalOffset, // Same y
-      -routingOffset, // Continue approach
-      endY, // Target y level
-      endX, // Target x
-      endY, // Target y
-    ];
-  }
-  // Case 2: Use in-between bending when:
-  // - Blocks intersect on x-axis only (one above/below the other)
-  // - OR when to block is completely to the left of from block and they don't intersect on y-axis
-  else if (
-    (intersectsOnXAxis && !intersectsOnYAxis) ||
-    (toBlockIsLeft && !intersectsOnYAxis)
-  ) {
-    const fromAbove = fromY < toY;
-    const verticalGap = fromAbove
-      ? (toY - (fromY + config.height)) / 2 + fromY + config.height
-      : (fromY - (toY + config.height)) / 2 + toY + config.height;
-    const relativeVerticalGap = -props.toNode.y() + verticalGap;
+    // Special handling for TOP to BOTTOM
+    if (
+      props.fromAnchorSide === ConnectionAnchorSide.TOP &&
+      props.toAnchorSide === ConnectionAnchorSide.BOTTOM
+    ) {
+      return [
+        startX,
+        startY, // Start at top of fromNode
+        startX,
+        startY + bendOffset, // Vertical down
+        toX + toSize.width / 2,
+        startY + bendOffset, // Horizontal across to center
+        toX + toSize.width / 2,
+        endY - bendOffset, // Vertical up
+        endX,
+        endY, // End at bottom of toNode
+      ];
+    } else {
+      const adjustedStartX =
+        startX + (toX < fromX ? horizontalOffset : -horizontalOffset);
+      const adjustedEndX =
+        endX + (fromX < toX ? horizontalOffset : -horizontalOffset);
+      const adjustedStartY =
+        startY + (toY < fromY ? verticalOffset : -verticalOffset);
+      const adjustedEndY =
+        endY + (fromY < toY ? verticalOffset : -verticalOffset);
 
-    return [
-      startX, // Source x
-      startY, // Source y
-      startX + routingOffset, // First bend slightly right
-      startY, // Same y as source
-      startX + routingOffset, // Second point maintains x
-      relativeVerticalGap, // Midpoint between the blocks vertically
-      endX - routingOffset, // Third point approaches from left
-      relativeVerticalGap, // Same midpoint y
-      endX - routingOffset, // Fourth point maintains x
-      endY, // Target y level
-      endX, // Target x
-      endY, // Target y
-    ];
+      return [
+        startX,
+        startY, // Start at specified anchor of fromNode
+        adjustedStartX,
+        startY, // Horizontal to nearest side
+        adjustedStartX,
+        adjustedStartY, // Vertical past toNode
+        adjustedEndX,
+        adjustedStartY, // Horizontal align
+        adjustedEndX,
+        adjustedEndY, // Vertical to nearest side
+        endX,
+        endY, // End at specified anchor of toNode
+      ];
+    }
   }
-  // Case 3: Default - normal 4-point line
+  // Case 4: Default - use Manhattan bend when close but not intersecting
   else {
     const midX = (startX + endX) / 2;
-
     return [
-      startX, // Source x
-      startY, // Source y
-      midX, // First breakpoint x (halfway between source and target)
-      startY, // First breakpoint y (same as source y)
-      midX, // Second breakpoint x (same as first breakpoint x)
-      endY, // Second breakpoint y (same as target y)
-      endX, // Target x
-      endY, // Target y
+      startX,
+      startY, // Start at specified anchor of fromNode
+      startX,
+      startY + bendOffset, // Vertical to offset
+      midX,
+      startY + bendOffset, // Horizontal to midpoint
+      midX,
+      endY - bendOffset, // Vertical to offset
+      endX,
+      endY - bendOffset, // Horizontal to align
+      endX,
+      endY, // Vertical to end at toNode
     ];
   }
 };

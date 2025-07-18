@@ -1,7 +1,6 @@
+import { config } from 'entities/block';
 import { getLayer } from 'entities/layer';
 import type { KonvaEvent, KonvaMouseTouchEvent } from 'entities/stage';
-import { LINE_ANCHOR_NAME, LINE_GROUP_NAME } from 'features/line';
-import { RECTANGLE_NAME } from 'features/rectangle';
 import { Group } from 'konva/lib/Group';
 import { Rect } from 'konva/lib/shapes/Rect';
 
@@ -27,11 +26,7 @@ export const getNodeFromEvent = (
 export const getAllNodes = (id: string) => {
   const layer = getLayer(id);
   if (!layer) return null;
-
-  const rectNodes = layer.find(`.${RECTANGLE_NAME}`);
-  const lineNodes = layer.find(`.${LINE_GROUP_NAME}`);
-  const lineAnchors = layer.find(`.${LINE_ANCHOR_NAME}`);
-  return rectNodes.concat(lineNodes).concat(lineAnchors);
+  return layer?.find(`.${config.name}`);
 };
 
 export const getRectFromGroup = (node: Group) => {
