@@ -1,19 +1,19 @@
-import Konva from 'konva';
-import { Circle } from 'react-konva';
+import Konva from "konva";
+import { Circle } from "react-konva";
 import {
   ConnectionAnchorSide,
   getUpdatedPoints,
   OppositeSides,
-} from '../model';
-import { getTool, Tools } from 'widgets';
-import { connectionConfig } from '../lib';
-import { getColor } from 'shared';
-import type { Circle as CircleType } from 'konva/lib/shapes/Circle';
-import { getTransformerFromEvent } from 'entities/transformer';
-import { getNearestBlock } from 'entities/block';
-import { getStageIdFromEvent } from 'entities/stage';
-import { getLayer } from 'entities/layer';
-import type { Group } from 'konva/lib/Group';
+} from "../model";
+import { getTool, Tools } from "widgets";
+import { connectionConfig } from "../lib";
+import { getColor } from "shared";
+import type { Circle as CircleType } from "konva/lib/shapes/Circle";
+import { getTransformerFromEvent } from "entities/transformer";
+import { getNearestBlockInDirection } from "entities/block";
+import { getStageIdFromEvent } from "entities/stage";
+import { getLayer } from "entities/layer";
+import type { Group } from "konva/lib/Group";
 
 interface ConnectionAnchorProps {
   ref: React.Ref<CircleType>;
@@ -28,8 +28,8 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
       name={connectionConfig.name}
       width={10}
       height={10}
-      stroke={'--color-gray-500'}
-      fill={getColor('--color-primary-100')}
+      stroke={"--color-gray-500"}
+      fill={getColor("--color-primary-100")}
       hitStrokeWidth={20}
       onPointerEnter={(e) => {
         const transformer = getTransformerFromEvent(e);
@@ -37,11 +37,15 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
           const node = transformer.nodes()[0] as Group;
           const stageId = getStageIdFromEvent(e);
           if (!stageId) return;
-          const nearestBlock = getNearestBlock(stageId, node.getAttr('id'));
+          const nearestBlock = getNearestBlockInDirection(
+            stageId,
+            node.getAttr("id"),
+            props.side
+          );
           if (!nearestBlock) return;
           const arrow = new Konva.Arrow({
-            id: 'preview-arrow',
-            stroke: getColor('--color-gray-400'),
+            id: "preview-arrow",
+            stroke: getColor("--color-gray-400"),
             points: getUpdatedPoints({
               fromNode: node,
               toNode: nearestBlock,
@@ -66,7 +70,7 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         if (!stageId) return;
         const layer = getLayer(stageId);
         const arrows = layer?.find(`#preview-arrow`);
-        arrows?.[0].remove();
+        arrows?.[0]?.remove();
         e.target.to({
           scaleX: 1,
           scaleY: 1,
