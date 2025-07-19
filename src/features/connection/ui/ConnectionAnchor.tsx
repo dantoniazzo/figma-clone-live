@@ -49,8 +49,8 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
             points: getUpdatedPoints({
               fromNode: node,
               toNode: nearestBlock,
-              fromAnchorSide: props.side,
-              toAnchorSide: OppositeSides[props.side],
+              fromSide: props.side,
+              toSide: OppositeSides[props.side],
             }),
           });
 
