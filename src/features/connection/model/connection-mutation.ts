@@ -1,6 +1,7 @@
 import { getRectFromGroup } from "entities/node";
 import type { Group } from "konva/lib/Group";
 import { ConnectionAnchorSide } from "./connection.types";
+import { FULL_SIZE } from "features/grid";
 
 export interface UpdateProps {
   fromNode: Group;
@@ -22,10 +23,6 @@ export const getUpdatedPoints = (props: UpdateProps) => {
   const fromY = props.fromNode.y();
   const toX = props.toNode.x();
   const toY = props.toNode.y();
-  const fromCenterY = fromY + fromHeight / 2;
-  const toCenterY = toY + toHeight / 2;
-  const fromCenterX = fromX + fromWidth / 2;
-  const toCenterX = toX + toWidth / 2;
 
   // Calculate start point based on fromSide
   let startX = fromX;
@@ -71,7 +68,6 @@ export const getUpdatedPoints = (props: UpdateProps) => {
       break;
   }
 
-  const bendOffset = 40; // Fixed offset to move past node, per FigJam style
   let bendX = startX;
   let bendY = startY;
 
@@ -80,69 +76,41 @@ export const getUpdatedPoints = (props: UpdateProps) => {
     props.fromSide === ConnectionAnchorSide.RIGHT &&
     props.toSide === ConnectionAnchorSide.LEFT
   ) {
-    // Right to Left
-    if (toCenterY >= fromCenterY) {
-      bendX = startX + bendOffset; // Up
-      bendY = startY;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Up, right, down
-    } else {
-      bendX = startX - bendOffset; // Down
-      bendY = startY;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Down, right, up
-    }
+    bendX = startX + FULL_SIZE; // Up
+    bendY = startY;
+    return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Up, right, down
   } else if (
     props.fromSide === ConnectionAnchorSide.LEFT &&
     props.toSide === ConnectionAnchorSide.RIGHT
   ) {
-    // Left to Right
-    if (toCenterY >= fromCenterY) {
-      bendX = startX - bendOffset; // Up
-      bendY = startY;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Up, left, down
-    } else {
-      bendX = startX + bendOffset; // Down
-      bendY = startY;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Down, left, up
-    }
+    bendX = startX - FULL_SIZE; // Up
+    bendY = startY;
+    return [startX, startY, bendX, bendY, bendX, endY, endX, endY]; // Up, left, down
   } else if (
     props.fromSide === ConnectionAnchorSide.TOP &&
     props.toSide === ConnectionAnchorSide.BOTTOM
   ) {
-    // Top to Bottom
-    if (toCenterX >= fromCenterX) {
-      bendY = startY - bendOffset; // Up
-      bendX = startX;
-      return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Up, right, down
-    } else {
-      bendY = startY - bendOffset; // Up
-      bendX = startX;
-      return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Up, left, down
-    }
+    bendY = startY - FULL_SIZE; // Up
+    bendX = startX;
+    return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Up, right, down
   } else if (
     props.fromSide === ConnectionAnchorSide.BOTTOM &&
     props.toSide === ConnectionAnchorSide.TOP
   ) {
-    // Bottom to Top
-    if (toCenterX >= fromCenterX) {
-      bendY = startY + bendOffset; // Down
-      bendX = startX;
-      return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Down, right, up
-    } else {
-      bendY = startY + bendOffset; // Down
-      bendX = startX;
-      return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Down, left, up
-    }
+    bendY = startY + FULL_SIZE; // Down
+    bendX = startX;
+    return [startX, startY, bendX, bendY, endX, bendY, endX, endY]; // Down, right, up
   } else {
     // Default bent path for other combinations (e.g., top to side)
     const isHorizontalMove =
       props.fromSide === ConnectionAnchorSide.LEFT ||
       props.fromSide === ConnectionAnchorSide.RIGHT;
     if (isHorizontalMove) {
-      bendX = startX + (endX < startX ? -bendOffset : bendOffset);
+      bendX = startX + (endX < startX ? -FULL_SIZE : FULL_SIZE);
       bendY = startY;
       return [startX, startY, bendX, bendY, bendX, endY, endX, endY];
     } else {
-      bendY = startY + (endY < startY ? -bendOffset : bendOffset);
+      bendY = startY + (endY < startY ? -FULL_SIZE : FULL_SIZE);
       bendX = startX;
       return [startX, startY, bendX, bendY, endX, bendY, endX, endY];
     }
