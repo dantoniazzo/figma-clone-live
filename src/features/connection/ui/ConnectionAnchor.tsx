@@ -47,6 +47,7 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         const arrow = new Konva.Arrow({
           id: 'preview-arrow',
           stroke: getColor('--color-gray-400'),
+          tension: 0.1,
           points: getUpdatedPoints({
             fromNode: selectedNode as Group,
             toNode: nearestBlock,

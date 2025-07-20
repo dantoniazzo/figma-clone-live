@@ -49,6 +49,7 @@ export const Connection = (props: ConnectionProps) => {
       hitStrokeWidth={20}
       lineCap="round"
       points={points}
+      tension={0.1}
     />
   );
 };
