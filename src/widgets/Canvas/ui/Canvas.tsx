@@ -36,7 +36,7 @@ import { Presences } from 'features/presence';
 import {
   ClientSideSuspense,
   RoomProvider,
-  useMyPresence,
+  useUpdateMyPresence,
   useStorage,
   useMutation,
 } from '@liveblocks/react/suspense';
@@ -140,8 +140,7 @@ export const Canvas = (props: CanvasProps) => {
   const layerRef = useRef<Konva.Layer>(null);
   const ref = useRef<HTMLDivElement>(null);
   const resizeObserver = useRef<ResizeObserver>(null);
-  const presence = useMyPresence();
-  const updatePresence = presence[1];
+  const updatePresence = useUpdateMyPresence();
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
     // stop default scrolling
     e.evt.preventDefault();
@@ -232,7 +231,6 @@ export const Canvas = (props: CanvasProps) => {
       window.removeEventListener('pointermove', onPointerMove);
     };
   }, [onPointerMove]);
-
   return (
     <div
       className="w-full h-full bg-background-400 overflow-hidden"
