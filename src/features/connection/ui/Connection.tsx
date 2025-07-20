@@ -4,11 +4,11 @@ import { Arrow } from 'react-konva';
 import { type Arrow as ArrowType } from 'konva/lib/shapes/Arrow';
 import { useParams } from 'react-router-dom';
 import { getColor } from 'shared';
-import { getUpdatedPoints } from '../model';
+import { calculateConnectionPoints } from '../model';
 import { findNode } from 'entities/node';
 import type { Connection as ConnectionType } from 'entities/block';
 import type { Group } from 'konva/lib/Group';
-import { getConnectionId } from '../lib';
+import { getConnectionId } from '../model/connection-arrow';
 
 interface ConnectionProps {
   connection: ConnectionType;
@@ -20,42 +20,34 @@ export const Connection = (props: ConnectionProps) => {
   const params = useParams();
   const id = useMemo(() => params.id || 'default', [params.id]);
   useEffect(() => {
-    const parent = ref.current?.getParent();
-    if (!parent) return;
     ref.current?.moveToBottom();
-    const to = props.connection.to;
     const from = props.connection.from;
-    const fromSide = props.connection.fromSide;
-    const toSide = props.connection.toSide;
-    // Only handle one type of connection per arrow
-    // If this is a "from" connection, draw arrow from the referenced node to this node
-    if (to && from && fromSide && toSide) {
-      const fromNode = findNode(id, from);
-      const toNode = findNode(id, to);
-      if (fromNode && toNode) {
-        const calculatedPoints = getUpdatedPoints({
-          fromNode: fromNode as Group,
-          toNode: toNode as Group,
-          fromSide,
-          toSide,
-        });
-        setPoints(calculatedPoints);
-      }
-    }
+    if (!from) return;
+    const fromNode = findNode(id, from) as Group | undefined;
+    if (!fromNode) return;
+    const connectionPoints = calculateConnectionPoints(
+      fromNode,
+      props.connection
+    );
+    if (connectionPoints) setPoints(connectionPoints);
   }, [id, props.connection]);
   if (!props.connection || !props.connection.from) {
     return null; // No connection to draw
   }
   return (
     <Arrow
-      id={getConnectionId(props.connection.from)}
+      id={
+        props.connection.from &&
+        props.connection.to &&
+        getConnectionId(props.connection.from, props.connection.to)
+      }
       ref={ref}
       fillEnabled={false}
-      stroke={getColor('--color-gray-300')}
+      stroke={getColor('--color-gray-400')}
       pointerWidth={10}
       pointerLength={5}
-      dash={[5, 5]}
       hitStrokeWidth={20}
+      lineCap="round"
       points={points}
     />
   );

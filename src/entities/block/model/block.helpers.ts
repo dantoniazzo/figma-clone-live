@@ -1,9 +1,9 @@
-import { getLayer } from "entities/layer";
-import { config } from "./block.config";
-import { findNode, getRectFromGroup } from "entities/node";
-import type { Group } from "konva/lib/Group";
-import type { Rect } from "shared/model";
-import { ConnectionAnchorSide } from "features/connection";
+import { getLayer } from 'entities/layer';
+import { config } from './block.config';
+import { findNode, getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import type { Rect } from 'shared/model';
+import { ConnectionAnchorSide } from 'features/connection';
 
 export const getBlockNodes = (id: string) => {
   const layer = getLayer(id);

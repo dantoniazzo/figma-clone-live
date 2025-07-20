@@ -1,7 +1,11 @@
-import { getRectFromGroup } from 'entities/node';
+import { findNode, getRectFromGroup } from 'entities/node';
 import type { Group } from 'konva/lib/Group';
 import { ConnectionAnchorSide } from './connection.types';
 import { FULL_SIZE } from 'features/grid';
+import { getStageIdFromNode } from 'entities/stage';
+import type { Connection } from 'entities/block';
+import { getLayer } from 'entities/layer';
+import { findConnectionArrow } from './connection-arrow';
 
 export interface UpdateProps {
   fromNode: Group;
@@ -9,6 +13,51 @@ export interface UpdateProps {
   fromSide: ConnectionAnchorSide;
   toSide: ConnectionAnchorSide;
 }
+
+export const calculateConnectionPoints = (
+  node: Group,
+  connection: Connection
+) => {
+  const stageId = getStageIdFromNode(node);
+  if (!stageId) return;
+  const to = connection.to;
+  const from = connection.from;
+  const fromSide = connection.fromSide;
+  const toSide = connection.toSide;
+  // Only handle one type of connection per arrow
+  // If this is a "from" connection, draw arrow from the referenced node to this node
+  if (to && from && fromSide && toSide) {
+    const fromNode = findNode(stageId, from);
+    const toNode = findNode(stageId, to);
+    if (fromNode && toNode) {
+      return getUpdatedPoints({
+        fromNode: fromNode as Group,
+        toNode: toNode as Group,
+        fromSide,
+        toSide,
+      });
+    }
+  }
+};
+
+export const updateConnection = (
+  node: Group,
+  callback?: (points: number[]) => void
+) => {
+  const connection = node.getAttr('connection') as Connection | undefined;
+  if (!connection) return;
+  const calculatedPoints = calculateConnectionPoints(node, connection);
+  const stageId = getStageIdFromNode(node);
+  if (!stageId) return;
+  const layer = getLayer(stageId);
+  const from = connection.from;
+  const to = connection.to;
+  if (layer && from && to) {
+    const arrow = findConnectionArrow(stageId, from, to);
+    arrow?.points(calculatedPoints);
+  }
+  if (callback && calculatedPoints) callback(calculatedPoints);
+};
 
 export const getUpdatedPoints = (props: UpdateProps) => {
   const fromRect = getRectFromGroup(props.fromNode);

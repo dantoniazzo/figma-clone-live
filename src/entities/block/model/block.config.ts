@@ -7,4 +7,6 @@ export const config = {
   height: FULL_SIZE * 5,
   fill: getColor('--color-gray-500'),
   cornerRadius: 6,
+  stroke: getColor('--color-gray-400'),
+  strokeWidth: 2,
 };

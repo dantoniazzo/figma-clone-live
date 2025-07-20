@@ -90,7 +90,7 @@ export const Block = (props: IBlock) => {
       if (!qlEditorElement) return;
       removeClickOutsideListener(qlEditorElement);
     };
-  }, []);
+  }, [props.id]);
 
   const debounceChange = useMemo(
     () =>
@@ -155,7 +155,10 @@ export const Block = (props: IBlock) => {
         connection={props.connection}
         name={name}
         id={props.id}
-        ref={ref}
+        ref={(node) => {
+          if (!node) return;
+          ref.current = node;
+        }}
         blockType={props.type}
         text={props.text}
         position={props.position}
@@ -242,7 +245,9 @@ export const Block = (props: IBlock) => {
           />
         </Html>
       </Group>
-      {props.connection && <Connection connection={props.connection} />}
+      {props.connection && loaded && (
+        <Connection connection={props.connection} />
+      )}
     </>
   );
 };
