@@ -128,13 +128,15 @@ export const Canvas = (props: CanvasProps) => {
       const index = blocks.findIndex((block) => block.get('id') === params.id);
       const block = blocks.get(index);
       if (block) {
+        const blockObject = block.toObject();
         const newLiveBlock = new LiveObject<IBlock>({
-          ...block.toObject(),
-          position: params.position || { x: 0, y: 0 },
-          size: params.size || { width: config.width, height: config.height },
-          scale: params.scale,
-          text: params.text,
-          connection: params.connection,
+          ...blockObject,
+          position: params.position || blockObject.position || { x: 0, y: 0 },
+          size: params.size ||
+            blockObject.size || { width: config.width, height: config.height },
+          scale: params.scale || blockObject.scale,
+          text: params.text || blockObject.text,
+          connection: params.connection || blockObject.connection,
         });
         blocks.set(index, newLiveBlock);
       }
