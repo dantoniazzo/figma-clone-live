@@ -245,6 +245,8 @@ export const Canvas = (props: CanvasProps) => {
       window.removeEventListener('pointermove', onPointerMove);
     };
   }, [onPointerMove]);
+
+  console.log('Blocks: ', blocks);
   return (
     <div
       className="w-full h-full bg-background-400 overflow-hidden"

@@ -29,7 +29,7 @@ import {
 } from 'shared';
 import { debounce } from 'lodash';
 import type { Delta } from 'quill';
-import { Connection } from 'features/connection';
+import { Connection, updateConnection } from 'features/connection';
 
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
@@ -180,6 +180,7 @@ export const Block = (props: IBlock) => {
           const height = rect.height() * scaleY;
           rect.size({ width, height });
           updateHtmlSizeFromGroup();
+          updateConnection(group);
         }}
         onTransformEnd={(e) => {
           const stageId = getStageIdFromEvent(e);
