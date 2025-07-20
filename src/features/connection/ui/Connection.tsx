@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Arrow } from 'react-konva';
-import Konva from 'konva';
+
 import { type Arrow as ArrowType } from 'konva/lib/shapes/Arrow';
 import { useParams } from 'react-router-dom';
 import { getColor } from 'shared';
@@ -8,6 +8,8 @@ import { getUpdatedPoints } from '../model';
 import { findNode } from 'entities/node';
 import type { Connection as ConnectionType } from 'entities/block';
 import type { Group } from 'konva/lib/Group';
+import { getConnectionId } from '../lib';
+import { getLayer } from 'entities/layer';
 
 interface ConnectionProps {
   connection: ConnectionType;
@@ -43,18 +45,20 @@ export const Connection = (props: ConnectionProps) => {
     if (from && fromSide && toSide) {
       const fromNode = findNode(id, from);
       if (fromNode && parent) {
-        (
-          (fromNode as Group).children.find(
-            (child) => child instanceof Konva.Arrow
-          ) as Konva.Arrow
-        ).points(
-          getUpdatedPoints({
-            fromNode: fromNode as Group,
-            toNode: parent as Group,
-            fromSide,
-            toSide,
-          })
+        const arrows = getLayer(id)?.find(
+          `#${getConnectionId(props.connection.from || '')}`
         );
+        if (arrows && arrows.length > 0) {
+          const arrow = arrows[0];
+          (arrow as ArrowType).points(
+            getUpdatedPoints({
+              fromNode: fromNode as Group,
+              toNode: parent as Group,
+              fromSide,
+              toSide,
+            })
+          );
+        }
       }
     }
   }, [id, props.connection]);
@@ -63,6 +67,7 @@ export const Connection = (props: ConnectionProps) => {
   }
   return (
     <Arrow
+      id={getConnectionId(props.connection.from)}
       ref={ref}
       fillEnabled={false}
       stroke={getColor('--color-gray-300')}

@@ -142,105 +142,107 @@ export const Block = (props: IBlock) => {
   }, [props.text, setQuillContents]);
 
   return (
-    <Group
-      onPointerDown={(e) => {
-        const stageId = getStageIdFromEvent(e);
-        if (!stageId || !ref.current) return;
-        selectNode(stageId, ref.current);
-      }}
-      onClick={() => {
-        setEditing(true);
-      }}
-      connection={props.connection}
-      name={name}
-      id={props.id}
-      ref={ref}
-      blockType={props.type}
-      text={props.text}
-      position={props.position}
-      scale={props.scale}
-      draggable
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
-      onTransform={(e) => {
-        const stageId = getStageIdFromEvent(e);
-        if (!stageId) return;
-        const group = e.target as GroupType;
-        const scaleX = group.scaleX();
-        const scaleY = group.scaleY();
-        if (scaleX === 0 || scaleY === 0) return;
-        group.scaleX(1);
-        group.scaleY(1);
-        const rect = getRectFromGroup(group);
-        const width = rect.width() * scaleX;
-        const height = rect.height() * scaleY;
-        rect.size({ width, height });
-        updateHtmlSizeFromGroup();
-      }}
-      onTransformEnd={(e) => {
-        const stageId = getStageIdFromEvent(e);
-        if (!stageId) return;
-        const group = e.target as GroupType;
-        const rect = getRectFromGroup(group);
-        updateBlock(stageId, {
-          id: props.id,
-          position: {
-            x: group.x(),
-            y: group.y(),
-          },
-          size: {
-            width: rect.width(),
-            height: rect.height(),
-          },
-          scale: {
-            x: group.scaleX(),
-            y: group.scaleY(),
-          },
-        });
-      }}
-    >
-      <Rect
-        image={undefined}
-        ref={imageRef}
-        {...rest}
-        width={props.size.width}
-        height={props.size.height}
-      />
-      <Html
-        divProps={{
-          id: getBlockHtmlId(props.id),
-          style: {
-            pointerEvents: editing ? 'auto' : 'none',
-            borderRadius: '6px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'var(--color-gray-300)',
-          },
+    <>
+      <Group
+        onPointerDown={(e) => {
+          const stageId = getStageIdFromEvent(e);
+          if (!stageId || !ref.current) return;
+          selectNode(stageId, ref.current);
+        }}
+        onClick={() => {
+          setEditing(true);
+        }}
+        connection={props.connection}
+        name={name}
+        id={props.id}
+        ref={ref}
+        blockType={props.type}
+        text={props.text}
+        position={props.position}
+        scale={props.scale}
+        draggable
+        onDragMove={onDragMove}
+        onDragEnd={onDragEnd}
+        onTransform={(e) => {
+          const stageId = getStageIdFromEvent(e);
+          if (!stageId) return;
+          const group = e.target as GroupType;
+          const scaleX = group.scaleX();
+          const scaleY = group.scaleY();
+          if (scaleX === 0 || scaleY === 0) return;
+          group.scaleX(1);
+          group.scaleY(1);
+          const rect = getRectFromGroup(group);
+          const width = rect.width() * scaleX;
+          const height = rect.height() * scaleY;
+          rect.size({ width, height });
+          updateHtmlSizeFromGroup();
+        }}
+        onTransformEnd={(e) => {
+          const stageId = getStageIdFromEvent(e);
+          if (!stageId) return;
+          const group = e.target as GroupType;
+          const rect = getRectFromGroup(group);
+          updateBlock(stageId, {
+            id: props.id,
+            position: {
+              x: group.x(),
+              y: group.y(),
+            },
+            size: {
+              width: rect.width(),
+              height: rect.height(),
+            },
+            scale: {
+              x: group.scaleX(),
+              y: group.scaleY(),
+            },
+          });
         }}
       >
-        <div
-          id={getQuillId(props.id)}
-          ref={(node) => {
-            if (!node || loaded) return;
-            const quill = TextEditor({ id: getQuillId(props.id) });
-            setQuillContents();
-            quill.on('text-change', (_, __, source) => {
-              if (source !== 'user') return;
-
-              const contents = quill.getContents();
-              debounceChange(contents);
-            });
-            setLoaded(true);
-
-            const handleClickOutside = () => {
-              setEditing(false);
-            };
-            listenToClickOutside(node, handleClickOutside);
-          }}
+        <Rect
+          image={undefined}
+          ref={imageRef}
+          {...rest}
+          width={props.size.width}
+          height={props.size.height}
         />
-      </Html>
+        <Html
+          divProps={{
+            id: getBlockHtmlId(props.id),
+            style: {
+              pointerEvents: editing ? 'auto' : 'none',
+              borderRadius: '6px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'var(--color-gray-300)',
+            },
+          }}
+        >
+          <div
+            id={getQuillId(props.id)}
+            ref={(node) => {
+              if (!node || loaded) return;
+              const quill = TextEditor({ id: getQuillId(props.id) });
+              setQuillContents();
+              quill.on('text-change', (_, __, source) => {
+                if (source !== 'user') return;
+
+                const contents = quill.getContents();
+                debounceChange(contents);
+              });
+              setLoaded(true);
+
+              const handleClickOutside = () => {
+                setEditing(false);
+              };
+              listenToClickOutside(node, handleClickOutside);
+            }}
+          />
+        </Html>
+      </Group>
       {props.connection && <Connection connection={props.connection} />}
-    </Group>
+    </>
   );
 };

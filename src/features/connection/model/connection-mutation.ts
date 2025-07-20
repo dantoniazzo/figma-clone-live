@@ -1,7 +1,7 @@
-import { getRectFromGroup } from "entities/node";
-import type { Group } from "konva/lib/Group";
-import { ConnectionAnchorSide } from "./connection.types";
-import { FULL_SIZE } from "features/grid";
+import { getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import { ConnectionAnchorSide } from './connection.types';
+import { FULL_SIZE } from 'features/grid';
 
 export interface UpdateProps {
   fromNode: Group;
@@ -18,7 +18,7 @@ export const getUpdatedPoints = (props: UpdateProps) => {
   const toWidth = toRect.width();
   const toHeight = toRect.height();
 
-  // Get positions and centers
+  // Get positions
   const fromX = props.fromNode.x();
   const fromY = props.fromNode.y();
   const toX = props.toNode.x();

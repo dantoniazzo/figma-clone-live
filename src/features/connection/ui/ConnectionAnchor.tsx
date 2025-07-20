@@ -1,19 +1,21 @@
-import Konva from "konva";
-import { Circle } from "react-konva";
+import Konva from 'konva';
+import { Circle } from 'react-konva';
 import {
   ConnectionAnchorSide,
   getUpdatedPoints,
   OppositeSides,
-} from "../model";
-import { getTool, Tools } from "widgets";
-import { connectionConfig } from "../lib";
-import { getColor } from "shared";
-import type { Circle as CircleType } from "konva/lib/shapes/Circle";
-import { getTransformerFromEvent } from "entities/transformer";
-import { getNearestBlockInDirection } from "entities/block";
-import { getStageIdFromEvent } from "entities/stage";
-import { getLayer } from "entities/layer";
-import type { Group } from "konva/lib/Group";
+} from '../model';
+import { getTool, Tools } from 'widgets';
+import { connectionConfig } from '../lib';
+import { getColor } from 'shared';
+import type { Circle as CircleType } from 'konva/lib/shapes/Circle';
+import { getNearestBlockInDirection } from 'entities/block';
+import { getStageIdFromEvent } from 'entities/stage';
+import { getLayer } from 'entities/layer';
+import type { Group } from 'konva/lib/Group';
+import { updateBlock } from 'features/block-mutation';
+import { getSelectedNode } from 'features/selection';
+import { getRectFromGroup } from 'entities/node';
 
 interface ConnectionAnchorProps {
   ref: React.Ref<CircleType>;
@@ -28,36 +30,36 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
       name={connectionConfig.name}
       width={10}
       height={10}
-      stroke={"--color-gray-500"}
-      fill={getColor("--color-primary-100")}
+      stroke={'--color-gray-500'}
+      fill={getColor('--color-primary-100')}
       hitStrokeWidth={20}
       onPointerEnter={(e) => {
-        const transformer = getTransformerFromEvent(e);
-        if (transformer && transformer.nodes().length === 1) {
-          const node = transformer.nodes()[0] as Group;
-          const stageId = getStageIdFromEvent(e);
-          if (!stageId) return;
-          const nearestBlock = getNearestBlockInDirection(
-            stageId,
-            node.getAttr("id"),
-            props.side
-          );
-          if (!nearestBlock) return;
-          const arrow = new Konva.Arrow({
-            id: "preview-arrow",
-            stroke: getColor("--color-gray-400"),
-            points: getUpdatedPoints({
-              fromNode: node,
-              toNode: nearestBlock,
-              fromSide: props.side,
-              toSide: OppositeSides[props.side],
-            }),
-          });
+        const stageId = getStageIdFromEvent(e);
+        if (!stageId) return;
+        const selectedNode = getSelectedNode(stageId);
+        if (!selectedNode) return;
+        const nearestBlock = getNearestBlockInDirection(
+          stageId,
+          selectedNode.getAttr('id'),
+          props.side
+        );
+        if (!nearestBlock) return;
+        const arrow = new Konva.Arrow({
+          id: 'preview-arrow',
+          stroke: getColor('--color-gray-400'),
+          points: getUpdatedPoints({
+            fromNode: selectedNode as Group,
+            toNode: nearestBlock,
+            fromSide: props.side,
+            toSide: OppositeSides[props.side],
+          }),
+        });
 
-          const layer = getLayer(stageId);
-          layer?.add(arrow);
-          layer?.batchDraw();
-        }
+        const layer = getLayer(stageId);
+        layer?.add(arrow);
+        layer?.batchDraw();
+        arrow.moveToBottom();
+
         if (getTool() === Tools.HAND) return;
         e.target.to({
           scaleX: 1.5,
@@ -75,6 +77,31 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
           scaleX: 1,
           scaleY: 1,
           duration: 0.1,
+        });
+      }}
+      onClick={(e) => {
+        const stageId = getStageIdFromEvent(e);
+        if (!stageId) return;
+        const selectedNode = getSelectedNode(stageId);
+        if (!selectedNode) return;
+        const nearestBlock = getNearestBlockInDirection(
+          stageId,
+          selectedNode.getAttr('id'),
+          props.side
+        );
+        if (!nearestBlock) return;
+        const rect = getRectFromGroup(selectedNode as Group);
+        console.log('Here');
+        updateBlock(stageId, {
+          id: selectedNode.getAttr('id'),
+          position: selectedNode.position(),
+          size: rect.size(),
+          connection: {
+            from: selectedNode.getAttr('id'),
+            to: nearestBlock.getAttr('id'),
+            fromSide: props.side,
+            toSide: OppositeSides[props.side],
+          },
         });
       }}
     />

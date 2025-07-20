@@ -2,6 +2,20 @@ import { getTransformer } from 'entities/transformer';
 import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
 import { Node } from 'konva/lib/Node';
 
+export const getSelectedNode = (stageId: string) => {
+  const transformer = getTransformer(stageId);
+  if (transformer) {
+    const transformerNodes = transformer.nodes();
+    if (transformerNodes && transformerNodes.length === 1)
+      return transformerNodes[0];
+  }
+};
+
+export const getSelectedNodes = (stageId: string) => {
+  const transformer = getTransformer(stageId);
+  if (transformer) return transformer.nodes();
+};
+
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
