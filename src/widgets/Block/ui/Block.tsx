@@ -246,7 +246,7 @@ export const Block = (props: IBlock) => {
           />
         </Html>
       </Group>
-      {props.connection && loaded && (
+      {props.connection && props.connection.from === props.id && loaded && (
         <Connection connection={props.connection} />
       )}
     </>

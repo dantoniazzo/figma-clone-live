@@ -246,7 +246,6 @@ export const Canvas = (props: CanvasProps) => {
     };
   }, [onPointerMove]);
 
-  console.log('Blocks: ', blocks);
   return (
     <div
       className="w-full h-full bg-background-400 overflow-hidden"

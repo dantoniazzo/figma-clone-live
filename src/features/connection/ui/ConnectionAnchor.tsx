@@ -90,11 +90,23 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
           props.side
         );
         if (!nearestBlock) return;
-        const rect = getRectFromGroup(selectedNode as Group);
+        const rectFrom = getRectFromGroup(selectedNode as Group);
         updateBlock(stageId, {
           id: selectedNode.getAttr('id'),
           position: selectedNode.position(),
-          size: rect.size(),
+          size: rectFrom.size(),
+          connection: {
+            from: selectedNode.getAttr('id'),
+            to: nearestBlock.getAttr('id'),
+            fromSide: props.side,
+            toSide: OppositeSides[props.side],
+          },
+        });
+        const rectTo = getRectFromGroup(nearestBlock as Group);
+        updateBlock(stageId, {
+          id: nearestBlock.getAttr('id'),
+          position: nearestBlock.position(),
+          size: rectTo.size(),
           connection: {
             from: selectedNode.getAttr('id'),
             to: nearestBlock.getAttr('id'),
