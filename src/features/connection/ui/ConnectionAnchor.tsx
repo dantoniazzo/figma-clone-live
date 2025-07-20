@@ -91,7 +91,6 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         );
         if (!nearestBlock) return;
         const rect = getRectFromGroup(selectedNode as Group);
-        console.log('Here');
         updateBlock(stageId, {
           id: selectedNode.getAttr('id'),
           position: selectedNode.position(),

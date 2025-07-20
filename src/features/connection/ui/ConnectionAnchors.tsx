@@ -1,25 +1,21 @@
-import type { Transformer } from 'konva/lib/shapes/Transformer';
 import { ConnectionAnchorSide } from '../model';
 import { ConnectionAnchor } from './ConnectionAnchor';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Circle } from 'konva/lib/shapes/Circle';
-import { getStageIdFromNode } from 'entities/stage';
 import { setConnectionAnchors } from '../model/connection-anchor';
+import { useParams } from 'react-router-dom';
+import { getTransformer } from 'entities/transformer';
 
-export interface ConnectionAnchorsProps {
-  transformer: Transformer;
-}
-
-export const ConnectionAnchors = (props: ConnectionAnchorsProps) => {
-  const { transformer } = props;
+export const ConnectionAnchors = () => {
   const left = useRef<Circle | null>(null);
   const right = useRef<Circle | null>(null);
   const top = useRef<Circle | null>(null);
   const bottom = useRef<Circle | null>(null);
+  const params = useParams();
 
   const id = useMemo(() => {
-    return getStageIdFromNode(transformer);
-  }, [transformer]);
+    return params.id || 'default';
+  }, [params]);
 
   const setTransformerCircles = useCallback(() => {
     if (!id) return;
@@ -28,11 +24,12 @@ export const ConnectionAnchors = (props: ConnectionAnchorsProps) => {
 
   useEffect(() => {
     setTransformerCircles();
-    transformer.on('transform', setTransformerCircles);
+    const transformer = getTransformer(id);
+    transformer?.on('transform', setTransformerCircles);
     return () => {
-      transformer.off('transform', setTransformerCircles);
+      transformer?.off('transform', setTransformerCircles);
     };
-  }, [transformer, setTransformerCircles]);
+  }, [id, setTransformerCircles]);
 
   return (
     <>

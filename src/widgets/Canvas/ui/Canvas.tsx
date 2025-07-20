@@ -21,7 +21,7 @@ import { setStageSize } from 'features/size';
 import { observeResize, type Position } from 'shared/model';
 import { useParams } from 'react-router-dom';
 import { Block } from '../../Block';
-import { BlockTypes, type IBlock } from 'entities/block';
+import { BlockTypes, config, type IBlock } from 'entities/block';
 import {
   BlockEventListener,
   BlockEvents,
@@ -30,7 +30,7 @@ import {
 } from 'features/block-mutation';
 import { getRectFromGroup } from 'entities/node';
 import type { Group } from 'konva/lib/Group';
-import { selectNode } from 'features/selection';
+import { selectNode, unSelectAllNodes } from 'features/selection';
 import { AvatarList } from 'features/avatar-list';
 import { Presences } from 'features/presence';
 import {
@@ -54,6 +54,7 @@ export interface CanvasProps {
 export const LiveCanvas = () => {
   const { viewer } = useViewer();
   const params = useParams();
+
   const id = useMemo(() => {
     return params.id || 'default';
   }, [params]);
@@ -111,6 +112,8 @@ export const Canvas = (props: CanvasProps) => {
     const id = uuidv4();
     const newBlock = new LiveObject<IBlock>({
       ...params,
+      position: params.position || { x: 0, y: 0 },
+      size: params.size || { width: config.width, height: config.height },
       id,
       type: params.type || BlockTypes.RECTANGLE,
     });
@@ -127,8 +130,8 @@ export const Canvas = (props: CanvasProps) => {
       if (block) {
         const newLiveBlock = new LiveObject<IBlock>({
           ...block.toObject(),
-          position: params.position,
-          size: params.size,
+          position: params.position || { x: 0, y: 0 },
+          size: params.size || { width: config.width, height: config.height },
           scale: params.scale,
           text: params.text,
           connection: params.connection,
@@ -136,6 +139,17 @@ export const Canvas = (props: CanvasProps) => {
         blocks.set(index, newLiveBlock);
       }
     }
+  }, []);
+
+  const deleteBlock = useMutation(({ storage }, blocksToDelete: string[]) => {
+    unSelectAllNodes(id);
+    blocksToDelete.forEach((blockId) => {
+      const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+      if (blocks) {
+        const index = blocks.findIndex((block) => block.get('id') === blockId);
+        blocks.delete(index);
+      }
+    });
   }, []);
   const layerRef = useRef<Konva.Layer>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -181,11 +195,9 @@ export const Canvas = (props: CanvasProps) => {
         if (detail.eventType === BlockEvents.UPDATE) {
           updateBlock(detail.data);
         }
-        /*   if (detail.eventType === BlockEvents.DELETE) {
-          setBlocks((prev) =>
-            prev.filter((block) => block.id !== detail.block.id)
-          );
-        } */
+        if (detail.eventType === BlockEvents.DELETE) {
+          deleteBlock(detail.data.blocksToDelete || []);
+        }
         if (detail.eventType === BlockEvents.SELECT) {
           const layer = layerRef.current;
           if (layer) {
@@ -204,7 +216,7 @@ export const Canvas = (props: CanvasProps) => {
       resizeObserver.current?.disconnect();
       ref.current = null;
     };
-  }, [id, createBlock, updateBlock]);
+  }, [id, createBlock, updateBlock, deleteBlock]);
 
   const handlePresenceUpdate = useCallback(
     (position: Position) => {

@@ -1,5 +1,5 @@
 import { Tools, toolsConfig } from '../model/tools.config';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getTool,
   getToolbarElement,
@@ -11,25 +11,30 @@ import { observeAttribute, setDataAttribute } from 'shared/model';
 import { ToolbarButton } from './ToolbarButton';
 import { disableHandTool, enableHandTool } from 'features/hand';
 import { useParams } from 'react-router-dom';
-import { createBlock } from 'features/block-mutation';
+import { createBlock, deleteBlock } from 'features/block-mutation';
 import { BlockTypes, config } from 'entities/block';
 import { getCenteredBlockPosition } from 'features/position';
+import { getSelectedNodes } from 'features/selection';
 
 export const Toolbar = () => {
   const [currentTool, setCurrentTool] = useState(Tools.POINTER);
   const params = useParams();
   const toolObserver = useRef<MutationObserver | null>(null);
 
+  const id = useMemo(() => {
+    return params.id || 'default';
+  }, [params]);
+
   const handleToolSelection = useCallback(
     (tool: Tools) => {
       if (tool === Tools.ADD) {
         const centeredBlockPosition = getCenteredBlockPosition(
-          params.id || 'default',
+          id,
           config.width,
           config.height
         );
         if (!centeredBlockPosition) return;
-        createBlock(params.id || 'default', {
+        createBlock(id || 'default', {
           type: BlockTypes.RECTANGLE,
           position: {
             x: centeredBlockPosition.x,
@@ -44,14 +49,13 @@ export const Toolbar = () => {
         setTool(tool);
       }
 
-      const id = params.id || 'default';
       if (tool === Tools.HAND) {
         enableHandTool(id);
       } else {
         disableHandTool(id);
       }
     },
-    [params.id]
+    [id]
   );
 
   const handleKeydown = useCallback(
@@ -59,8 +63,15 @@ export const Toolbar = () => {
       if (e.key === ' ' && getTool() !== Tools.HAND) {
         handleToolSelection(Tools.HAND);
       }
+      if (e.key === 'Delete') {
+        const selectedNodes = getSelectedNodes(id);
+        if (!selectedNodes || !selectedNodes.length) return;
+        deleteBlock(id, {
+          blocksToDelete: selectedNodes.map((node) => node.getAttr('id')),
+        });
+      }
     },
-    [handleToolSelection]
+    [id, handleToolSelection]
   );
 
   const handleKeyup = useCallback(

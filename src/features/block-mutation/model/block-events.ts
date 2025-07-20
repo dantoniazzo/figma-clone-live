@@ -7,11 +7,12 @@ export const EVENT_NAME = 'block-event';
 export type Params = {
   id?: string;
   type?: BlockTypes;
-  position: Position;
-  size: Size;
+  position?: Position;
+  size?: Size;
   scale?: Scale;
   text?: string;
   connection?: Connection;
+  blocksToDelete?: string[];
 };
 
 export enum BlockEvents {
