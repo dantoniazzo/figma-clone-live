@@ -131,6 +131,7 @@ export const Canvas = (props: CanvasProps) => {
           size: params.size,
           scale: params.scale,
           text: params.text,
+          connection: params.connection,
         });
         blocks.set(index, newLiveBlock);
       }

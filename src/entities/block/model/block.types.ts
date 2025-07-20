@@ -1,3 +1,4 @@
+import type { ConnectionAnchorSide } from 'features/connection';
 import type { Position, Size, Scale } from 'shared/model';
 
 export type IBlock = {
@@ -18,4 +19,6 @@ export enum BlockTypes {
 export type Connection = {
   from?: string; // ID of the block this connection is from
   to?: string; // ID of the block this connection is to
+  fromSide?: ConnectionAnchorSide;
+  toSide?: ConnectionAnchorSide;
 };

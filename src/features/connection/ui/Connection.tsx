@@ -7,12 +7,10 @@ import { getColor } from 'shared';
 import { getUpdatedPoints } from '../model';
 import { findNode } from 'entities/node';
 import type { Connection as ConnectionType } from 'entities/block';
-import type { Position } from 'shared/model';
 import type { Group } from 'konva/lib/Group';
 
 interface ConnectionProps {
   connection: ConnectionType;
-  position: Position;
 }
 
 export const Connection = (props: ConnectionProps) => {
@@ -24,36 +22,42 @@ export const Connection = (props: ConnectionProps) => {
     const parent = ref.current?.getParent();
     if (!parent) return;
     ref.current?.moveToBottom();
-    const from = props.connection?.from;
-    const to = props.connection?.to;
+    const to = props.connection.to;
+    const from = props.connection.from;
+    const fromSide = props.connection.fromSide;
+    const toSide = props.connection.toSide;
     // Only handle one type of connection per arrow
     // If this is a "from" connection, draw arrow from the referenced node to this node
-    if (from) {
-      const fromNode = findNode(id, from);
-      if (fromNode && parent) {
+    if (to && fromSide && toSide) {
+      const toNode = findNode(id, to);
+      if (toNode && parent) {
         const calculatedPoints = getUpdatedPoints({
-          fromNode: fromNode,
-          toNode: parent,
+          fromNode: parent as Group,
+          toNode: toNode as Group,
+          fromSide,
+          toSide,
         });
         setPoints(calculatedPoints);
       }
     }
-    if (to) {
-      const toNode = findNode(id, to);
-      if (toNode && parent) {
+    if (from && fromSide && toSide) {
+      const fromNode = findNode(id, from);
+      if (fromNode && parent) {
         (
-          (toNode as Group).children.find(
+          (fromNode as Group).children.find(
             (child) => child instanceof Konva.Arrow
           ) as Konva.Arrow
         ).points(
           getUpdatedPoints({
-            fromNode: parent,
-            toNode: toNode,
+            fromNode: fromNode as Group,
+            toNode: parent as Group,
+            fromSide,
+            toSide,
           })
         );
       }
     }
-  }, [id, props.connection, props.position]);
+  }, [id, props.connection]);
   if (!props.connection || !props.connection.from) {
     return null; // No connection to draw
   }

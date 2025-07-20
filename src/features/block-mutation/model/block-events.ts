@@ -1,5 +1,5 @@
 import { getCanvasContainer } from 'widgets';
-import { BlockTypes } from 'entities/block';
+import { BlockTypes, type Connection } from 'entities/block';
 import type { Position, Scale, Size } from 'shared/model';
 
 export const EVENT_NAME = 'block-event';
@@ -11,6 +11,7 @@ export type Params = {
   size: Size;
   scale?: Scale;
   text?: string;
+  connection?: Connection;
 };
 
 export enum BlockEvents {
