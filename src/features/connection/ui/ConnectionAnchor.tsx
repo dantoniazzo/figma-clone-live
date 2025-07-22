@@ -37,7 +37,7 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         const stageId = getStageIdFromEvent(e);
         if (!stageId) return;
         const selectedNode = getSelectedNode(stageId);
-        if (!selectedNode) return;
+        if (!selectedNode || !selectedNode.hasChildren()) return;
         const nearestBlock = getNearestBlockInDirection(
           stageId,
           selectedNode.getAttr('id'),
