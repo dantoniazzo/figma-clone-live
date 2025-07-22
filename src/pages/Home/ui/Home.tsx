@@ -1,10 +1,22 @@
-import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
-import { SignInButton } from 'features/auth';
-import { useViewer } from 'entities/viewer';
-import { SpaceListTable } from 'widgets/SpaceList';
+import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { SignInButton } from "features/auth";
+import { useViewer } from "entities/viewer";
+import { useEffect } from "react";
 
 export const Home = () => {
   const { viewer, isSignedIn } = useViewer();
+  const _auth = useAuth();
+  const _navigate = useNavigate();
+
+  useEffect(() => {
+    if (_auth.isSignedIn) {
+      _navigate("/files");
+    }
+  }, []);
+  if (_auth.isSignedIn) {
+    return null;
+  }
   return (
     <div className="w-full h-full items-center justify-center flex flex-col gap-12 bg-background-500 ">
       <SignedIn>
@@ -12,18 +24,13 @@ export const Home = () => {
           <UserButton />
         </div>
       </SignedIn>
-      <h1 className="text-6xl font-bold text-white text-center">
-        Welcome {isSignedIn ? viewer?.firstName : 'to Figma clone'}
-      </h1>
 
       <SignedOut>
+        <h1 className="text-6xl font-bold text-white text-center">
+          Welcome {isSignedIn ? viewer?.firstName : "to Figma clone"}
+        </h1>
         <SignInButton />
       </SignedOut>
-      <SignedIn>
-        <div className="w-2/3">
-          <SpaceListTable />
-        </div>
-      </SignedIn>
     </div>
   );
 };

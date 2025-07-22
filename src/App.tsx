@@ -1,6 +1,6 @@
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { Toolbar, LiveCanvas } from "widgets";
-import { Home, NotFound, NoAuth } from "pages";
+import { Home, NotFound, NoAuth, Dashboard } from "pages";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/files" element={<Dashboard />} />
           <Route
             path="/test/:id"
             element={

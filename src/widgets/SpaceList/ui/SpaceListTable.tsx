@@ -167,7 +167,7 @@ export function SpaceListTable() {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter by name..."
