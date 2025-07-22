@@ -16,7 +16,7 @@ export const SpaceCard = (props: SpaceProps) => {
       onClick={() => {
         navigate(`/test/${props.space.id}`);
       }}
-      className="cursor-pointer h-56 w-full lg:w-auto md:flex-1/4 lg:flex-1/5 xl:flex-1/6 flex flex-col gap-2 rounded-lg border border-gray-400 hover:bg-primary-200 transition-colors"
+      className="cursor-pointer max-w-56 h-56 lg:w-auto flex-1/2 md:flex-1/4 lg:flex-1/5 xl:flex-1/6 basis-0.5 flex flex-col gap-2 rounded-lg border border-gray-400 hover:bg-primary-200 transition-colors"
     >
       <img src="/icon.png" className="cursor-pointer h-3/4 object-contain" />
       <div className="h-1/4 p-2 flex justify-between items-center gap-2 text-white border-t border-gray-400">
