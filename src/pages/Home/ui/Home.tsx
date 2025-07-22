@@ -13,7 +13,7 @@ export const Home = () => {
     if (_auth.isSignedIn) {
       _navigate("/files");
     }
-  }, []);
+  }, [_auth.isSignedIn, _navigate]);
   if (_auth.isSignedIn) {
     return null;
   }
