@@ -5,3 +5,5 @@ export * from './json';
 export * from './image';
 export * from './text';
 export * from './cn';
+export * from './click-outside';
+export * from './mobile';

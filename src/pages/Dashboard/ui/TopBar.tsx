@@ -1,7 +1,7 @@
-import { Icon } from "shared";
-import { SpaceType, useSpacesMutation } from "features/spaces-mutation";
-import { useSpaces } from "entities/space";
-import { forwardRef } from "react";
+import { Icon } from 'shared';
+import { SpaceType, useSpacesMutation } from 'features/spaces-mutation';
+import { useSpaces } from 'entities/space';
+import { forwardRef } from 'react';
 
 export const NewFileContainer = forwardRef<
   HTMLDivElement,
@@ -51,7 +51,7 @@ export const NewFile = (props: NewFileProps) => {
 
 export const TopBar = () => {
   return (
-    <div className="h-16 border-b border-gray-400 flex items-center justify-between px-4 text-white text-sm">
+    <div className="h-12 border-b border-gray-400 flex items-center justify-between px-4 text-white text-sm">
       Recents
       <div className="flex items-center gap-2">
         <NewFile type={SpaceType.DESIGN} />
