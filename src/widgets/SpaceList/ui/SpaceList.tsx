@@ -7,8 +7,8 @@ export const SpaceList = () => {
   return (
     <div className="w-full h-full p-4 overflow-auto scrollbar-thin scrollbar">
       {!spaces || spaces.length === 0 ? (
-        <p className="text-white text-center">
-          No spaces available. Create a new space to get started.
+        <p className="text-white text-center mt-8">
+          No files available. Create a new file to get started.
         </p>
       ) : null}
       <div className="flex flex-row flex-wrap gap-4">

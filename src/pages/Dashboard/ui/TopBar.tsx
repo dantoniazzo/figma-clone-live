@@ -30,7 +30,7 @@ export const NewFile = (props: NewFileProps) => {
       return (
         <NewFileContainer
           onClick={() => {
-            createSpace(`Space ${spaces.length + 1}`);
+            createSpace(`File ${spaces.length + 1}`);
           }}
         >
           <Icon name="new-file" src="/icon.png" />

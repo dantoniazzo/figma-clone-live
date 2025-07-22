@@ -1,3 +1,19 @@
+import { useViewer } from "entities/viewer";
+import { Avatar } from "entities/user";
+
 export const LeftRail = () => {
-  return <div className="w-64 border-r border-gray-400"></div>;
+  const { viewer } = useViewer();
+  return (
+    <div className="w-64 border-r border-gray-400 text-white">
+      <div className="w-full h-fit py-2 px-4 text-sm font-bold flex items-center gap-2 ">
+        <Avatar
+          className="w-6 h-6"
+          src={viewer?.imageUrl || ""}
+          name={viewer?.fullName || ""}
+        />
+        {viewer?.fullName}
+      </div>
+      <div className="w-full h-fit py-2 px-4 text-sm bg-gray-400">Recents</div>
+    </div>
+  );
 };
