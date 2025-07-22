@@ -1,6 +1,7 @@
 import { useViewer } from 'entities/viewer';
 import { Avatar } from 'entities/user';
 import { Search } from 'features/search';
+import { Clock } from 'lucide-react';
 
 export const LeftRail = () => {
   const { viewer } = useViewer();
@@ -15,7 +16,10 @@ export const LeftRail = () => {
         {viewer?.fullName}
       </div>
       <Search />
-      <div className="w-full h-fit py-2 px-4 text-sm bg-gray-400">Recents</div>
+      <div className="w-full h-fit py-2 px-4 text-sm bg-gray-700 flex items-center gap-2">
+        <Clock size={16} />
+        Recents
+      </div>
     </div>
   );
 };
