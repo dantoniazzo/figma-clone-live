@@ -87,6 +87,7 @@ export const handlePointerDown = (
       createBlock(id, {
         type: BlockTypes.TEXT,
         position: gridPosition,
+        freshlyCreated: true,
       });
     }
   }

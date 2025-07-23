@@ -1,5 +1,5 @@
-import type { ConnectionAnchorSide } from 'features/connection';
-import type { Position, Size, Scale } from 'shared/model';
+import type { ConnectionAnchorSide } from "features/connection";
+import type { Position, Size, Scale } from "shared/model";
 
 export type IBlock = {
   position: Position;
@@ -9,11 +9,12 @@ export type IBlock = {
   id: string;
   type: BlockTypes;
   text?: string;
+  freshlyCreated?: boolean;
 };
 
 export enum BlockTypes {
-  RECTANGLE = 'rectangle',
-  TEXT = 'text',
+  RECTANGLE = "rectangle",
+  TEXT = "text",
 }
 
 export type Connection = {

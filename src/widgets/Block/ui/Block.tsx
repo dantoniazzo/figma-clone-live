@@ -30,7 +30,11 @@ import {
 import { debounce } from "lodash";
 import type { Delta } from "quill";
 import { Connection, updateConnection } from "features/connection";
-import { forceUpdateTransformer } from "entities/transformer";
+import {
+  forceUpdateTransformer,
+  isHorizontalAnchor,
+  isVerticalAnchor,
+} from "entities/transformer";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 
 export const Block = (props: IBlock) => {
@@ -160,9 +164,14 @@ export const Block = (props: IBlock) => {
         onDragMove={onDragMove}
         onDragEnd={onDragEnd}
         onTransform={(e) => {
-          if (props.type === BlockTypes.TEXT) return;
           const stageId = getStageIdFromEvent(e);
           if (!stageId) return;
+          if (
+            props.type === BlockTypes.TEXT &&
+            !isHorizontalAnchor(stageId) &&
+            !isVerticalAnchor(stageId)
+          )
+            return;
           const group = e.target as GroupType;
           const scaleX = group.scaleX();
           const scaleY = group.scaleY();
@@ -183,18 +192,14 @@ export const Block = (props: IBlock) => {
           const rect = getRectFromGroup(group);
           updateBlock(stageId, {
             id: props.id,
-            position: {
-              x: group.x(),
-              y: group.y(),
-            },
-            size: {
-              width: rect.width(),
-              height: rect.height(),
-            },
-            scale: {
-              x: group.scaleX(),
-              y: group.scaleY(),
-            },
+            position: group.position(),
+            size:
+              props.type === BlockTypes.TEXT &&
+              !isHorizontalAnchor(stageId) &&
+              !isVerticalAnchor(stageId)
+                ? { width: 0, height: 0 }
+                : rect.size(),
+            scale: group.scale(),
           });
         }}
       >
@@ -232,7 +237,16 @@ export const Block = (props: IBlock) => {
                 debounceChange(contents);
               });
               setLoaded(true);
-
+              /*  const group = ref.current;
+              if (group) {
+                const stageId = getStageIdFromNode(group);
+                if (stageId && props.freshlyCreated) {
+                  updateBlock(stageId, {
+                    ...props,
+                    freshlyCreated: false,
+                  });
+                }
+              } */
               const handleClickOutside = () => {
                 setEditing(false);
               };
