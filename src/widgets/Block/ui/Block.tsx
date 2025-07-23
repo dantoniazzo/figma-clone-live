@@ -19,7 +19,7 @@ import { getRectFromGroup } from "entities/node";
 import { Html } from "react-konva-utils";
 import { getBlockHtmlElement, getBlockHtmlId } from "../lib";
 import { unScaleSize } from "features/scale";
-import type { Size } from "shared/model";
+import { observeResize, type Size } from "shared/model";
 import { getEditor, getQlEditorElement, getQuillId } from "features/text";
 import { TextEditor } from "features/text/ui/text-editor";
 import {
@@ -30,6 +30,8 @@ import {
 import { debounce } from "lodash";
 import type { Delta } from "quill";
 import { Connection, updateConnection } from "features/connection";
+import { forceUpdateTransformer } from "entities/transformer";
+import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
@@ -81,39 +83,28 @@ export const Block = (props: IBlock) => {
   );
 
   useEffect(() => {
-    updateHtmlSize(props.size);
+    if (props.size.width || props.size.height) {
+      updateHtmlSize(props.size);
+    }
   }, [props.size, updateHtmlSize]);
 
   useEffect(() => {
+    const qlEditorElement = getQlEditorElement(props.id);
+    if (!qlEditorElement) return;
     return () => {
-      const qlEditorElement = getQlEditorElement(props.id);
-      if (!qlEditorElement) return;
       removeClickOutsideListener(qlEditorElement);
     };
-  }, [props.id]);
+  }, [props.id, props.type]);
 
   const debounceChange = useMemo(
     () =>
       debounce((delta: Delta) => {
         const group = ref.current;
         if (!group) return;
-        const rect = getRectFromGroup(group);
         const stageId = getStageIdFromNode(group);
         if (!stageId) return;
         updateBlock(stageId, {
           id: props.id,
-          position: {
-            x: group.x(),
-            y: group.y(),
-          },
-          size: {
-            width: rect.width(),
-            height: rect.height(),
-          },
-          scale: {
-            x: group.scaleX(),
-            y: group.scaleY(),
-          },
           text: JSON.stringify(delta),
         });
       }, 300),
@@ -140,6 +131,8 @@ export const Block = (props: IBlock) => {
   useEffect(() => {
     setQuillContents();
   }, [props.text, setQuillContents]);
+
+  console.log("Props", props);
 
   return (
     <>
@@ -206,9 +199,10 @@ export const Block = (props: IBlock) => {
         }}
       >
         <Rect
-          image={undefined}
           ref={imageRef}
+          strokeEnabled={props.type !== BlockTypes.TEXT}
           {...rest}
+          fill={props.type === BlockTypes.TEXT ? "transparent" : rest.fill}
           width={props.size.width}
           height={props.size.height}
         />
@@ -243,6 +237,19 @@ export const Block = (props: IBlock) => {
                 setEditing(false);
               };
               listenToClickOutside(node, handleClickOutside);
+              const htmlElement = getBlockHtmlElement(props.id);
+              if (props.type === BlockTypes.TEXT && htmlElement) {
+                observeResize(htmlElement, () => {
+                  const imageNode = imageRef.current;
+                  if (!imageNode) return;
+                  imageNode.width(htmlElement.offsetWidth);
+                  imageNode.height(htmlElement.offsetHeight);
+                  const stageId = getStageIdFromNode(imageNode);
+                  if (!stageId) return;
+                  forceUpdateTransformer(stageId);
+                  setConnectionAnchors(stageId);
+                });
+              }
             }}
           />
         </Html>

@@ -3,12 +3,12 @@ import {
   getStageIdFromEvent,
   type KonvaEvent,
   type KonvaMouseTouchEvent,
-} from 'entities/stage';
-import { Node } from 'konva/lib/Node';
-import { Transformer } from 'konva/lib/shapes/Transformer';
-import { TRANSFORMER_KEY } from '../lib';
+} from "entities/stage";
+import { Node } from "konva/lib/Node";
+import { Transformer } from "konva/lib/shapes/Transformer";
+import { TRANSFORMER_KEY } from "../lib";
 
-export const TRANSFORMER_ID = 'tranformer';
+export const TRANSFORMER_ID = "tranformer";
 
 export const getTransformer = (id: string) => {
   const stage = getStage(id);
@@ -35,4 +35,11 @@ export const findTransformerOnStage = (id: string): Transformer | null => {
     return node.className === TRANSFORMER_KEY;
   });
   return tranformer as Transformer;
+};
+
+export const forceUpdateTransformer = (id: string) => {
+  const transformer = getTransformer(id);
+  if (transformer) {
+    transformer.forceUpdate();
+  }
 };

@@ -1,11 +1,11 @@
-import { findNode, getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import { ConnectionAnchorSide } from './connection.types';
-import { FULL_SIZE } from 'features/grid';
-import { getStageIdFromNode } from 'entities/stage';
-import type { Connection } from 'entities/block';
-import { getLayer } from 'entities/layer';
-import { findConnectionArrow } from './connection-arrow';
+import { findNode, getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import { ConnectionAnchorSide } from "./connection.types";
+import { FULL_SIZE } from "features/grid";
+import { getStageIdFromNode } from "entities/stage";
+import type { Connection } from "entities/block";
+import { getLayer } from "entities/layer";
+import { findConnectionArrow } from "./connection-arrow";
 
 export interface UpdateProps {
   fromNode: Group;
@@ -42,7 +42,7 @@ export const updateConnection = (
   node: Group,
   callback?: (points: number[]) => void
 ) => {
-  const connection = node.getAttr('connection') as Connection | undefined;
+  const connection = node.getAttr("connection") as Connection | undefined;
   if (!connection) return;
   const calculatedPoints = calculateConnectionPoints(node, connection);
   const stageId = getStageIdFromNode(node);

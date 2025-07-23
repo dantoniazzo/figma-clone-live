@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
   border: none;
-  padding: 2em;
+  padding: 1em;
 }
 
 .ql-editor {
@@ -13,6 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 1px;
 }
 
 .ql-editor.ql-blank::before {
@@ -28,7 +29,7 @@
 }
 
 .ql-editor.ql-blank:focus::before {
-  content: '';
+  content: "";
 }
 
 .ql-toolbar {

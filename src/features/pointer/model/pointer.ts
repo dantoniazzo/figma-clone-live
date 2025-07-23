@@ -22,7 +22,7 @@ import { handleDragEnd, handleDragStart } from "features/hand";
 import { getGridLayerId, calculateGridCoordinates } from "features/grid";
 import type { Position } from "shared/model";
 import { createBlock } from "features/block-mutation";
-import { BlockTypes, config } from "entities/block";
+import { BlockTypes } from "entities/block";
 
 export const getPointerPosition = (stageId: string) => {
   return getStage(stageId)?.getPointerPosition();
@@ -87,10 +87,6 @@ export const handlePointerDown = (
       createBlock(id, {
         type: BlockTypes.TEXT,
         position: gridPosition,
-        size: {
-          width: config.width,
-          height: config.height,
-        },
       });
     }
   }

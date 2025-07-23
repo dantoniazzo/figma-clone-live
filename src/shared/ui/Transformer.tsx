@@ -1,16 +1,17 @@
-import { getColor } from 'shared/utils';
-import { Transformer as KonvaTransformer } from 'react-konva';
-import { Transformer as TransformerType } from 'konva/lib/shapes/Transformer';
-import { getStage, getStageIdFromNode } from 'entities/stage';
+import { getColor } from "shared/utils";
+import { Transformer as KonvaTransformer } from "react-konva";
+import { Transformer as TransformerType } from "konva/lib/shapes/Transformer";
+import { getStage, getStageIdFromNode } from "entities/stage";
 import {
   reScalePosition,
   reScaleSize,
   unScalePosition,
   unScaleSize,
-} from 'features/scale';
-import { FULL_SIZE, snapToGrid } from 'features/grid';
-import { useRef } from 'react';
-import { ConnectionAnchors } from 'features/connection';
+} from "features/scale";
+import { FULL_SIZE, snapToGrid } from "features/grid";
+import { useRef } from "react";
+import { ConnectionAnchors } from "features/connection";
+import { BlockTypes } from "entities/block";
 
 export const Transformer = () => {
   const ref = useRef<TransformerType | null>(null);
@@ -19,18 +20,25 @@ export const Transformer = () => {
       ref={ref}
       keepRatio={false}
       anchorCornerRadius={2}
-      anchorStroke={getColor('--color-primary-100')}
+      anchorStroke={getColor("--color-primary-100")}
       anchorStrokeWidth={2}
       anchorFill="black"
       resizeEnabled={true}
       rotateEnabled={false}
       borderEnabled={true}
-      borderStroke={getColor('--color-primary-100')}
+      borderStroke={getColor("--color-primary-100")}
       borderStrokeWidth={2}
       ignoreStroke={true}
       boundBoxFunc={(oldBox, newBox) => {
         const transformer = ref.current;
         if (!transformer) return newBox;
+        const nodes = transformer.nodes();
+        if (
+          nodes &&
+          nodes.length === 1 &&
+          nodes[0].getAttr("blockType") === BlockTypes.TEXT
+        )
+          return newBox;
         const stageId = getStageIdFromNode(transformer);
         if (!stageId) return newBox;
         const stage = getStage(stageId);

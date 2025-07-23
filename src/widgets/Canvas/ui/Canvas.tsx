@@ -1,51 +1,52 @@
-import Konva from 'konva';
-import { Stage, Layer } from 'react-konva';
-import { getLayerId } from 'entities/layer';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { scaleStageOnScroll, unScalePosition } from 'features/scale';
-import { moveStageOnScroll } from 'features/position';
+import Konva from "konva";
+import { Stage, Layer } from "react-konva";
+import { getLayerId } from "entities/layer";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { scaleStageOnScroll, unScalePosition } from "features/scale";
+import { moveStageOnScroll } from "features/position";
 import {
   handleTouchDown,
   handleTouchEnd,
   handleTouchMove,
-} from 'features/touch';
+} from "features/touch";
 import {
   handlePointerDown,
   handlePointerMove,
   handlePointerUp,
-} from 'features/pointer';
-import { getGridLayerId, drawLines } from 'features/grid';
-import { getStageElementId, getStageIdFromEvent } from 'entities/stage';
-import { getCanvasContainerId } from '../lib';
-import { setStageSize } from 'features/size';
-import { observeResize, type Position } from 'shared/model';
-import { useParams } from 'react-router-dom';
-import { Block } from '../../Block';
-import { BlockTypes, config, type IBlock } from 'entities/block';
+} from "features/pointer";
+import { getGridLayerId, drawLines } from "features/grid";
+import { getStageElementId, getStageIdFromEvent } from "entities/stage";
+import { getCanvasContainerId } from "../lib";
+import { setStageSize } from "features/size";
+import { observeResize, type Position } from "shared/model";
+import { useParams } from "react-router-dom";
+import { Block } from "../../Block";
+import { BlockTypes, config, type IBlock } from "entities/block";
 import {
   BlockEventListener,
   BlockEvents,
   removeBlockEventListener,
   type Params,
-} from 'features/block-mutation';
-import { getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import { selectNode, unSelectAllNodes } from 'features/selection';
-import { AvatarList } from 'features/avatar-list';
-import { Presences } from 'features/presence';
+} from "features/block-mutation";
+import { getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import { selectNode, unSelectAllNodes } from "features/selection";
+import { AvatarList } from "features/avatar-list";
+import { Presences } from "features/presence";
 import {
   ClientSideSuspense,
   RoomProvider,
   useUpdateMyPresence,
   useStorage,
   useMutation,
-} from '@liveblocks/react/suspense';
-import { LiveList, LiveObject } from '@liveblocks/client';
-import { Loading, Transformer } from 'shared';
-import { Header } from 'features/header';
-import { useViewer } from 'entities/viewer';
-import { v4 as uuidv4 } from 'uuid';
-import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
+} from "@liveblocks/react/suspense";
+import { LiveList, LiveObject } from "@liveblocks/client";
+import { Loading, Transformer } from "shared";
+import { Header } from "features/header";
+import { useViewer } from "entities/viewer";
+import { v4 as uuidv4 } from "uuid";
+import { setConnectionAnchors } from "features/connection/model/connection-anchor";
+import { creationConfig } from "features/text";
 
 export interface CanvasProps {
   id: string;
@@ -56,7 +57,7 @@ export const LiveCanvas = () => {
   const params = useParams();
 
   const id = useMemo(() => {
-    return params.id || 'default';
+    return params.id || "default";
   }, [params]);
 
   const cancelWheel = useCallback(
@@ -72,13 +73,13 @@ export const LiveCanvas = () => {
 
   useEffect(() => {
     document
-      .getElementById('root')
-      ?.addEventListener('wheel', cancelWheel, true);
+      .getElementById("root")
+      ?.addEventListener("wheel", cancelWheel, true);
 
     return () => {
       document
-        .getElementById('root')
-        ?.removeEventListener('wheel', cancelWheel, true);
+        .getElementById("root")
+        ?.removeEventListener("wheel", cancelWheel, true);
     };
   }, [id, cancelWheel]);
   return (
@@ -86,11 +87,11 @@ export const LiveCanvas = () => {
       id={id}
       initialPresence={{
         user: {
-          firstName: viewer?.firstName || 'Guest',
-          lastName: viewer?.lastName || 'User',
-          email: viewer?.emailAddresses[0].emailAddress || '',
-          id: viewer?.id || 'guest',
-          imageUrl: viewer?.imageUrl || 'https://via.placeholder.com/150',
+          firstName: viewer?.firstName || "Guest",
+          lastName: viewer?.lastName || "User",
+          email: viewer?.emailAddresses[0].emailAddress || "",
+          id: viewer?.id || "guest",
+          imageUrl: viewer?.imageUrl || "https://via.placeholder.com/150",
         },
         cursor: null,
       }}
@@ -113,19 +114,26 @@ export const Canvas = (props: CanvasProps) => {
     const newBlock = new LiveObject<IBlock>({
       ...params,
       position: params.position || { x: 0, y: 0 },
-      size: params.size || { width: config.width, height: config.height },
+      size: params.size || {
+        width:
+          params.type === BlockTypes.TEXT ? creationConfig.width : config.width,
+        height:
+          params.type === BlockTypes.TEXT
+            ? creationConfig.height
+            : config.height,
+      },
       id,
       type: params.type || BlockTypes.RECTANGLE,
     });
-    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
     if (blocks) {
       blocks.push(newBlock);
     }
   }, []);
   const updateBlock = useMutation(({ storage }, params: Params) => {
-    const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+    const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
     if (blocks) {
-      const index = blocks.findIndex((block) => block.get('id') === params.id);
+      const index = blocks.findIndex((block) => block.get("id") === params.id);
       const block = blocks.get(index);
       if (block) {
         const blockObject = block.toObject();
@@ -146,9 +154,9 @@ export const Canvas = (props: CanvasProps) => {
   const deleteBlock = useMutation(({ storage }, blocksToDelete: string[]) => {
     unSelectAllNodes(id);
     blocksToDelete.forEach((blockId) => {
-      const blocks = storage.get('blocks') as LiveList<LiveObject<IBlock>>;
+      const blocks = storage.get("blocks") as LiveList<LiveObject<IBlock>>;
       if (blocks) {
-        const index = blocks.findIndex((block) => block.get('id') === blockId);
+        const index = blocks.findIndex((block) => block.get("id") === blockId);
         blocks.delete(index);
       }
     });
@@ -239,10 +247,10 @@ export const Canvas = (props: CanvasProps) => {
     [handlePresenceUpdate]
   );
   useEffect(() => {
-    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener("pointermove", onPointerMove);
 
     return () => {
-      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener("pointermove", onPointerMove);
     };
   }, [onPointerMove]);
 
