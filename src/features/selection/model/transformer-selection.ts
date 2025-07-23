@@ -1,4 +1,3 @@
-import { BlockTypes } from "entities/block";
 import { getTransformer } from "entities/transformer";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 import { Node } from "konva/lib/Node";
@@ -20,10 +19,6 @@ export const getSelectedNodes = (stageId: string) => {
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
-    const type = node.getAttr("blockType");
-    if (type && type === BlockTypes.TEXT) {
-      transformer.keepRatio(true);
-    }
     transformer.nodes([node]);
     setConnectionAnchors(stageId);
   }

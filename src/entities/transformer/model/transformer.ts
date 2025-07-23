@@ -37,6 +37,12 @@ export const findTransformerOnStage = (id: string): Transformer | null => {
   return tranformer as Transformer;
 };
 
+export const isTransforming = (id: string) => {
+  const transformer = getTransformer(id);
+  if (!transformer) return false;
+  return transformer.isTransforming();
+};
+
 export const forceUpdateTransformer = (id: string) => {
   const transformer = getTransformer(id);
   if (transformer) {

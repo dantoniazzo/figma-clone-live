@@ -30,11 +30,7 @@ import {
 import { debounce } from "lodash";
 import type { Delta } from "quill";
 import { Connection, updateConnection } from "features/connection";
-import {
-  forceUpdateTransformer,
-  isHorizontalAnchor,
-  isVerticalAnchor,
-} from "entities/transformer";
+import { forceUpdateTransformer, isTransforming } from "entities/transformer";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 
 export const Block = (props: IBlock) => {
@@ -136,8 +132,6 @@ export const Block = (props: IBlock) => {
     setQuillContents();
   }, [props.text, setQuillContents]);
 
-  console.log("Props", props);
-
   return (
     <>
       <Group
@@ -166,12 +160,6 @@ export const Block = (props: IBlock) => {
         onTransform={(e) => {
           const stageId = getStageIdFromEvent(e);
           if (!stageId) return;
-          if (
-            props.type === BlockTypes.TEXT &&
-            !isHorizontalAnchor(stageId) &&
-            !isVerticalAnchor(stageId)
-          )
-            return;
           const group = e.target as GroupType;
           const scaleX = group.scaleX();
           const scaleY = group.scaleY();
@@ -193,12 +181,7 @@ export const Block = (props: IBlock) => {
           updateBlock(stageId, {
             id: props.id,
             position: group.position(),
-            size:
-              props.type === BlockTypes.TEXT &&
-              !isHorizontalAnchor(stageId) &&
-              !isVerticalAnchor(stageId)
-                ? { width: 0, height: 0 }
-                : rect.size(),
+            size: rect.size(),
             scale: group.scale(),
           });
         }}
@@ -237,16 +220,6 @@ export const Block = (props: IBlock) => {
                 debounceChange(contents);
               });
               setLoaded(true);
-              /*  const group = ref.current;
-              if (group) {
-                const stageId = getStageIdFromNode(group);
-                if (stageId && props.freshlyCreated) {
-                  updateBlock(stageId, {
-                    ...props,
-                    freshlyCreated: false,
-                  });
-                }
-              } */
               const handleClickOutside = () => {
                 setEditing(false);
               };
@@ -256,10 +229,11 @@ export const Block = (props: IBlock) => {
                 observeResize(htmlElement, () => {
                   const imageNode = imageRef.current;
                   if (!imageNode) return;
-                  imageNode.width(htmlElement.offsetWidth);
-                  imageNode.height(htmlElement.offsetHeight);
                   const stageId = getStageIdFromNode(imageNode);
                   if (!stageId) return;
+                  if (isTransforming(stageId)) return;
+                  imageNode.width(htmlElement.offsetWidth);
+                  imageNode.height(htmlElement.offsetHeight);
                   forceUpdateTransformer(stageId);
                   setConnectionAnchors(stageId);
                 });

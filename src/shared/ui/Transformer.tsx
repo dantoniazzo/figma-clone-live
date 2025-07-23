@@ -11,7 +11,6 @@ import {
 import { FULL_SIZE, snapToGrid } from "features/grid";
 import { useRef } from "react";
 import { ConnectionAnchors } from "features/connection";
-import { BlockTypes } from "entities/block";
 
 export const Transformer = () => {
   const ref = useRef<TransformerType | null>(null);
@@ -32,13 +31,6 @@ export const Transformer = () => {
       boundBoxFunc={(oldBox, newBox) => {
         const transformer = ref.current;
         if (!transformer) return newBox;
-        const nodes = transformer.nodes();
-        if (
-          nodes &&
-          nodes.length === 1 &&
-          nodes[0].getAttr("blockType") === BlockTypes.TEXT
-        )
-          return newBox;
         const stageId = getStageIdFromNode(transformer);
         if (!stageId) return newBox;
         const stage = getStage(stageId);
