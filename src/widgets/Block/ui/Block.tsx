@@ -212,6 +212,7 @@ export const Block = (props: IBlock) => {
               pointerEvents: editing ? "auto" : "none",
               borderRadius: "6px",
               display:
+                props.type === BlockTypes.TEXT ||
                 ref.current?.getStage()?.attrs?.type === SpaceType.FIGJAM
                   ? "flex"
                   : "none",
