@@ -47,6 +47,7 @@ import { useViewer } from "entities/viewer";
 import { v4 as uuidv4 } from "uuid";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 import { creationConfig } from "features/text";
+import { Line } from "features/line";
 
 export interface CanvasProps {
   id: string;
@@ -122,6 +123,7 @@ export const Canvas = (props: CanvasProps) => {
             ? creationConfig.height
             : config.height,
       },
+      points: params.points || [],
       id,
       type: params.type || BlockTypes.RECTANGLE,
     });
@@ -143,6 +145,7 @@ export const Canvas = (props: CanvasProps) => {
           size: params.size ||
             blockObject.size || { width: config.width, height: config.height },
           scale: params.scale || blockObject.scale,
+          points: params.points || blockObject.points || [],
           text: params.text || blockObject.text,
           connection: params.connection || blockObject.connection,
         });
@@ -279,9 +282,18 @@ export const Canvas = (props: CanvasProps) => {
         <Layer id={getGridLayerId(id)} />
         <Layer ref={layerRef} id={getLayerId(id)}>
           {blocks &&
-            (blocks as IBlock[]).map((block) => (
-              <Block key={`block-key-${block.id}`} {...block} />
-            ))}
+            (blocks as IBlock[]).map((block) => {
+              if (block.type === BlockTypes.LINE && block.points) {
+                return (
+                  <Line
+                    key={`line-key-${block.id}`}
+                    {...block}
+                    points={block.points}
+                  />
+                );
+              }
+              return <Block key={`block-key-${block.id}`} {...block} />;
+            })}
           <Transformer />
           <Presences stageId={id} />
         </Layer>

@@ -4,20 +4,20 @@ import {
   Hand,
   Pencil,
   Square,
-  Spline,
+  PenTool,
   Type,
   Frame,
-} from 'lucide-react';
+} from "lucide-react";
 
 export enum Tools {
-  POINTER = 'pointer',
-  HAND = 'hand',
-  ADD = 'add',
-  PENCIL = 'pencil',
-  RECTANGLE = 'rectangle',
-  LINE = 'line',
-  TEXT = 'text',
-  FRAME = 'frame',
+  POINTER = "pointer",
+  HAND = "hand",
+  ADD = "add",
+  PENCIL = "pencil",
+  RECTANGLE = "rectangle",
+  LINE = "line",
+  TEXT = "text",
+  FRAME = "frame",
 }
 
 export interface ToolConfig {
@@ -44,8 +44,8 @@ export const toolsConfig: { [key in Tools]: ToolConfig } = {
   },
   [Tools.PENCIL]: {
     icon: <Pencil />,
-    enabled: false,
-    show: false,
+    enabled: true,
+    show: true,
   },
   [Tools.RECTANGLE]: {
     icon: <Square />,
@@ -53,9 +53,9 @@ export const toolsConfig: { [key in Tools]: ToolConfig } = {
     show: true,
   },
   [Tools.LINE]: {
-    icon: <Spline />,
+    icon: <PenTool />,
     enabled: true,
-    show: false,
+    show: true,
   },
   [Tools.TEXT]: {
     icon: <Type />,

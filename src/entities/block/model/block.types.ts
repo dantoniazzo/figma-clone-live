@@ -6,6 +6,7 @@ export type IBlock = {
   size: Size;
   scale?: Scale;
   connection?: Connection;
+  points?: number[];
   id: string;
   type: BlockTypes;
   text?: string;
@@ -15,6 +16,7 @@ export type IBlock = {
 export enum BlockTypes {
   RECTANGLE = "rectangle",
   TEXT = "text",
+  LINE = "line",
 }
 
 export type Connection = {

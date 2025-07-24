@@ -10,6 +10,7 @@ export type Params = {
   position?: Position;
   size?: Size;
   scale?: Scale;
+  points?: number[];
   text?: string;
   connection?: Connection;
   blocksToDelete?: string[];
