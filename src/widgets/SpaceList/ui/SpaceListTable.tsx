@@ -34,7 +34,7 @@ import {
   TableRow,
   Input,
 } from "shared";
-import { useSpaces, type ISpace } from "entities/space";
+import { SpaceType, useSpaces, type ISpace } from "entities/space";
 import { useSpacesMutation } from "features/spaces-mutation";
 
 export function SpaceListTable() {
@@ -180,7 +180,7 @@ export function SpaceListTable() {
         <div className="flex items-center gap-2">
           <SButton
             onClick={() => {
-              createSpace(`Space ${spaces.length + 1}`);
+              createSpace(`Space ${spaces.length + 1}`, SpaceType.DESIGN);
             }}
             variant="outline"
             className="ml-auto bg-primary-100 text-white border-0 cursor-pointer hover:bg-primary-500 hover:text-gray-100"
