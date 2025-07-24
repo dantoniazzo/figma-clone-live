@@ -1,6 +1,6 @@
-import { ConnectionAnchorSide } from './connection.types';
-import { connectionConfig } from '../lib';
-import { getTransformer } from 'entities/transformer';
+import { ConnectionAnchorSide } from "./connection.types";
+import { connectionConfig } from "../lib";
+import { getTransformer } from "entities/transformer";
 
 export const setConnectionAnchors = (id: string) => {
   const transformer = getTransformer(id);
@@ -9,7 +9,7 @@ export const setConnectionAnchors = (id: string) => {
   const height = transformer.height();
   const connectionAnchors = transformer.find(`.${connectionConfig.name}`);
   connectionAnchors.forEach((anchor) => {
-    const side = anchor.getAttr('side');
+    const side = anchor.getAttr("side");
     switch (side) {
       case ConnectionAnchorSide.LEFT:
         anchor.position({
@@ -40,5 +40,23 @@ export const setConnectionAnchors = (id: string) => {
         });
         break;
     }
+  });
+};
+
+export const hideConnectionAnchors = (id: string) => {
+  const transformer = getTransformer(id);
+  if (!transformer) return;
+  const connectionAnchors = transformer.find(`.${connectionConfig.name}`);
+  connectionAnchors.forEach((anchor) => {
+    anchor.hide();
+  });
+};
+
+export const showConnectionAnchors = (id: string) => {
+  const transformer = getTransformer(id);
+  if (!transformer) return;
+  const connectionAnchors = transformer.find(`.${connectionConfig.name}`);
+  connectionAnchors.forEach((anchor) => {
+    anchor.show();
   });
 };

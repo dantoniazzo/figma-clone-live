@@ -23,6 +23,7 @@ import { getGridLayerId, calculateGridCoordinates } from "features/grid";
 import type { Position } from "shared/model";
 import { createBlock } from "features/block-mutation";
 import { BlockTypes } from "entities/block";
+import { hideConnectionAnchors } from "features/connection/model/connection-anchor";
 
 export const getPointerPosition = (stageId: string) => {
   return getStage(stageId)?.getPointerPosition();
@@ -67,6 +68,7 @@ export const handlePointerDown = (
         createRectangle(id, { position: gridCoordinates, grid: true });
         const rect = getDrawnRectangleBox(id);
         if (rect) {
+          hideConnectionAnchors(id);
           selectNode(id, rect);
           rect.moveToBottom();
         }

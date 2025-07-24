@@ -65,7 +65,7 @@ export const toolsConfig: { [key in Tools]: ToolConfig } = {
   },
   [Tools.FRAME]: {
     icon: <Frame />,
-    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
-    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    enabled: [],
+    show: [],
   },
 };

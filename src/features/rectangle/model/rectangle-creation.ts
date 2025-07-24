@@ -9,6 +9,7 @@ import { snapToGrid } from "features/grid";
 import { createBlock } from "features/block-mutation";
 import { BlockTypes } from "entities/block";
 import { SpaceType } from "entities/space";
+import { showConnectionAnchors } from "features/connection/model/connection-anchor";
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -93,5 +94,6 @@ export const finishDrawingRectangle = (stageId: string, id?: string) => {
     },
   });
   unSelectAllNodes(stageId);
+  showConnectionAnchors(stageId);
   rect.remove();
 };
