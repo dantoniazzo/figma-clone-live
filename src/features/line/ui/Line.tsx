@@ -9,6 +9,7 @@ import { updateBlock } from "features/block-mutation";
 import { debounce } from "lodash";
 import { getColor } from "shared";
 import { LineConfig } from "../model";
+import { blockConfig } from "entities/block";
 
 interface LineProps {
   id: string;
@@ -38,7 +39,7 @@ export const Line = (props: LineProps) => {
   );
 
   return (
-    <Group ref={groupRef} draggable>
+    <Group name={blockConfig.name} id={props.id} ref={groupRef} draggable>
       <Shape
         id={props.id}
         stroke={LineConfig.stroke}
