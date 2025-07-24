@@ -9,11 +9,19 @@ import {
   unScaleSize,
 } from "features/scale";
 import { FULL_SIZE, snapToGrid } from "features/grid";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { ConnectionAnchors } from "features/connection";
+import { SpaceType } from "entities/space";
+import { useParams } from "react-router-dom";
 
 export const Transformer = () => {
   const ref = useRef<TransformerType | null>(null);
+  const params = useParams();
+
+  const type = useMemo(() => {
+    return params.type || SpaceType.DESIGN;
+  }, [params]);
+
   return (
     <KonvaTransformer
       ref={ref}
@@ -29,6 +37,7 @@ export const Transformer = () => {
       borderStrokeWidth={2}
       ignoreStroke={true}
       boundBoxFunc={(oldBox, newBox) => {
+        if (type !== SpaceType.FIGJAM) return newBox;
         const transformer = ref.current;
         if (!transformer) return newBox;
         const stageId = getStageIdFromNode(transformer);

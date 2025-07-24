@@ -44,8 +44,8 @@ export const toolsConfig: { [key in Tools]: ToolConfig } = {
   },
   [Tools.PENCIL]: {
     icon: <Pencil />,
-    enabled: true,
-    show: true,
+    enabled: false,
+    show: false,
   },
   [Tools.RECTANGLE]: {
     icon: <Square />,

@@ -1,11 +1,13 @@
-import { type Position, type Rect } from 'shared/model';
-import { FULL_SIZE } from '../lib/grid.constants';
-import { getStage, getStageRect, getViewRect } from 'entities/stage';
-import { unScale } from 'features/scale';
-import { getGridLayer } from './grid-layer';
-import { getCanvasContainer } from 'widgets';
+import { type Position, type Rect } from "shared/model";
+import { FULL_SIZE } from "../lib/grid.constants";
+import { getStage, getStageRect, getViewRect } from "entities/stage";
+import { unScale } from "features/scale";
+import { getGridLayer } from "./grid-layer";
+import { getCanvasContainer } from "widgets";
 
-// =========== Grid layer ===========
+export const isGrid = (id: string) => {
+  return !!getGridLayer(id);
+};
 
 export const getZoomStep = (id: string) => {
   const scaleX = getStage(id)?.scaleX();

@@ -42,6 +42,7 @@ export const Block = (props: IBlock) => {
 
   const onDragMove = (e: KonvaDragEvent) => {
     onMoveOnGrid(e);
+    updateConnection(e.target as GroupType);
   };
 
   const onDragEnd = (e: KonvaDragEvent) => {
@@ -171,7 +172,7 @@ export const Block = (props: IBlock) => {
           const height = rect.height() * scaleY;
           rect.size({ width, height });
           updateHtmlSizeFromGroup();
-          updateConnection(group);
+          updateConnection(e.target as GroupType);
         }}
         onTransformEnd={(e) => {
           const stageId = getStageIdFromEvent(e);

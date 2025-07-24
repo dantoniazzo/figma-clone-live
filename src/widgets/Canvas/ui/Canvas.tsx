@@ -48,6 +48,7 @@ import { v4 as uuidv4 } from "uuid";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
 import { creationConfig } from "features/text";
 import { Line } from "features/line";
+import { SpaceType } from "entities/space";
 
 export interface CanvasProps {
   id: string;
@@ -110,6 +111,12 @@ export const LiveCanvas = () => {
 export const Canvas = (props: CanvasProps) => {
   const { id } = props;
   const blocks = useStorage((storage) => storage.blocks);
+  const params = useParams();
+
+  const type = useMemo(() => {
+    return params.type || SpaceType.DESIGN;
+  }, [params]);
+
   const createBlock = useMutation(({ storage }, params: Params) => {
     const id = uuidv4();
     const newBlock = new LiveObject<IBlock>({
@@ -279,7 +286,7 @@ export const Canvas = (props: CanvasProps) => {
         id={getStageElementId(id)}
       >
         {/* Grid layer */}
-        <Layer id={getGridLayerId(id)} />
+        {type === SpaceType.FIGJAM && <Layer id={getGridLayerId(id)} />}
         <Layer ref={layerRef} id={getLayerId(id)}>
           {blocks &&
             (blocks as IBlock[]).map((block) => {

@@ -1,14 +1,13 @@
-import type { Position } from 'shared/model';
-import { calculateGridCoordinates } from './grid.helpers';
-import type { KonvaDragEvent } from 'entities/stage';
-import { updateConnection } from 'features/connection';
-import type { Group } from 'konva/lib/Group';
+import type { Position } from "shared/model";
+import { calculateGridCoordinates, isGrid } from "./grid.helpers";
+import { getStageIdFromEvent, type KonvaDragEvent } from "entities/stage";
 
 export const onMoveOnGrid = (e: KonvaDragEvent) => {
+  const stageId = getStageIdFromEvent(e);
+  if (!stageId || !isGrid(stageId)) return;
   const position = e.target.position();
   const positionOnGrid = moveOnGrid(position);
   e.target.position(positionOnGrid);
-  updateConnection(e.target as Group);
 };
 
 export const moveOnGrid = (position: Position) => {
@@ -17,5 +16,3 @@ export const moveOnGrid = (position: Position) => {
     y: position.y,
   });
 };
-
-export const resizeOnGrid = () => {};

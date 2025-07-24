@@ -1,6 +1,6 @@
-import { getStage } from 'entities/stage';
-import { type KonvaEventObject, Node, type NodeConfig } from 'konva/lib/Node';
-import { type Position, type Size } from 'shared/model';
+import { getStage } from "entities/stage";
+import { type KonvaEventObject, Node, type NodeConfig } from "konva/lib/Node";
+import { type Position, type Size } from "shared/model";
 
 const scaleBy = 1.05;
 
@@ -19,10 +19,7 @@ export const scaleStageOnScroll = (
     y: (pointer.y - stage.y()) / oldScale,
   };
 
-  let direction = e.evt.deltaY > 0 ? 1 : -1;
-  if (e.evt.ctrlKey) {
-    direction = -direction;
-  }
+  const direction = e.evt.deltaY > 0 ? 1 : -1;
 
   const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
