@@ -211,7 +211,10 @@ export const Block = (props: IBlock) => {
             style: {
               pointerEvents: editing ? "auto" : "none",
               borderRadius: "6px",
-              display: "flex",
+              display:
+                ref.current?.getStage()?.attrs?.type === SpaceType.FIGJAM
+                  ? "flex"
+                  : "none",
               justifyContent: "center",
               alignItems: "center",
               color: "var(--color-gray-300)",
