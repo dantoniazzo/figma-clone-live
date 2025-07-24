@@ -1,12 +1,9 @@
-import { getColor } from 'shared';
-import { FULL_SIZE } from 'features/grid';
+import { getColor } from "shared";
+import { FULL_SIZE } from "features/grid";
 
-export const config = {
-  name: 'block',
+export const blockConfig = {
+  name: "block",
   width: FULL_SIZE * 5,
   height: FULL_SIZE * 5,
-  fill: getColor('--color-gray-500'),
-  cornerRadius: 6,
-  stroke: getColor('--color-gray-400'),
-  strokeWidth: 2,
+  fill: getColor("--color-gray-500"),
 };

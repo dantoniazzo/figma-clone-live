@@ -1,13 +1,14 @@
-import Konva from 'konva';
-import { type Position } from 'shared/model';
-import { type RectConfig } from 'konva/lib/shapes/Rect';
-import { getLayer } from 'entities/layer';
-import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from '../lib';
-import { basicRectangleConfig } from './rectangle.config';
-import { selectNode, unSelectAllNodes } from 'features/selection';
-import { snapToGrid } from 'features/grid';
-import { createBlock } from 'features/block-mutation';
-import { BlockTypes } from 'entities/block';
+import Konva from "konva";
+import { type Position } from "shared/model";
+import { type RectConfig } from "konva/lib/shapes/Rect";
+import { getLayer } from "entities/layer";
+import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from "../lib";
+import { basicRectangleConfig } from "./rectangle.config";
+import { selectNode, unSelectAllNodes } from "features/selection";
+import { snapToGrid } from "features/grid";
+import { createBlock } from "features/block-mutation";
+import { BlockTypes } from "entities/block";
+import { SpaceType } from "entities/space";
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -24,10 +25,10 @@ export const createRectangle = (stageId: string, config: RectConfig) => {
   });
   if (!config.width && !config.height) {
     // Store the initial position as custom attribute
-    rect.setAttr('start-position', config.position);
+    rect.setAttr("start-position", config.position);
   }
   // We're using pointerup to handle touch events as well
-  rect.on('pointerup', () => {
+  rect.on("pointerup", () => {
     selectNode(stageId, rect);
   });
   const layer = getLayer(stageId);
@@ -41,21 +42,28 @@ export const updateRectangle = (
 ) => {
   const rect = getDrawnRectangleBox(stageId, id || DRAWN_RECTANGLE_ID);
   if (!rect) return;
+  const spaceType = rect.getStage()?.attrs.type;
   // Get the original starting position
-  const startPosition = rect.getAttr('start-position') as Position;
+  const startPosition = rect.getAttr("start-position") as Position;
   // Calculate width, height, and new position
   let newX = startPosition.x;
   let newY = startPosition.y;
-  const width = Math.abs(snapToGrid(position.x) - startPosition.x);
-  const height = Math.abs(snapToGrid(position.y) - startPosition.y);
+  const width = Math.abs(
+    (spaceType === SpaceType.FIGJAM ? snapToGrid(position.x) : position.x) -
+      startPosition.x
+  );
+  const height = Math.abs(
+    (spaceType === SpaceType.FIGJAM ? snapToGrid(position.y) : position.y) -
+      startPosition.y
+  );
 
   // Adjust position if mouse is moved left or upward
   if (position.x < startPosition.x) {
-    newX = snapToGrid(position.x);
+    newX = spaceType === SpaceType.FIGJAM ? snapToGrid(position.x) : position.x;
   }
 
   if (position.y < startPosition.y) {
-    newY = snapToGrid(position.y);
+    newY = spaceType === SpaceType.FIGJAM ? snapToGrid(position.y) : position.y;
   }
 
   // Update the bounding box

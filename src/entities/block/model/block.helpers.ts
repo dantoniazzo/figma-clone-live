@@ -1,15 +1,15 @@
-import { getLayer } from 'entities/layer';
-import { config } from './block.config';
-import { findNode, getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import type { Rect } from 'shared/model';
-import { ConnectionAnchorSide } from 'features/connection';
+import { getLayer } from "entities/layer";
+import { blockConfig } from "./block.config";
+import { findNode, getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import type { Rect } from "shared/model";
+import { ConnectionAnchorSide } from "features/connection";
 
 export const getBlockNodes = (id: string) => {
   const layer = getLayer(id);
   if (!layer) return null;
 
-  const nodes = layer.find(`.${config.name}`);
+  const nodes = layer.find(`.${blockConfig.name}`);
   return nodes.length > 0 ? nodes : null;
 };
 
@@ -28,7 +28,7 @@ export const getFarRightNode = (id: string) => {
 export const getAllBlocks = (id: string) => {
   const layer = getLayer(id);
   if (!layer) return null;
-  return layer?.find(`.${config.name}`) as Group[];
+  return layer?.find(`.${blockConfig.name}`) as Group[];
 };
 
 export const getBlockRect = (stageId: string, id: string): Rect | null => {

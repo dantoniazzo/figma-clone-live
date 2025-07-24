@@ -1,3 +1,4 @@
+import { SpaceType } from "entities/space";
 import {
   MousePointer2,
   BadgePlus,
@@ -22,49 +23,49 @@ export enum Tools {
 
 export interface ToolConfig {
   icon: React.ReactNode;
-  enabled: boolean;
-  show: boolean;
+  enabled: SpaceType[];
+  show: SpaceType[];
 }
 
 export const toolsConfig: { [key in Tools]: ToolConfig } = {
   [Tools.POINTER]: {
     icon: <MousePointer2 />,
-    enabled: true,
-    show: true,
+    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
   },
   [Tools.HAND]: {
     icon: <Hand />,
-    show: true,
-    enabled: true,
+    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
   },
   [Tools.ADD]: {
     icon: <BadgePlus />,
-    enabled: false,
-    show: false,
+    enabled: [],
+    show: [],
   },
   [Tools.PENCIL]: {
     icon: <Pencil />,
-    enabled: false,
-    show: false,
+    enabled: [],
+    show: [],
   },
   [Tools.RECTANGLE]: {
     icon: <Square />,
-    enabled: true,
-    show: true,
+    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
   },
   [Tools.LINE]: {
     icon: <PenTool />,
-    enabled: true,
-    show: true,
+    enabled: [SpaceType.DESIGN],
+    show: [SpaceType.DESIGN],
   },
   [Tools.TEXT]: {
     icon: <Type />,
-    enabled: true,
-    show: true,
+    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
   },
   [Tools.FRAME]: {
     icon: <Frame />,
-    enabled: false,
-    show: false,
+    enabled: [SpaceType.DESIGN, SpaceType.FIGJAM],
+    show: [SpaceType.DESIGN, SpaceType.FIGJAM],
   },
 };

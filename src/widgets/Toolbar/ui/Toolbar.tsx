@@ -12,9 +12,10 @@ import { ToolbarButton } from "./ToolbarButton";
 import { disableHandTool, enableHandTool } from "features/hand";
 import { useParams } from "react-router-dom";
 import { createBlock, deleteBlock } from "features/block-mutation";
-import { BlockTypes, config } from "entities/block";
+import { BlockTypes, blockConfig } from "entities/block";
 import { getCenteredBlockPosition } from "features/position";
 import { getSelectedNodes } from "features/selection";
+import { SpaceType } from "entities/space";
 
 export const Toolbar = () => {
   const [currentTool, setCurrentTool] = useState(Tools.POINTER);
@@ -25,13 +26,17 @@ export const Toolbar = () => {
     return params.id || "default";
   }, [params]);
 
+  const type = useMemo(() => {
+    return (params.type as SpaceType) || SpaceType.DESIGN;
+  }, [params]);
+
   const handleToolSelection = useCallback(
     (tool: Tools) => {
       if (tool === Tools.ADD) {
         const centeredBlockPosition = getCenteredBlockPosition(
           id,
-          config.width,
-          config.height
+          blockConfig.width,
+          blockConfig.height
         );
         if (!centeredBlockPosition) return;
         createBlock(id || "default", {
@@ -41,8 +46,8 @@ export const Toolbar = () => {
             y: centeredBlockPosition.y,
           },
           size: {
-            width: config.width,
-            height: config.height,
+            width: blockConfig.width,
+            height: blockConfig.height,
           },
         });
       } else {
@@ -122,7 +127,7 @@ export const Toolbar = () => {
     >
       {Object.entries(toolsConfig).map((tool) => {
         const toolKey = tool[0] as Tools;
-        if (tool[1].show === false) return null;
+        if (!tool[1].show.includes(type)) return null;
         return (
           <ToolbarButton
             key={toolKey}

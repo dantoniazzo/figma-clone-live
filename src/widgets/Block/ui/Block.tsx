@@ -1,5 +1,5 @@
 import { Group, Rect } from "react-konva";
-import { BlockTypes, config, type IBlock } from "entities/block";
+import { BlockTypes, blockConfig, type IBlock } from "entities/block";
 import {
   getStageIdFromEvent,
   getStageIdFromNode,
@@ -23,6 +23,7 @@ import { observeResize, type Size } from "shared/model";
 import { getEditor, getQlEditorElement, getQuillId } from "features/text";
 import { TextEditor } from "features/text/ui/text-editor";
 import {
+  getColor,
   isJsonString,
   listenToClickOutside,
   removeClickOutsideListener,
@@ -32,11 +33,12 @@ import type { Delta } from "quill";
 import { Connection, updateConnection } from "features/connection";
 import { forceUpdateTransformer, isTransforming } from "entities/transformer";
 import { setConnectionAnchors } from "features/connection/model/connection-anchor";
+import { SpaceType } from "entities/space";
 
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const { name, ...rest } = config;
+  const { name, ...rest } = blockConfig;
   const ref = useRef<GroupType>(null);
   const imageRef = useRef<ImageType | null>(null);
 
@@ -190,8 +192,16 @@ export const Block = (props: IBlock) => {
         <Rect
           ref={imageRef}
           strokeEnabled={props.type !== BlockTypes.TEXT}
+          stroke={
+            ref.current?.getStage()?.attrs?.type === SpaceType.DESIGN
+              ? "transparent"
+              : getColor("--color-gray-400")
+          }
           {...rest}
           fill={props.type === BlockTypes.TEXT ? "transparent" : rest.fill}
+          cornerRadius={
+            ref.current?.getStage()?.attrs?.type === SpaceType.DESIGN ? 0 : 6
+          }
           width={props.size.width}
           height={props.size.height}
         />

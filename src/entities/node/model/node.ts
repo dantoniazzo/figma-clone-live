@@ -1,8 +1,8 @@
-import { config } from 'entities/block';
-import { getLayer } from 'entities/layer';
-import type { KonvaEvent, KonvaMouseTouchEvent } from 'entities/stage';
-import { Group } from 'konva/lib/Group';
-import { Rect } from 'konva/lib/shapes/Rect';
+import { blockConfig } from "entities/block";
+import { getLayer } from "entities/layer";
+import type { KonvaEvent, KonvaMouseTouchEvent } from "entities/stage";
+import { Group } from "konva/lib/Group";
+import { Rect } from "konva/lib/shapes/Rect";
 
 export const findNode = (stageId: string, id: string) => {
   const layer = getLayer(stageId);
@@ -26,9 +26,9 @@ export const getNodeFromEvent = (
 export const getAllNodes = (id: string) => {
   const layer = getLayer(id);
   if (!layer) return null;
-  return layer?.find(`.${config.name}`);
+  return layer?.find(`.${blockConfig.name}`);
 };
 
 export const getRectFromGroup = (node: Group) => {
-  return node.findOne('Rect') as Rect;
+  return node.findOne("Rect") as Rect;
 };

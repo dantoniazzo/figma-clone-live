@@ -21,7 +21,7 @@ import { setStageSize } from "features/size";
 import { observeResize, type Position } from "shared/model";
 import { useParams } from "react-router-dom";
 import { Block } from "../../Block";
-import { BlockTypes, config, type IBlock } from "entities/block";
+import { BlockTypes, blockConfig, type IBlock } from "entities/block";
 import {
   BlockEventListener,
   BlockEvents,
@@ -124,11 +124,13 @@ export const Canvas = (props: CanvasProps) => {
       position: params.position || { x: 0, y: 0 },
       size: params.size || {
         width:
-          params.type === BlockTypes.TEXT ? creationConfig.width : config.width,
+          params.type === BlockTypes.TEXT
+            ? creationConfig.width
+            : blockConfig.width,
         height:
           params.type === BlockTypes.TEXT
             ? creationConfig.height
-            : config.height,
+            : blockConfig.height,
       },
       points: params.points || [],
       id,
@@ -150,7 +152,10 @@ export const Canvas = (props: CanvasProps) => {
           ...blockObject,
           position: params.position || blockObject.position || { x: 0, y: 0 },
           size: params.size ||
-            blockObject.size || { width: config.width, height: config.height },
+            blockObject.size || {
+              width: blockConfig.width,
+              height: blockConfig.height,
+            },
           scale: params.scale || blockObject.scale,
           points: params.points || blockObject.points || [],
           text: params.text || blockObject.text,
@@ -271,6 +276,7 @@ export const Canvas = (props: CanvasProps) => {
       id={getCanvasContainerId(id)}
     >
       <Stage
+        type={type}
         onTouchStart={handleTouchDown}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

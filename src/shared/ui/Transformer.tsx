@@ -104,7 +104,7 @@ export const Transformer = () => {
         };
       }}
     >
-      <ConnectionAnchors />
+      {type === SpaceType.FIGJAM && <ConnectionAnchors />}
     </KonvaTransformer>
   );
 };

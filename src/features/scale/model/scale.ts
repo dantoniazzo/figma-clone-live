@@ -19,7 +19,7 @@ export const scaleStageOnScroll = (
     y: (pointer.y - stage.y()) / oldScale,
   };
 
-  const direction = e.evt.deltaY > 0 ? 1 : -1;
+  const direction = e.evt.deltaY > 0 ? -1 : 1;
 
   const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
