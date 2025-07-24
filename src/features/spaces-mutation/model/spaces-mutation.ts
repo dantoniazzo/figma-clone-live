@@ -1,4 +1,4 @@
-import { useSpaces } from "entities/space";
+import { SpaceType, useSpaces } from "entities/space";
 import { useViewerMutation } from "features/viewer-mutation";
 import { v4 as uuidv4 } from "uuid";
 
@@ -6,11 +6,12 @@ export const useSpacesMutation = () => {
   const { spaces } = useSpaces();
   const { updateViewerMetadata } = useViewerMutation();
 
-  const createSpace = (name: string) => {
+  const createSpace = (name: string, type: SpaceType) => {
     const newSpace = {
       id: uuidv4(),
       name,
       createdAt: new Date().toISOString(),
+      type,
     };
 
     const updatedSpaces = [...spaces, newSpace];

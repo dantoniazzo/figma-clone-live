@@ -11,7 +11,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/files" element={<Dashboard />} />
           <Route
-            path="/test/:id"
+            path="/:type/:id"
             element={
               <>
                 <SignedIn>

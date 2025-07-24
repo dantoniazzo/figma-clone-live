@@ -1,7 +1,7 @@
-import { Icon } from 'shared';
-import { SpaceType, useSpacesMutation } from 'features/spaces-mutation';
-import { useSpaces } from 'entities/space';
-import { forwardRef } from 'react';
+import { Icon } from "shared";
+import { useSpacesMutation } from "features/spaces-mutation";
+import { useSpaces, SpaceType } from "entities/space";
+import { forwardRef } from "react";
 
 export const NewFileContainer = forwardRef<
   HTMLDivElement,
@@ -30,7 +30,7 @@ export const NewFile = (props: NewFileProps) => {
       return (
         <NewFileContainer
           onClick={() => {
-            createSpace(`File ${spaces.length + 1}`);
+            createSpace(`File ${spaces.length + 1}`, props.type);
           }}
         >
           <Icon name="new-file" src="/icon.png" />
@@ -39,7 +39,11 @@ export const NewFile = (props: NewFileProps) => {
       );
     case SpaceType.FIGJAM:
       return (
-        <NewFileContainer>
+        <NewFileContainer
+          onClick={() => {
+            createSpace(`File ${spaces.length + 1}`, props.type);
+          }}
+        >
           <Icon name="new-file" src="/figjam.png" />
           FigJam
         </NewFileContainer>
