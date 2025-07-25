@@ -9,3 +9,4 @@ export * from './sbutton';
 export * from './Transformer';
 export * from './Icon';
 export * from './RailContainer';
+export * from './IconInput';

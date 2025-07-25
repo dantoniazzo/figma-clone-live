@@ -41,7 +41,13 @@ import {
   useMutation,
 } from '@liveblocks/react/suspense';
 import { LiveList, LiveObject } from '@liveblocks/client';
-import { Loading, Transformer, RailContainer } from 'shared';
+import {
+  Loading,
+  Transformer,
+  RailContainer,
+  IconInput,
+  getColor,
+} from 'shared';
 import { Header } from 'features/header';
 import { useViewer } from 'entities/viewer';
 import { v4 as uuidv4 } from 'uuid';
@@ -49,7 +55,7 @@ import { setConnectionAnchors } from 'features/connection/model/connection-ancho
 import { creationConfig } from 'features/text';
 import { Line } from 'features/line';
 import { SpaceType } from 'entities/space';
-import { Square, Type, Spline } from 'lucide-react';
+import { Square, Type, Spline, RotateCw, Blend, Scan } from 'lucide-react';
 
 export interface CanvasProps {
   id: string;
@@ -340,6 +346,120 @@ export const Canvas = (props: CanvasProps) => {
                 </div>
               </div>
             ))}
+        </div>
+      </RailContainer>
+      <RailContainer className="top-0 right-0 absolute h-full bg-background-500 border-l border-gray-400">
+        <div className="h-16" />
+        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+          Position
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2 gap-1">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-x"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">X</span>}
+            />
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-y"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">Y</span>}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-rotation"
+              placeholder="0"
+              icon={<RotateCw size={12} />}
+            />
+          </div>
+        </div>
+        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+          Layout
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2 gap-1">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-width"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">W</span>}
+            />
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-height"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">H</span>}
+            />
+          </div>
+        </div>
+        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+          Appearance
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2 gap-1">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-opacity"
+              placeholder="0"
+              icon={<Blend size={12} />}
+            />
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-radius"
+              placeholder="0"
+              icon={<Scan size={12} />}
+            />
+          </div>
+        </div>
+        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+          Fill
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2 gap-1">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-fill"
+              placeholder="0"
+              icon={<Square fill={getColor('--color-gray-400')} size={12} />}
+            />
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-fill-opacity"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">%</span>}
+            />
+          </div>
+        </div>
+        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+          Stroke
+        </div>
+        <div className="flex flex-col gap-1 px-4 ">
+          <div className="grid grid-cols-2 gap-1">
+            {' '}
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-stroke"
+              placeholder="0"
+              icon={<Square fill={getColor('--color-gray-400')} size={12} />}
+            />
+            <IconInput
+              className="w-full px-2"
+              id="position-edit-stroke-opacity"
+              placeholder="0"
+              icon={<span className="text-sm text-gray-200">%</span>}
+            />
+          </div>
         </div>
       </RailContainer>
       <AvatarList />
