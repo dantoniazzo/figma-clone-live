@@ -7,7 +7,7 @@ import { RailContainer } from 'shared';
 export const LeftRail = () => {
   const { viewer } = useViewer();
   return (
-    <RailContainer className="border-gray-400">
+    <RailContainer className="border-gray-400 hidden md:block">
       <div className="w-full h-fit py-2 px-4 text-sm font-bold flex items-center gap-2 ">
         <Avatar
           className="w-6 h-6"

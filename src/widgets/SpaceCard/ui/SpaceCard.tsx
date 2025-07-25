@@ -1,8 +1,8 @@
-import { SpaceType, type ISpace } from "entities/space";
-import { Trash2 } from "lucide-react";
-import { useSpacesMutation } from "features/spaces-mutation";
-import { useNavigate } from "react-router-dom";
-import { formatDate, Icon } from "shared";
+import { SpaceType, type ISpace } from 'entities/space';
+import { Trash2 } from 'lucide-react';
+import { useSpacesMutation } from 'features/spaces-mutation';
+import { useNavigate } from 'react-router-dom';
+import { formatDate, Icon } from 'shared';
 
 export interface SpaceProps {
   space: ISpace;
@@ -16,12 +16,12 @@ export const SpaceCard = (props: SpaceProps) => {
       onClick={() => {
         navigate(`/${props.space.type}/${props.space.id}`);
       }}
-      className="cursor-pointer max-w-full md:max-w-56 h-56 lg:w-auto flex-1/2  md:flex-1/4 lg:flex-1/5 xl:flex-1/6 flex flex-col gap-2 rounded-lg border border-gray-400 hover:bg-primary-200 transition-colors"
+      className="cursor-pointer min-w-56 md:max-w-56 h-56 lg:w-auto flex-1/2  md:flex-1/4 lg:flex-1/5 xl:flex-1/6 flex flex-col gap-2 rounded-lg border border-gray-400 hover:bg-primary-200 transition-colors"
     >
       <div className="cursor-pointer h-9/12">
         <img
           src={
-            props.space.type === SpaceType.DESIGN ? "/icon.png" : "/figjam.png"
+            props.space.type === SpaceType.DESIGN ? '/icon.png' : '/figjam.png'
           }
           className="w-full h-full object-contain"
         />
@@ -29,7 +29,7 @@ export const SpaceCard = (props: SpaceProps) => {
 
       <div className="h-3/12 p-2 flex justify-between items-center gap-2 text-white border-t border-gray-400">
         <div className="flex items-center gap-2">
-          {" "}
+          {' '}
           <Icon name={`${props.space.name}-icon`} src="/icon.png" />
           <div className="flex flex-col items-baseline justify-center">
             <p className="text-sm">{props.space.name}</p>

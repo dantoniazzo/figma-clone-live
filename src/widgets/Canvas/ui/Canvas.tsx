@@ -318,7 +318,7 @@ export const Canvas = (props: CanvasProps) => {
           <Presences stageId={id} />
         </Layer>
       </Stage>
-      <RailContainer className="absolute top-0 left-0 bg-background-500 border-gray-400">
+      <RailContainer className="absolute top-0 left-0 bg-background-500 border-gray-400 hidden lg:block">
         <div className="h-16" />
         <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
           Layers
@@ -348,7 +348,7 @@ export const Canvas = (props: CanvasProps) => {
             ))}
         </div>
       </RailContainer>
-      <RailContainer className="top-0 right-0 absolute h-full bg-background-500 border-l border-gray-400">
+      <RailContainer className="top-0 right-0 absolute h-full bg-background-500 border-l border-gray-400 hidden lg:block">
         <div className="h-16" />
         <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
           Position
