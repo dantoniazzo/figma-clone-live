@@ -6,6 +6,7 @@ interface IconInputProps {
   placeholder?: string;
   id?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export const IconInput = (props: IconInputProps) => {
@@ -18,6 +19,7 @@ export const IconInput = (props: IconInputProps) => {
     >
       <div className="col-span-2">{props.icon}</div>
       <Input
+        disabled={props.disabled}
         id={props.id}
         className="col-span-8 outline-none border-none text-sm"
         placeholder={props.placeholder}

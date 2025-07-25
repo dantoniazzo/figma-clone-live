@@ -357,15 +357,17 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-x"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">X</span>}
             />
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-y"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">Y</span>}
             />
           </div>
@@ -374,9 +376,10 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-rotation"
-              placeholder="0"
+              placeholder="In progress"
               icon={<RotateCw size={12} />}
             />
           </div>
@@ -388,15 +391,17 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-width"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">W</span>}
             />
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-height"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">H</span>}
             />
           </div>
@@ -408,15 +413,17 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-opacity"
-              placeholder="0"
+              placeholder="In progress"
               icon={<Blend size={12} />}
             />
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-radius"
-              placeholder="0"
+              placeholder="In progress"
               icon={<Scan size={12} />}
             />
           </div>
@@ -428,15 +435,17 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-fill"
-              placeholder="0"
+              placeholder="In progress"
               icon={<Square fill={getColor('--color-gray-400')} size={12} />}
             />
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-fill-opacity"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">%</span>}
             />
           </div>
@@ -448,15 +457,17 @@ export const Canvas = (props: CanvasProps) => {
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-stroke"
-              placeholder="0"
+              placeholder="In progress"
               icon={<Square fill={getColor('--color-gray-400')} size={12} />}
             />
             <IconInput
+              disabled
               className="w-full px-2"
               id="position-edit-stroke-opacity"
-              placeholder="0"
+              placeholder="In progress"
               icon={<span className="text-sm text-gray-200">%</span>}
             />
           </div>
