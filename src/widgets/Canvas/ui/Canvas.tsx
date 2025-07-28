@@ -349,11 +349,11 @@ export const Canvas = (props: CanvasProps) => {
         </div>
       </RailContainer>
       <RailContainer className="top-0 right-0 absolute h-full bg-background-500 border-l border-gray-400 hidden lg:block">
-        <div className="h-16" />
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+        <div className="h-20" />
+        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
           Position
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 pt-4 pb-1">
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
@@ -372,7 +372,7 @@ export const Canvas = (props: CanvasProps) => {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 pb-4">
           <div className="grid grid-cols-2">
             {' '}
             <IconInput
@@ -384,10 +384,10 @@ export const Canvas = (props: CanvasProps) => {
             />
           </div>
         </div>
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
           Layout
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 py-4">
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
@@ -406,10 +406,10 @@ export const Canvas = (props: CanvasProps) => {
             />
           </div>
         </div>
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
           Appearance
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 py-4">
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
@@ -428,10 +428,10 @@ export const Canvas = (props: CanvasProps) => {
             />
           </div>
         </div>
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
           Fill
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 py-4">
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
@@ -450,10 +450,10 @@ export const Canvas = (props: CanvasProps) => {
             />
           </div>
         </div>
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
           Stroke
         </div>
-        <div className="flex flex-col gap-1 px-4 ">
+        <div className="flex flex-col gap-1 px-4 py-4">
           <div className="grid grid-cols-2 gap-1">
             {' '}
             <IconInput
