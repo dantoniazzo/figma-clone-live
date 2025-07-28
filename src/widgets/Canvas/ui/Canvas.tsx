@@ -323,7 +323,7 @@ export const Canvas = (props: CanvasProps) => {
         <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
           Layers
         </div>
-        <div className="flex flex-col gap-1 overflow-y-auto h-full">
+        <div className="flex flex-col gap-1 overflow-y-auto h-fit">
           {blocks &&
             (blocks as IBlock[]).map((block) => (
               <div
