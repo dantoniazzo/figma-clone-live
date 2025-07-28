@@ -278,7 +278,7 @@ export const Canvas = (props: CanvasProps) => {
 
   return (
     <div
-      className="w-full h-full bg-background-400 overflow-hidden"
+      className="w-full h-full bg-background-500 overflow-hidden"
       ref={ref}
       id={getCanvasContainerId(id)}
     >
@@ -318,161 +318,172 @@ export const Canvas = (props: CanvasProps) => {
           <Presences stageId={id} />
         </Layer>
       </Stage>
-      <RailContainer className="absolute top-0 left-0 bg-background-500 border-gray-400 hidden lg:block">
-        <div className="h-16" />
-        <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
-          Layers
-        </div>
-        <div className="flex flex-col gap-1 overflow-y-auto h-fit">
-          {blocks &&
-            (blocks as IBlock[]).map((block) => (
-              <div
-                className="w-full h-fit px-4 text-sm flex items-center"
-                key={`left-rail-block-${block.id}`}
-              >
-                <div
-                  onClick={() => {
-                    const node = findNode(id, block.id);
-                    if (node) {
-                      selectNode(id, node);
-                    }
-                  }}
-                  className="cursor-pointer flex items-center gap-2 w-full px-2 py-1 hover:bg-background-300 rounded-sm"
-                >
-                  {block.type === BlockTypes.TEXT && <Type size={14} />}
-                  {block.type === BlockTypes.RECTANGLE && <Square size={14} />}
-                  {block.type === BlockTypes.LINE && <Spline size={14} />}
-                  {block.type}
-                </div>
+      {type === SpaceType.DESIGN && (
+        <>
+          <RailContainer className="absolute top-0 left-0 bg-background-400 border-gray-400 hidden lg:block">
+            <div className="h-16" />
+            <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
+              Layers
+            </div>
+            <div className="flex flex-col gap-1 overflow-y-auto h-fit">
+              {blocks &&
+                (blocks as IBlock[]).map((block) => (
+                  <div
+                    className="w-full h-fit px-4 text-sm flex items-center"
+                    key={`left-rail-block-${block.id}`}
+                  >
+                    <div
+                      onClick={() => {
+                        const node = findNode(id, block.id);
+                        if (node) {
+                          selectNode(id, node);
+                        }
+                      }}
+                      className="cursor-pointer flex items-center gap-2 w-full px-2 py-1 hover:bg-background-300 rounded-sm"
+                    >
+                      {block.type === BlockTypes.TEXT && <Type size={14} />}
+                      {block.type === BlockTypes.RECTANGLE && (
+                        <Square size={14} />
+                      )}
+                      {block.type === BlockTypes.LINE && <Spline size={14} />}
+                      {block.type}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </RailContainer>
+          <RailContainer className="top-0 right-0 absolute h-full bg-background-400 border-l border-gray-400 hidden lg:block">
+            <div className="h-20" />
+            <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+              Position
+            </div>
+            <div className="flex flex-col gap-1 px-4 pt-4 pb-1">
+              <div className="grid grid-cols-2 gap-1">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-x"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">X</span>}
+                />
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-y"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">Y</span>}
+                />
               </div>
-            ))}
-        </div>
-      </RailContainer>
-      <RailContainer className="top-0 right-0 absolute h-full bg-background-500 border-l border-gray-400 hidden lg:block">
-        <div className="h-20" />
-        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
-          Position
-        </div>
-        <div className="flex flex-col gap-1 px-4 pt-4 pb-1">
-          <div className="grid grid-cols-2 gap-1">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-x"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">X</span>}
-            />
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-y"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">Y</span>}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1 px-4 pb-4">
-          <div className="grid grid-cols-2">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-rotation"
-              placeholder="In progress"
-              icon={<RotateCw size={12} />}
-            />
-          </div>
-        </div>
-        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
-          Layout
-        </div>
-        <div className="flex flex-col gap-1 px-4 py-4">
-          <div className="grid grid-cols-2 gap-1">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-width"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">W</span>}
-            />
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-height"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">H</span>}
-            />
-          </div>
-        </div>
-        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
-          Appearance
-        </div>
-        <div className="flex flex-col gap-1 px-4 py-4">
-          <div className="grid grid-cols-2 gap-1">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-opacity"
-              placeholder="In progress"
-              icon={<Blend size={12} />}
-            />
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-radius"
-              placeholder="In progress"
-              icon={<Scan size={12} />}
-            />
-          </div>
-        </div>
-        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
-          Fill
-        </div>
-        <div className="flex flex-col gap-1 px-4 py-4">
-          <div className="grid grid-cols-2 gap-1">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-fill"
-              placeholder="In progress"
-              icon={<Square fill={getColor('--color-gray-400')} size={12} />}
-            />
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-fill-opacity"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">%</span>}
-            />
-          </div>
-        </div>
-        <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
-          Stroke
-        </div>
-        <div className="flex flex-col gap-1 px-4 py-4">
-          <div className="grid grid-cols-2 gap-1">
-            {' '}
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-stroke"
-              placeholder="In progress"
-              icon={<Square fill={getColor('--color-gray-400')} size={12} />}
-            />
-            <IconInput
-              disabled
-              className="w-full px-2"
-              id="position-edit-stroke-opacity"
-              placeholder="In progress"
-              icon={<span className="text-sm text-gray-200">%</span>}
-            />
-          </div>
-        </div>
-      </RailContainer>
+            </div>
+            <div className="flex flex-col gap-1 px-4 pb-4">
+              <div className="grid grid-cols-2">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-rotation"
+                  placeholder="In progress"
+                  icon={<RotateCw size={12} />}
+                />
+              </div>
+            </div>
+            <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+              Layout
+            </div>
+            <div className="flex flex-col gap-1 px-4 py-4">
+              <div className="grid grid-cols-2 gap-1">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-width"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">W</span>}
+                />
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-height"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">H</span>}
+                />
+              </div>
+            </div>
+            <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+              Appearance
+            </div>
+            <div className="flex flex-col gap-1 px-4 py-4">
+              <div className="grid grid-cols-2 gap-1">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-opacity"
+                  placeholder="In progress"
+                  icon={<Blend size={12} />}
+                />
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-radius"
+                  placeholder="In progress"
+                  icon={<Scan size={12} />}
+                />
+              </div>
+            </div>
+            <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+              Fill
+            </div>
+            <div className="flex flex-col gap-1 px-4 py-4">
+              <div className="grid grid-cols-2 gap-1">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-fill"
+                  placeholder="In progress"
+                  icon={
+                    <Square fill={getColor('--color-gray-400')} size={12} />
+                  }
+                />
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-fill-opacity"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">%</span>}
+                />
+              </div>
+            </div>
+            <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+              Stroke
+            </div>
+            <div className="flex flex-col gap-1 px-4 py-4">
+              <div className="grid grid-cols-2 gap-1">
+                {' '}
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-stroke"
+                  placeholder="In progress"
+                  icon={
+                    <Square fill={getColor('--color-gray-400')} size={12} />
+                  }
+                />
+                <IconInput
+                  disabled
+                  className="w-full px-2"
+                  id="position-edit-stroke-opacity"
+                  placeholder="In progress"
+                  icon={<span className="text-sm text-gray-200">%</span>}
+                />
+              </div>
+            </div>
+          </RailContainer>
+        </>
+      )}
+
       <AvatarList />
       <Header />
     </div>

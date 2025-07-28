@@ -195,7 +195,7 @@ export const Block = (props: IBlock) => {
           stroke={
             ref.current?.getStage()?.attrs?.type === SpaceType.DESIGN
               ? 'transparent'
-              : getColor('--color-gray-400')
+              : getColor('--color-gray-300')
           }
           {...rest}
           fill={props.type === BlockTypes.TEXT ? 'transparent' : rest.fill}
