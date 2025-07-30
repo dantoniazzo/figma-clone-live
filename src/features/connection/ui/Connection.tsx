@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Arrow } from 'react-konva';
-
 import { type Arrow as ArrowType } from 'konva/lib/shapes/Arrow';
 import { useParams } from 'react-router-dom';
 import { getColor } from 'shared';
-import { calculateConnectionPoints } from '../model';
+import { calculateConnectionPoints, sceneFunc } from '../model';
 import { findNode } from 'entities/node';
 import type { Connection as ConnectionType } from 'entities/block';
 import type { Group } from 'konva/lib/Group';
@@ -49,7 +48,7 @@ export const Connection = (props: ConnectionProps) => {
       hitStrokeWidth={20}
       lineCap="round"
       points={points}
-      tension={0.1}
+      sceneFunc={sceneFunc}
     />
   );
 };

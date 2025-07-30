@@ -2,8 +2,10 @@ import Konva from 'konva';
 import { Circle } from 'react-konva';
 import {
   ConnectionAnchorSide,
+  createConnection,
   getUpdatedPoints,
   OppositeSides,
+  sceneFunc,
 } from '../model';
 import { getTool, Tools } from 'widgets';
 import { connectionConfig } from '../lib';
@@ -13,9 +15,7 @@ import { getNearestBlockInDirection } from 'entities/block';
 import { getStageIdFromEvent } from 'entities/stage';
 import { getLayer } from 'entities/layer';
 import type { Group } from 'konva/lib/Group';
-import { updateBlock } from 'features/block-mutation';
 import { getSelectedNode } from 'features/selection';
-import { getRectFromGroup } from 'entities/node';
 
 interface ConnectionAnchorProps {
   ref: React.Ref<CircleType>;
@@ -47,7 +47,8 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         const arrow = new Konva.Arrow({
           id: 'preview-arrow',
           stroke: getColor('--color-gray-400'),
-          tension: 0.1,
+          sceneFunc: sceneFunc,
+
           points: getUpdatedPoints({
             fromNode: selectedNode as Group,
             toNode: nearestBlock,
@@ -81,40 +82,10 @@ export const ConnectionAnchor = (props: ConnectionAnchorProps) => {
         });
       }}
       onClick={(e) => {
-        const stageId = getStageIdFromEvent(e);
-        if (!stageId) return;
-        const selectedNode = getSelectedNode(stageId);
-        if (!selectedNode) return;
-        const nearestBlock = getNearestBlockInDirection(
-          stageId,
-          selectedNode.getAttr('id'),
-          props.side
-        );
-        if (!nearestBlock) return;
-        const rectFrom = getRectFromGroup(selectedNode as Group);
-        updateBlock(stageId, {
-          id: selectedNode.getAttr('id'),
-          position: selectedNode.position(),
-          size: rectFrom.size(),
-          connection: {
-            from: selectedNode.getAttr('id'),
-            to: nearestBlock.getAttr('id'),
-            fromSide: props.side,
-            toSide: OppositeSides[props.side],
-          },
-        });
-        const rectTo = getRectFromGroup(nearestBlock as Group);
-        updateBlock(stageId, {
-          id: nearestBlock.getAttr('id'),
-          position: nearestBlock.position(),
-          size: rectTo.size(),
-          connection: {
-            from: selectedNode.getAttr('id'),
-            to: nearestBlock.getAttr('id'),
-            fromSide: props.side,
-            toSide: OppositeSides[props.side],
-          },
-        });
+        createConnection(e, props.side);
+      }}
+      onTap={(e) => {
+        createConnection(e, props.side);
       }}
     />
   );

@@ -1,11 +1,17 @@
-import { findNode, getRectFromGroup } from "entities/node";
-import type { Group } from "konva/lib/Group";
-import { ConnectionAnchorSide } from "./connection.types";
-import { FULL_SIZE } from "features/grid";
-import { getStageIdFromNode } from "entities/stage";
-import type { Connection } from "entities/block";
-import { getLayer } from "entities/layer";
-import { findConnectionArrow } from "./connection-arrow";
+import { findNode, getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import { ConnectionAnchorSide, OppositeSides } from './connection.types';
+import { FULL_SIZE } from 'features/grid';
+import {
+  getStageIdFromEvent,
+  getStageIdFromNode,
+  type KonvaEvent,
+} from 'entities/stage';
+import { getNearestBlockInDirection, type Connection } from 'entities/block';
+import { getLayer } from 'entities/layer';
+import { findConnectionArrow } from './connection-arrow';
+import { getSelectedNode } from 'features/selection';
+import { updateBlock } from 'features/block-mutation';
 
 export interface UpdateProps {
   fromNode: Group;
@@ -38,23 +44,82 @@ export const calculateConnectionPoints = (
   }
 };
 
-export const updateConnection = (
-  node: Group,
-  callback?: (points: number[]) => void
+export const updateConnection = (node: Group) => {
+  const connections = node.getAttr('connections') as Connection[] | undefined;
+  if (!connections) return;
+  connections.map((connection) => {
+    const calculatedPoints = calculateConnectionPoints(node, connection);
+    const stageId = getStageIdFromNode(node);
+    if (!stageId) return;
+    const layer = getLayer(stageId);
+    const from = connection.from;
+    const to = connection.to;
+    if (layer && from && to) {
+      const arrow = findConnectionArrow(stageId, from, to);
+      arrow?.points(calculatedPoints);
+    }
+  });
+};
+
+// Helper function to get the center point of a side
+const getSideCenter = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  side: ConnectionAnchorSide
 ) => {
-  const connection = node.getAttr("connection") as Connection | undefined;
-  if (!connection) return;
-  const calculatedPoints = calculateConnectionPoints(node, connection);
-  const stageId = getStageIdFromNode(node);
-  if (!stageId) return;
-  const layer = getLayer(stageId);
-  const from = connection.from;
-  const to = connection.to;
-  if (layer && from && to) {
-    const arrow = findConnectionArrow(stageId, from, to);
-    arrow?.points(calculatedPoints);
+  switch (side) {
+    case ConnectionAnchorSide.LEFT:
+      return { x, y: y + height / 2 };
+    case ConnectionAnchorSide.RIGHT:
+      return { x: x + width, y: y + height / 2 };
+    case ConnectionAnchorSide.TOP:
+      return { x: x + width / 2, y };
+    case ConnectionAnchorSide.BOTTOM:
+      return { x: x + width / 2, y: y + height };
   }
-  if (callback && calculatedPoints) callback(calculatedPoints);
+};
+
+// Get rectangle bounds
+const getRectBounds = (
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => ({
+  left: x,
+  right: x + width,
+  top: y,
+  bottom: y + height,
+});
+
+// Check if a horizontal line segment intersects with a rectangle
+const horizontalLineIntersectsRect = (
+  x1: number,
+  x2: number,
+  y: number,
+  rect: ReturnType<typeof getRectBounds>
+) => {
+  const minX = Math.min(x1, x2);
+  const maxX = Math.max(x1, x2);
+  return (
+    y >= rect.top && y <= rect.bottom && maxX >= rect.left && minX <= rect.right
+  );
+};
+
+// Check if a vertical line segment intersects with a rectangle
+const verticalLineIntersectsRect = (
+  y1: number,
+  y2: number,
+  x: number,
+  rect: ReturnType<typeof getRectBounds>
+) => {
+  const minY = Math.min(y1, y2);
+  const maxY = Math.max(y1, y2);
+  return (
+    x >= rect.left && x <= rect.right && maxY >= rect.top && minY <= rect.bottom
+  );
 };
 
 export const getUpdatedPoints = (props: UpdateProps) => {
@@ -71,155 +136,286 @@ export const getUpdatedPoints = (props: UpdateProps) => {
   const toX = props.toNode.x();
   const toY = props.toNode.y();
 
-  // Calculate centers
-  const fromCenterY = fromY + fromHeight / 2;
-  const toCenterY = toY + toHeight / 2;
+  // Get start and end points (centers of the sides)
+  const startPoint = getSideCenter(
+    fromX,
+    fromY,
+    fromWidth,
+    fromHeight,
+    props.fromSide
+  );
+  const endPoint = getSideCenter(toX, toY, toWidth, toHeight, props.toSide);
 
-  // Calculate start point based on fromSide
-  let startX = fromX;
-  let startY = fromY;
+  // Get rectangle bounds
+  const fromBounds = getRectBounds(fromX, fromY, fromWidth, fromHeight);
+  const toBounds = getRectBounds(toX, toY, toWidth, toHeight);
+
+  const points: number[] = [startPoint.x, startPoint.y];
+  const minOffset = FULL_SIZE; // Minimum distance to step away from rectangles
+
+  // Step away from source rectangle
+  let firstStepX = startPoint.x;
+  let firstStepY = startPoint.y;
+
   switch (props.fromSide) {
-    case ConnectionAnchorSide.RIGHT:
-      startX = fromX + fromWidth;
-      startY = fromY + fromHeight / 2;
-      break;
     case ConnectionAnchorSide.LEFT:
-      startX = fromX;
-      startY = fromY + fromHeight / 2;
+      firstStepX = fromBounds.left - minOffset;
+      break;
+    case ConnectionAnchorSide.RIGHT:
+      firstStepX = fromBounds.right + minOffset;
       break;
     case ConnectionAnchorSide.TOP:
-      startX = fromX + fromWidth / 2;
-      startY = fromY;
+      firstStepY = fromBounds.top - minOffset;
       break;
     case ConnectionAnchorSide.BOTTOM:
-      startX = fromX + fromWidth / 2;
-      startY = fromY + fromHeight;
+      firstStepY = fromBounds.bottom + minOffset;
       break;
   }
 
-  // Calculate end point based on toSide
-  let endX = toX;
-  let endY = toY;
+  // Step toward destination rectangle
+  let lastStepX = endPoint.x;
+  let lastStepY = endPoint.y;
+
   switch (props.toSide) {
     case ConnectionAnchorSide.LEFT:
-      endX = toX;
-      endY = toY + toHeight / 2;
+      lastStepX = toBounds.left - minOffset;
       break;
     case ConnectionAnchorSide.RIGHT:
-      endX = toX + toWidth;
-      endY = toY + toHeight / 2;
+      lastStepX = toBounds.right + minOffset;
       break;
     case ConnectionAnchorSide.TOP:
-      endX = toX + toWidth / 2;
-      endY = toY;
+      lastStepY = toBounds.top - minOffset;
       break;
     case ConnectionAnchorSide.BOTTOM:
-      endX = toX + toWidth / 2;
-      endY = toY + toHeight;
+      lastStepY = toBounds.bottom + minOffset;
       break;
   }
 
-  let bendX = startX;
-  let bendY = startY;
+  // Determine connection types
+  const isFromHorizontal =
+    props.fromSide === ConnectionAnchorSide.LEFT ||
+    props.fromSide === ConnectionAnchorSide.RIGHT;
+  const isToHorizontal =
+    props.toSide === ConnectionAnchorSide.LEFT ||
+    props.toSide === ConnectionAnchorSide.RIGHT;
 
-  // Determine bend direction and path based on side combination and relative positions
-  if (
-    props.fromSide === ConnectionAnchorSide.RIGHT &&
-    props.toSide === ConnectionAnchorSide.LEFT
-  ) {
-    const distance = toX - (fromX + fromWidth); // Horizontal distance between right of from and left of to
-    const fromCenterY = fromY + fromHeight / 2;
-    const toCenterY = toY + toHeight / 2;
+  if (isFromHorizontal && !isToHorizontal) {
+    // Horizontal to vertical: step out horizontally, then go to destination X, then down/up
+    points.push(firstStepX, firstStepY);
 
-    if (distance >= 2 * FULL_SIZE) {
-      // 4 points: simple bend at FULL_SIZE
-      bendX = startX + FULL_SIZE;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY];
+    // Check if we can go directly to the destination X coordinate
+    const directY = firstStepY;
+    const pathClear =
+      !horizontalLineIntersectsRect(
+        firstStepX,
+        lastStepX,
+        directY,
+        fromBounds
+      ) &&
+      !horizontalLineIntersectsRect(firstStepX, lastStepX, directY, toBounds);
+
+    if (pathClear) {
+      points.push(lastStepX, directY);
     } else {
-      // 6-point path: route around toNode, ensuring visibility
-      const midX = Math.max(startX + FULL_SIZE, toX + toWidth + FULL_SIZE);
-      const verticalBendY =
-        toCenterY < fromCenterY
-          ? Math.min(fromY - FULL_SIZE, toY - FULL_SIZE)
-          : Math.max(
-              fromY + fromHeight + FULL_SIZE,
-              toY + toHeight + FULL_SIZE
-            );
-      return [
-        startX,
-        startY,
-        midX,
-        startY,
-        midX,
-        verticalBendY,
-        endX - FULL_SIZE,
-        verticalBendY,
-        endX - FULL_SIZE,
-        endY,
-        endX,
-        endY,
-      ];
+      // Route around obstacles
+      const clearY =
+        props.toSide === ConnectionAnchorSide.TOP
+          ? toBounds.top - minOffset * 2
+          : toBounds.bottom + minOffset * 2;
+      points.push(firstStepX, clearY);
+      points.push(lastStepX, clearY);
     }
-  } else if (
-    props.fromSide === ConnectionAnchorSide.LEFT &&
-    props.toSide === ConnectionAnchorSide.RIGHT
-  ) {
-    if (endX < startX - 2 * FULL_SIZE) {
-      // 4 points: simple bend when toBlock is far to the left
-      bendX = startX - FULL_SIZE;
-      return [startX, startY, bendX, startY, bendX, endY, endX, endY];
+
+    points.push(lastStepX, lastStepY);
+  } else if (!isFromHorizontal && isToHorizontal) {
+    // Vertical to horizontal: step out vertically, then go to destination Y, then left/right
+    points.push(firstStepX, firstStepY);
+
+    // Check if there's enough horizontal space between the nodes
+    const leftNode = fromBounds.left < toBounds.left ? fromBounds : toBounds;
+    const rightNode = fromBounds.left < toBounds.left ? toBounds : fromBounds;
+    const horizontalGap = rightNode.left - leftNode.right;
+    const hasHorizontalSpace = horizontalGap >= minOffset;
+
+    // Check if we can go directly to the destination Y coordinate
+    const directX = firstStepX;
+    const pathClear =
+      !verticalLineIntersectsRect(firstStepY, lastStepY, directX, fromBounds) &&
+      !verticalLineIntersectsRect(firstStepY, lastStepY, directX, toBounds);
+
+    if (pathClear) {
+      points.push(directX, lastStepY);
     } else {
-      // 6-point path: route around when toBlock is close, overlapping, or to the right
-      const midX = Math.min(startX - FULL_SIZE, toX - FULL_SIZE);
-      const verticalBendY =
-        toCenterY < fromCenterY
-          ? Math.min(fromY - FULL_SIZE, toY - FULL_SIZE)
-          : Math.max(
-              fromY + fromHeight + FULL_SIZE,
-              toY + toHeight + FULL_SIZE
-            );
-      return [
-        startX,
-        startY,
-        midX,
-        startY,
-        midX,
-        verticalBendY,
-        endX + FULL_SIZE,
-        verticalBendY,
-        endX + FULL_SIZE,
-        endY,
-        endX,
-        endY,
-      ];
+      if (hasHorizontalSpace) {
+        // Route through the empty space between nodes
+        const routingX = leftNode.right + horizontalGap / 2;
+        points.push(routingX, firstStepY);
+        points.push(routingX, lastStepY);
+      } else {
+        // Route around obstacles
+        const clearX =
+          props.toSide === ConnectionAnchorSide.LEFT
+            ? toBounds.left - minOffset * 2
+            : toBounds.right + minOffset * 2;
+        points.push(clearX, firstStepY);
+        points.push(clearX, lastStepY);
+      }
     }
-  } else if (
-    props.fromSide === ConnectionAnchorSide.TOP &&
-    props.toSide === ConnectionAnchorSide.BOTTOM
-  ) {
-    bendY = startY - FULL_SIZE;
-    bendX = startX;
-    return [startX, startY, bendX, bendY, endX, bendY, endX, endY];
-  } else if (
-    props.fromSide === ConnectionAnchorSide.BOTTOM &&
-    props.toSide === ConnectionAnchorSide.TOP
-  ) {
-    bendY = startY + FULL_SIZE;
-    bendX = startX;
-    return [startX, startY, bendX, bendY, endX, bendY, endX, endY];
+
+    points.push(lastStepX, lastStepY);
+  } else if (isFromHorizontal && isToHorizontal) {
+    // Both horizontal: step out, go to midpoint X, then vertically to destination Y, then horizontally to destination
+    points.push(firstStepX, firstStepY);
+
+    const midX = (firstStepX + lastStepX) / 2;
+
+    // Check if there's enough vertical space between the nodes
+    const topNode = fromBounds.top < toBounds.top ? fromBounds : toBounds;
+    const bottomNode = fromBounds.top < toBounds.top ? toBounds : fromBounds;
+    const verticalGap = bottomNode.top - topNode.bottom;
+    const hasVerticalSpace = verticalGap >= minOffset;
+
+    // Check if the path would intersect either rectangle
+    const horizontalIntersects =
+      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, fromBounds) ||
+      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, toBounds) ||
+      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, fromBounds) ||
+      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, toBounds);
+
+    const verticalIntersects =
+      verticalLineIntersectsRect(firstStepY, lastStepY, midX, fromBounds) ||
+      verticalLineIntersectsRect(firstStepY, lastStepY, midX, toBounds);
+
+    if (horizontalIntersects || verticalIntersects) {
+      if (hasVerticalSpace) {
+        // Route through the empty space between nodes
+        const routingY = topNode.bottom + verticalGap / 2;
+        points.push(firstStepX, routingY);
+        points.push(lastStepX, routingY);
+      } else {
+        // Route around both rectangles - find the shortest clear path
+        const topClear = Math.min(fromBounds.top, toBounds.top) - minOffset;
+        const bottomClear =
+          Math.max(fromBounds.bottom, toBounds.bottom) + minOffset;
+
+        // Calculate distances for top and bottom routing
+        const topDistance =
+          Math.abs(firstStepY - topClear) + Math.abs(lastStepY - topClear);
+        const bottomDistance =
+          Math.abs(firstStepY - bottomClear) +
+          Math.abs(lastStepY - bottomClear);
+
+        const routingY = topDistance < bottomDistance ? topClear : bottomClear;
+
+        points.push(firstStepX, routingY);
+        points.push(lastStepX, routingY);
+      }
+    } else {
+      // Original path is clear
+      points.push(midX, firstStepY);
+      points.push(midX, lastStepY);
+    }
+
+    points.push(lastStepX, lastStepY);
   } else {
-    // Default bent path for other combinations
-    const isHorizontalMove =
-      props.fromSide === ConnectionAnchorSide.LEFT ||
-      props.fromSide === ConnectionAnchorSide.RIGHT;
-    if (isHorizontalMove) {
-      bendX = startX + (endX < startX ? -FULL_SIZE : FULL_SIZE);
-      bendY = startY;
-      return [startX, startY, bendX, bendY, bendX, endY, endX, endY];
+    // Both vertical: step out, go horizontally to align, then vertically to destination
+    points.push(firstStepX, firstStepY);
+
+    const midX = (firstStepX + lastStepX) / 2;
+
+    // Check if there's enough horizontal space between the nodes
+    const leftNode = fromBounds.left < toBounds.left ? fromBounds : toBounds;
+    const rightNode = fromBounds.left < toBounds.left ? toBounds : fromBounds;
+    const horizontalGap = rightNode.left - leftNode.right;
+    const hasHorizontalSpace = horizontalGap >= minOffset;
+
+    // Check if we need to route around obstacles
+    const needsRouting =
+      verticalLineIntersectsRect(firstStepY, lastStepY, midX, fromBounds) ||
+      verticalLineIntersectsRect(firstStepY, lastStepY, midX, toBounds) ||
+      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, fromBounds) ||
+      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, toBounds) ||
+      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, fromBounds) ||
+      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, toBounds);
+
+    if (needsRouting) {
+      if (hasHorizontalSpace) {
+        // Route through the empty space between nodes
+        const routingX = leftNode.right + horizontalGap / 2;
+        points.push(routingX, firstStepY);
+        points.push(routingX, lastStepY);
+      } else {
+        // Route around both rectangles
+        const leftClear = Math.min(fromBounds.left, toBounds.left) - minOffset;
+        const rightClear =
+          Math.max(fromBounds.right, toBounds.right) + minOffset;
+
+        // Calculate distances for left and right routing
+        const leftDistance =
+          Math.abs(firstStepX - leftClear) + Math.abs(lastStepX - leftClear);
+        const rightDistance =
+          Math.abs(firstStepX - rightClear) + Math.abs(lastStepX - rightClear);
+
+        const routingX = leftDistance < rightDistance ? leftClear : rightClear;
+
+        points.push(routingX, firstStepY);
+        points.push(routingX, lastStepY);
+      }
     } else {
-      bendY = startY + (endY < startY ? -FULL_SIZE : FULL_SIZE);
-      bendX = startX;
-      return [startX, startY, bendX, bendY, endX, bendY, endX, endY];
+      points.push(midX, firstStepY);
+      points.push(midX, lastStepY);
     }
+
+    points.push(lastStepX, lastStepY);
   }
+
+  // Final connection to the actual end point
+  points.push(endPoint.x, endPoint.y);
+
+  return points;
+};
+
+export const createConnection = (e: KonvaEvent, side: ConnectionAnchorSide) => {
+  const stageId = getStageIdFromEvent(e);
+  if (!stageId) return;
+  const selectedNode = getSelectedNode(stageId);
+  if (!selectedNode) return;
+  const nearestBlock = getNearestBlockInDirection(
+    stageId,
+    selectedNode.getAttr('id'),
+    side
+  );
+  if (!nearestBlock) return;
+  const rectFrom = getRectFromGroup(selectedNode as Group);
+  const existingFromConnections = selectedNode.getAttr('connections') || [];
+  updateBlock(stageId, {
+    id: selectedNode.getAttr('id'),
+    position: selectedNode.position(),
+    size: rectFrom.size(),
+    connections: [
+      ...existingFromConnections,
+      {
+        from: selectedNode.getAttr('id'),
+        to: nearestBlock.getAttr('id'),
+        fromSide: side,
+        toSide: OppositeSides[side],
+      },
+    ],
+  });
+  const rectTo = getRectFromGroup(nearestBlock as Group);
+  const existingToConnections = nearestBlock.getAttr('connections') || [];
+  updateBlock(stageId, {
+    id: nearestBlock.getAttr('id'),
+    position: nearestBlock.position(),
+    size: rectTo.size(),
+    connections: [
+      ...existingToConnections,
+      {
+        from: selectedNode.getAttr('id'),
+        to: nearestBlock.getAttr('id'),
+        fromSide: side,
+        toSide: OppositeSides[side],
+      },
+    ],
+  });
 };

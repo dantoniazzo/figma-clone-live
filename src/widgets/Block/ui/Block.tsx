@@ -143,10 +143,13 @@ export const Block = (props: IBlock) => {
           if (!stageId || !ref.current) return;
           selectNode(stageId, ref.current);
         }}
+        onTap={() => {
+          setEditing(true);
+        }}
         onClick={() => {
           setEditing(true);
         }}
-        connection={props.connection}
+        connections={props.connections}
         name={name}
         id={props.id}
         ref={(node) => {
@@ -258,9 +261,18 @@ export const Block = (props: IBlock) => {
           />
         </Html>
       </Group>
-      {props.connection && props.connection.from === props.id && loaded && (
-        <Connection connection={props.connection} />
-      )}
+      {props.connections &&
+        props.connections.map((connection) => {
+          if (connection.from === props.id && loaded) {
+            return (
+              <Connection
+                key={`connection-from-${connection.from}-to-${connection.to}`}
+                connection={connection}
+              />
+            );
+          }
+        })}
     </>
   );
 };
+Block.displayName = 'Block';
