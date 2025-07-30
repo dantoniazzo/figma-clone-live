@@ -1,6 +1,7 @@
-import { getTransformer } from "entities/transformer";
-import { setConnectionAnchors } from "features/connection/model/connection-anchor";
-import { Node } from "konva/lib/Node";
+import { getTransformer } from 'entities/transformer';
+import { selectBlock } from 'features/block-mutation';
+import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
+import { Node } from 'konva/lib/Node';
 
 export const getSelectedNode = (stageId: string) => {
   const transformer = getTransformer(stageId);
@@ -19,6 +20,9 @@ export const getSelectedNodes = (stageId: string) => {
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
+    selectBlock(stageId, {
+      id: node.id(),
+    });
     transformer.nodes([node]);
     setConnectionAnchors(stageId);
   }
@@ -29,6 +33,11 @@ export const selectNodes = (stageId: string, nodes: Node[]) => {
   if (transformer) {
     transformer.nodes(nodes);
     setConnectionAnchors(stageId);
+    if (nodes.length === 1) {
+      selectBlock(stageId, {
+        id: nodes[0].id(),
+      });
+    }
   }
 };
 

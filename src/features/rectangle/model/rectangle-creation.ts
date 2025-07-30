@@ -1,15 +1,15 @@
-import Konva from "konva";
-import { type Position } from "shared/model";
-import { type RectConfig } from "konva/lib/shapes/Rect";
-import { getLayer } from "entities/layer";
-import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from "../lib";
-import { basicRectangleConfig } from "./rectangle.config";
-import { selectNode, unSelectAllNodes } from "features/selection";
-import { snapToGrid } from "features/grid";
-import { createBlock } from "features/block-mutation";
-import { BlockTypes } from "entities/block";
-import { SpaceType } from "entities/space";
-import { showConnectionAnchors } from "features/connection/model/connection-anchor";
+import Konva from 'konva';
+import { type Position } from 'shared/model';
+import { type RectConfig } from 'konva/lib/shapes/Rect';
+import { getLayer } from 'entities/layer';
+import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from '../lib';
+import { basicRectangleConfig } from './rectangle.config';
+import { unSelectAllNodes } from 'features/selection';
+import { snapToGrid } from 'features/grid';
+import { createBlock } from 'features/block-mutation';
+import { BlockTypes } from 'entities/block';
+import { SpaceType } from 'entities/space';
+import { showConnectionAnchors } from 'features/connection/model/connection-anchor';
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -26,12 +26,8 @@ export const createRectangle = (stageId: string, config: RectConfig) => {
   });
   if (!config.width && !config.height) {
     // Store the initial position as custom attribute
-    rect.setAttr("start-position", config.position);
+    rect.setAttr('start-position', config.position);
   }
-  // We're using pointerup to handle touch events as well
-  rect.on("pointerup", () => {
-    selectNode(stageId, rect);
-  });
   const layer = getLayer(stageId);
   layer?.add(rect);
 };
@@ -45,7 +41,7 @@ export const updateRectangle = (
   if (!rect) return;
   const spaceType = rect.getStage()?.attrs.type;
   // Get the original starting position
-  const startPosition = rect.getAttr("start-position") as Position;
+  const startPosition = rect.getAttr('start-position') as Position;
   // Calculate width, height, and new position
   let newX = startPosition.x;
   let newY = startPosition.y;

@@ -7,6 +7,7 @@ interface IconInputProps {
   id?: string;
   className?: string;
   disabled?: boolean;
+  type?: React.HTMLInputTypeAttribute;
 }
 
 export const IconInput = (props: IconInputProps) => {
@@ -19,6 +20,7 @@ export const IconInput = (props: IconInputProps) => {
     >
       <div className="col-span-2">{props.icon}</div>
       <Input
+        type={props.type}
         disabled={props.disabled}
         id={props.id}
         className="col-span-8 outline-none border-none text-sm"

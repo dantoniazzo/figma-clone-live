@@ -13,3 +13,7 @@ export const updateBlock = (stageId: string, data: Params) => {
 export const deleteBlock = (stageId: string, data: Params) => {
   mutationEvent(stageId, BlockEvents.DELETE, data);
 };
+
+export const selectBlock = (stageId: string, data: Params) => {
+  mutationEvent(stageId, BlockEvents.SELECT, data);
+};
