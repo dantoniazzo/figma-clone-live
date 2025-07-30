@@ -1,18 +1,18 @@
-import { getColor } from "shared/utils";
-import { Transformer as KonvaTransformer } from "react-konva";
-import { Transformer as TransformerType } from "konva/lib/shapes/Transformer";
-import { getStage, getStageIdFromNode } from "entities/stage";
+import { getColor } from 'shared/utils';
+import { Transformer as KonvaTransformer } from 'react-konva';
+import { Transformer as TransformerType } from 'konva/lib/shapes/Transformer';
+import { getStage, getStageIdFromNode } from 'entities/stage';
 import {
   reScalePosition,
   reScaleSize,
   unScalePosition,
   unScaleSize,
-} from "features/scale";
-import { FULL_SIZE, snapToGrid } from "features/grid";
-import { useMemo, useRef } from "react";
-import { ConnectionAnchors } from "features/connection";
-import { SpaceType } from "entities/space";
-import { useParams } from "react-router-dom";
+} from 'features/scale';
+import { FULL_SIZE, snapToGrid } from 'features/grid';
+import { useMemo, useRef } from 'react';
+import { ConnectionAnchors } from 'features/connection';
+import { SpaceType } from 'entities/space';
+import { useParams } from 'react-router-dom';
 
 export const Transformer = () => {
   const ref = useRef<TransformerType | null>(null);
@@ -27,13 +27,13 @@ export const Transformer = () => {
       ref={ref}
       keepRatio={false}
       anchorCornerRadius={2}
-      anchorStroke={getColor("--color-primary-100")}
+      anchorStroke={getColor('--color-primary-100')}
       anchorStrokeWidth={2}
       anchorFill="black"
       resizeEnabled={true}
-      rotateEnabled={false}
+      rotateEnabled={type === SpaceType.DESIGN}
       borderEnabled={true}
-      borderStroke={getColor("--color-primary-100")}
+      borderStroke={getColor('--color-primary-100')}
       borderStrokeWidth={2}
       ignoreStroke={true}
       boundBoxFunc={(oldBox, newBox) => {

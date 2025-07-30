@@ -17,3 +17,7 @@ export const deleteBlock = (stageId: string, data: Params) => {
 export const selectBlock = (stageId: string, data: Params) => {
   mutationEvent(stageId, BlockEvents.SELECT, data);
 };
+
+export const deSelectBlocks = (stageId: string, data: Params) => {
+  mutationEvent(stageId, BlockEvents.DESELECT, data);
+};

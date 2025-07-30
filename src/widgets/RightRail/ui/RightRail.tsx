@@ -1,4 +1,10 @@
-import { getColor, IconInput, RailContainer } from 'shared';
+import {
+  getAlphaPercentageFromRgba,
+  getColor,
+  hexToRgba,
+  IconInput,
+  RailContainer,
+} from 'shared';
 import { Square, RotateCw, Blend, Scan } from 'lucide-react';
 import { getRightRailContainerId } from '../lib';
 import { useEffect, useState } from 'react';
@@ -7,38 +13,124 @@ import {
   BlockEvents,
   removeBlockEventListener,
 } from 'features/block-mutation';
-import type { IBlock } from 'entities/block';
-import { useStorage } from '@liveblocks/react/suspense';
+import { findNode, getRectFromGroup } from 'entities/node';
+import type { Position, Size } from 'shared/model';
+import type { Group } from 'konva/lib/Group';
 
 interface RightRailProps {
   id: string;
 }
 
+interface SelectedNode {
+  position?: Position;
+  size?: Size;
+  rotation?: number;
+  opacity?: number;
+  radius?: number | number[];
+  fill?: string | CanvasGradient;
+  fillOpacity?: number;
+  stroke?: string | CanvasGradient;
+  strokeOpacity?: number;
+}
+
 export const RightRail = (props: RightRailProps) => {
-  const [selectedBlock, setSelectedBlock] = useState<IBlock | null>(null);
-  const blocks = useStorage((storage) => storage.blocks);
+  const [nodeId, setNodeId] = useState<string | null>(null);
+  const [properties, setProperties] = useState<SelectedNode | null>(null);
 
   useEffect(() => {
     BlockEventListener(props.id, (detail) => {
       if (detail.eventType === BlockEvents.SELECT) {
-        if (blocks) {
-          const block = (blocks as IBlock[]).find(
-            (b) => b.id === detail.data.id
-          );
-          setSelectedBlock(block || null);
-        }
+        if (!detail.data.id) return;
+        setNodeId(detail.data.id);
+      }
+      if (detail.eventType === BlockEvents.DESELECT) {
+        setNodeId(null);
+        setProperties(null);
       }
     });
 
     return () => {
       removeBlockEventListener(props.id);
     };
-  }, [props.id, blocks]);
+  }, [props.id]);
+
+  const getFillOpacity = (node: Group) => {
+    const rect = getRectFromGroup(node);
+    if (!rect.fill) return;
+    const fill = rect.fill();
+    if (typeof fill === 'string') {
+      const rgba = hexToRgba(fill);
+      return getAlphaPercentageFromRgba(rgba);
+    }
+  };
+
+  const getStrokeOpacity = (node: Group) => {
+    const rect = getRectFromGroup(node);
+    if (!rect.stroke) return;
+    const stroke = rect.stroke();
+    if (typeof stroke === 'string') {
+      const rgba = hexToRgba(stroke);
+      return getAlphaPercentageFromRgba(rgba);
+    }
+  };
+
+  const setNodeProperties = (node: Group) => {
+    setProperties({
+      position: node.position(),
+      rotation: node.rotation(),
+      size: getRectFromGroup(node).size(),
+      opacity: getRectFromGroup(node).opacity() * 100,
+      radius: getRectFromGroup(node).cornerRadius(),
+      fill: getRectFromGroup(node).fill(),
+      fillOpacity: getFillOpacity(node),
+      stroke: getRectFromGroup(node).stroke(),
+      strokeOpacity: getStrokeOpacity(node),
+    });
+  };
+
+  useEffect(() => {
+    if (nodeId) {
+      const node = findNode(props.id, nodeId);
+      if (node) {
+        setNodeProperties(node as Group);
+        node.on('xChange yChange transform', () => {
+          setNodeProperties(node as Group);
+        });
+      }
+      return () => {
+        if (node) {
+          node.off('xChange yChange transform');
+        }
+        setNodeId(null);
+        setProperties(null);
+      };
+    }
+  }, [props.id, nodeId]);
+
   return (
     <RailContainer
       id={getRightRailContainerId(props.id)}
       className="top-0 right-0 absolute h-full bg-background-400 border-l border-gray-400 hidden lg:block"
     >
+      {properties && <RightRailContent properties={properties} />}
+      {!properties && (
+        <div>
+          <p className="mt-20 p-4 text-center text-gray-300">
+            Select block to edit
+          </p>
+        </div>
+      )}
+    </RailContainer>
+  );
+};
+
+export interface RightRailContentProperties {
+  properties: SelectedNode;
+}
+
+export const RightRailContent = (props: RightRailContentProperties) => {
+  return (
+    <>
       <div className="h-20" />
       <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
         Position
@@ -51,7 +143,7 @@ export const RightRail = (props: RightRailProps) => {
             type="number"
             className="w-full px-2"
             id="position-edit-x"
-            placeholder={selectedBlock?.position.x.toString() || 'In progress'}
+            placeholder={props.properties.position?.x.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">X</span>}
           />
           <IconInput
@@ -59,7 +151,7 @@ export const RightRail = (props: RightRailProps) => {
             type="number"
             className="w-full px-2"
             id="position-edit-y"
-            placeholder={selectedBlock?.position.y.toString() || 'In progress'}
+            placeholder={props.properties.position?.y.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">Y</span>}
           />
         </div>
@@ -71,7 +163,7 @@ export const RightRail = (props: RightRailProps) => {
             disabled
             className="w-full px-2"
             id="position-edit-rotation"
-            placeholder="In progress"
+            placeholder={props.properties.rotation?.toString() || 'Unknown'}
             icon={<RotateCw size={12} />}
           />
         </div>
@@ -86,14 +178,14 @@ export const RightRail = (props: RightRailProps) => {
             disabled
             className="w-full px-2"
             id="position-edit-width"
-            placeholder="In progress"
+            placeholder={props.properties.size?.width.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">W</span>}
           />
           <IconInput
             disabled
             className="w-full px-2"
             id="position-edit-height"
-            placeholder="In progress"
+            placeholder={props.properties.size?.height.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">H</span>}
           />
         </div>
@@ -108,14 +200,16 @@ export const RightRail = (props: RightRailProps) => {
             disabled
             className="w-full px-2"
             id="position-edit-opacity"
-            placeholder="In progress"
+            placeholder={
+              props.properties.opacity?.toString() + ' %' || 'Unknown'
+            }
             icon={<Blend size={12} />}
           />
           <IconInput
             disabled
             className="w-full px-2"
             id="position-edit-radius"
-            placeholder="In progress"
+            placeholder={props.properties.radius?.toString() || 'Unknown'}
             icon={<Scan size={12} />}
           />
         </div>
@@ -130,14 +224,14 @@ export const RightRail = (props: RightRailProps) => {
             disabled
             className="w-full px-2"
             id="position-edit-fill"
-            placeholder="In progress"
+            placeholder={props.properties.fill?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <IconInput
             disabled
             className="w-full px-2"
             id="position-edit-fill-opacity"
-            placeholder="In progress"
+            placeholder={props.properties.fillOpacity?.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">%</span>}
           />
         </div>
@@ -152,18 +246,20 @@ export const RightRail = (props: RightRailProps) => {
             disabled
             className="w-full px-2"
             id="position-edit-stroke"
-            placeholder="In progress"
+            placeholder={props.properties.stroke?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <IconInput
             disabled
             className="w-full px-2"
             id="position-edit-stroke-opacity"
-            placeholder="In progress"
+            placeholder={
+              props.properties.strokeOpacity?.toString() || 'Unknown'
+            }
             icon={<span className="text-sm text-gray-200">%</span>}
           />
         </div>
       </div>
-    </RailContainer>
+    </>
   );
 };

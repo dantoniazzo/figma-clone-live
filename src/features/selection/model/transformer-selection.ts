@@ -1,5 +1,5 @@
 import { getTransformer } from 'entities/transformer';
-import { selectBlock } from 'features/block-mutation';
+import { deSelectBlocks, selectBlock } from 'features/block-mutation';
 import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
 import { Node } from 'konva/lib/Node';
 
@@ -46,5 +46,6 @@ export const unSelectAllNodes = (stageId: string) => {
   if (transformer) {
     transformer.keepRatio(false);
     transformer.nodes([]);
+    deSelectBlocks(stageId, {});
   }
 };
