@@ -1,11 +1,12 @@
 import { cn } from 'shared/utils';
 import { Input } from './input';
 
-interface IconInputProps {
+export interface IconInputProps {
   icon: React.ReactNode;
   placeholder?: string;
   id?: string;
   className?: string;
+  iconClassName?: string;
   disabled?: boolean;
   type?: React.HTMLInputTypeAttribute;
 }
@@ -18,7 +19,7 @@ export const IconInput = (props: IconInputProps) => {
         props.className
       )}
     >
-      <div className="col-span-2">{props.icon}</div>
+      <div className={cn('col-span-2', props.iconClassName)}>{props.icon}</div>
       <Input
         type={props.type}
         disabled={props.disabled}

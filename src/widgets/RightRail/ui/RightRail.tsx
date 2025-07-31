@@ -2,7 +2,6 @@ import {
   getAlphaPercentageFromRgba,
   getColor,
   hexToRgba,
-  IconInput,
   RailContainer,
 } from 'shared';
 import { Square, RotateCw, Blend, Scan } from 'lucide-react';
@@ -17,6 +16,7 @@ import { findNode, getRectFromGroup } from 'entities/node';
 import type { Position, Size } from 'shared/model';
 import type { Group } from 'konva/lib/Group';
 import { BlockTypes } from 'entities/block';
+import { NodeMutationInput } from 'features/node-mutation';
 
 interface RightRailProps {
   id: string;
@@ -141,18 +141,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 pt-4 pb-1">
         <div className="grid grid-cols-2 gap-1">
           {' '}
-          <IconInput
-            disabled
+          <NodeMutationInput
             type="number"
-            className="w-full px-2"
             id="position-edit-x"
             placeholder={props.properties.position?.x.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">X</span>}
           />
-          <IconInput
-            disabled
+          <NodeMutationInput
             type="number"
-            className="w-full px-2"
             id="position-edit-y"
             placeholder={props.properties.position?.y.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">Y</span>}
@@ -162,9 +158,8 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 pb-4">
         <div className="grid grid-cols-2">
           {' '}
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-rotation"
             placeholder={props.properties.rotation?.toString() || 'Unknown'}
             icon={<RotateCw size={12} />}
@@ -177,16 +172,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 py-4">
         <div className="grid grid-cols-2 gap-1">
           {' '}
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-width"
             placeholder={props.properties.size?.width.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">W</span>}
           />
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-height"
             placeholder={props.properties.size?.height.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">H</span>}
@@ -199,18 +192,16 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 py-4">
         <div className="grid grid-cols-2 gap-1">
           {' '}
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-opacity"
             placeholder={
               props.properties.opacity?.toString() + ' %' || 'Unknown'
             }
             icon={<Blend size={12} />}
           />
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-radius"
             placeholder={props.properties.radius?.toString() || 'Unknown'}
             icon={<Scan size={12} />}
@@ -223,16 +214,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 py-4">
         <div className="grid grid-cols-2 gap-1">
           {' '}
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
             id="position-edit-fill"
             placeholder={props.properties.fill?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-fill-opacity"
             placeholder={props.properties.fillOpacity?.toString() || 'Unknown'}
             icon={<span className="text-sm text-gray-200">%</span>}
@@ -245,16 +233,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       <div className="flex flex-col gap-1 px-4 py-4">
         <div className="grid grid-cols-2 gap-1">
           {' '}
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
             id="position-edit-stroke"
             placeholder={props.properties.stroke?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
-          <IconInput
-            disabled
-            className="w-full px-2"
+          <NodeMutationInput
+            type="number"
             id="position-edit-stroke-opacity"
             placeholder={
               props.properties.strokeOpacity?.toString() || 'Unknown'
