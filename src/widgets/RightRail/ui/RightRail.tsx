@@ -82,8 +82,14 @@ export const RightRail = (props: RightRailProps) => {
     if (!rect.stroke) return;
     const stroke = rect.stroke();
     if (typeof stroke === 'string') {
-      const rgba = hexToRgba(stroke);
-      return getAlphaPercentageFromRgba(rgba);
+      if (isHex(stroke)) {
+        const rgba = hexToRgba(stroke);
+        return getAlphaPercentageFromRgba(rgba);
+      } else if (isRgb(stroke)) {
+        return 1;
+      } else if (isRgba(stroke)) {
+        return getAlphaPercentageFromRgba(stroke);
+      }
     }
   };
 
@@ -233,7 +239,6 @@ export const RightRailContent = (props: RightRailContentProperties) => {
       </div>
       <div className="flex flex-col gap-1 px-4 py-4">
         <div className="grid grid-cols-2 gap-1">
-          {' '}
           <NodeMutationInput
             node={props.node}
             mutationType={NodeMutationTypes.FILL}

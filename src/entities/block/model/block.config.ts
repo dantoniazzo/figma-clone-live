@@ -6,4 +6,5 @@ export const blockConfig = {
   width: FULL_SIZE * 5,
   height: FULL_SIZE * 5,
   fill: getColor('--color-gray-400'),
+  strokewidth: 2,
 };

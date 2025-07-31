@@ -28,14 +28,14 @@ export const removeClickOutsideListener = (el: HTMLElement) => {
 };
 
 export const useOnClickOutside = (
-  ref: React.RefObject<Node>,
+  ref: React.RefObject<Node | null>,
   handler?: (target: Node) => void
 ) => {
   useEffect(
     () => {
       const listener = (event: MouseEvent | TouchEvent) => {
         // Do nothing if clicking ref's element or descendent elements
-        if (!ref.current || ref.current.contains(event.target as Node)) {
+        if (!ref?.current || ref.current.contains(event.target as Node)) {
           return;
         }
 

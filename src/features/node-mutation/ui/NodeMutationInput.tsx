@@ -1,8 +1,7 @@
 import type { Node } from 'konva/lib/Node';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   convertRgbToRgba,
-  getAlphaFromRgba,
   getRgbFromRgba,
   hexToRgba,
   IconInput,
@@ -12,6 +11,7 @@ import {
   isRgbValues,
   rgbValuesToRgb,
   type IconInputProps,
+  useOnClickOutside,
 } from 'shared';
 import { NodeMutationTypes } from '../model/node-mutation.types';
 import { getRectFromGroup } from 'entities/node';
@@ -19,6 +19,7 @@ import type { Group } from 'konva/lib/Group';
 import { forceUpdateTransformer } from 'entities/transformer';
 import { setConnectionAnchors } from 'features/connection';
 import { getStageIdFromNode } from 'entities/stage';
+import { HexColorPicker } from 'react-colorful';
 
 export interface NodeMutationInputProps extends IconInputProps {
   node: Node;
@@ -26,8 +27,9 @@ export interface NodeMutationInputProps extends IconInputProps {
 }
 
 export const NodeMutationInput = (props: NodeMutationInputProps) => {
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [value, setValue] = useState<string | number | undefined>(props.value);
-
+  const colorPickerRef = useRef<HTMLDivElement>(null);
   const setMutationValue = (value: string | number) => {
     const isNumber = typeof value === 'number';
     if (isNumber && !isNaN(value)) {
@@ -140,18 +142,82 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         }
         break;
       }
+      case NodeMutationTypes.STROKE: {
+        const isString = typeof value === 'string';
+        const hex = isHex(isString ? value : '');
+        const rgbValues = isRgbValues(isString ? value : '');
+        const rgb = isRgb(isString ? value : '');
+        if (hex) {
+          const rect = getRectFromGroup(props.node as Group);
+          const rgba = hexToRgba(value as string);
+          rect.stroke(rgba);
+        } else if (rgbValues) {
+          const rect = getRectFromGroup(props.node as Group);
+          rect.stroke(rgbValuesToRgb(value as string));
+        } else if (rgb) {
+          const rect = getRectFromGroup(props.node as Group);
+          rect.stroke(value as string);
+        } else {
+          console.warn('Invalid hex color:', value);
+        }
+        break;
+      }
+      case NodeMutationTypes.STROKE_OPACITY: {
+        const parsed = typeof value === 'string' ? parseFloat(value) : value;
+        if (isNaN(parsed)) break;
+        const correctedPercentage = parsed / 100;
+        const rect = getRectFromGroup(props.node as Group);
+        const stroke = rect.stroke();
+        if (typeof stroke === 'string') {
+          if (isHex(stroke)) {
+            const rgba = hexToRgba(stroke);
+            const rgb = getRgbFromRgba(rgba);
+            if (!rgb) break;
+            rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+          } else if (isRgb(stroke)) {
+            rect.stroke(convertRgbToRgba(stroke, correctedPercentage));
+          } else if (isRgba(stroke)) {
+            const rgb = getRgbFromRgba(stroke);
+            if (!rgb) break;
+            rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+          }
+        }
+        break;
+      }
     }
   };
+
+  useOnClickOutside(colorPickerRef, () => {
+    if (showColorPicker) {
+      setShowColorPicker(false);
+    }
+  });
+
   return (
-    <IconInput
-      onChange={(e) => {
-        const value = e.target.value;
-        handleOnChange(value);
-      }}
-      className="w-full px-2"
-      {...props}
-      value={value}
-      iconClassName="cursor-pointer"
-    />
+    <div className="relative">
+      {(props.mutationType === NodeMutationTypes.FILL ||
+        props.mutationType === NodeMutationTypes.STROKE) &&
+      showColorPicker ? (
+        <div
+          ref={colorPickerRef}
+          className="absolute -translate-x-full top-0 z-10"
+        >
+          <HexColorPicker onChange={handleOnChange} />
+        </div>
+      ) : null}
+      <IconInput
+        onIconClick={() => {
+          setShowColorPicker(!showColorPicker);
+        }}
+        onChange={(e) => {
+          const value = e.target.value;
+          handleOnChange(value);
+        }}
+        className="w-full px-2"
+        {...props}
+        value={value}
+        iconClassName="cursor-pointer"
+      />
+    </div>
   );
 };
