@@ -44,28 +44,31 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
   }, [props.value]);
 
   const handleOnChange = (value: string | number) => {
+    const parsed = typeof value === 'string' ? parseFloat(value) : value;
+    if (props.min === 0 && parsed < 0) {
+      value = 0;
+    }
+    if (props.max === 100 && parsed > 100) {
+      value = 100;
+    }
     setMutationValue(value);
     switch (props.mutationType) {
       case NodeMutationTypes.X: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(parsed)) break;
         props.node.x(parsed);
         break;
       }
       case NodeMutationTypes.Y: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(parsed)) break;
         props.node.y(parsed);
         break;
       }
       case NodeMutationTypes.ROTATION: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(parsed)) break;
         props.node.rotation(parsed);
         break;
       }
       case NodeMutationTypes.WIDTH: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(parsed)) break;
         const rect = getRectFromGroup(props.node as Group);
         rect.width(parsed);
@@ -76,7 +79,6 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         break;
       }
       case NodeMutationTypes.HEIGHT: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
         if (isNaN(parsed)) break;
         const rect = getRectFromGroup(props.node as Group);
         rect.height(parsed);
@@ -87,24 +89,27 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         break;
       }
       case NodeMutationTypes.OPACITY: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(parsed)) break;
+        if (
+          isNaN(parsed) ||
+          parsed < (props.min || 0) ||
+          parsed > (props.max || 100)
+        )
+          break;
         const correctedPercentage = parsed / 100;
         props.node.opacity(correctedPercentage);
         break;
       }
       case NodeMutationTypes.CORNER_RADIUS: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(parsed)) break;
+        if (isNaN(parsed) || parsed < (props.min || 0)) break;
         const rect = getRectFromGroup(props.node as Group);
         rect.cornerRadius(parsed);
         break;
       }
       case NodeMutationTypes.FILL: {
         const isString = typeof value === 'string';
-        const hex = isHex(isString ? value : '');
-        const rgbValues = isRgbValues(isString ? value : '');
-        const rgb = isRgb(isString ? value : '');
+        const hex = isHex(isString ? (value as string) : '');
+        const rgbValues = isRgbValues(isString ? (value as string) : '');
+        const rgb = isRgb(isString ? (value as string) : '');
         if (hex) {
           const rect = getRectFromGroup(props.node as Group);
           const rgba = hexToRgba(value as string);
@@ -121,8 +126,12 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         break;
       }
       case NodeMutationTypes.FILL_OPACITY: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(parsed)) break;
+        if (
+          isNaN(parsed) ||
+          parsed < (props.min || 0) ||
+          parsed > (props.max || 100)
+        )
+          break;
         const correctedPercentage = parsed / 100;
         const rect = getRectFromGroup(props.node as Group);
         const fill = rect.fill();
@@ -144,9 +153,9 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
       }
       case NodeMutationTypes.STROKE: {
         const isString = typeof value === 'string';
-        const hex = isHex(isString ? value : '');
-        const rgbValues = isRgbValues(isString ? value : '');
-        const rgb = isRgb(isString ? value : '');
+        const hex = isHex(isString ? (value as string) : '');
+        const rgbValues = isRgbValues(isString ? (value as string) : '');
+        const rgb = isRgb(isString ? (value as string) : '');
         if (hex) {
           const rect = getRectFromGroup(props.node as Group);
           const rgba = hexToRgba(value as string);
@@ -163,8 +172,12 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         break;
       }
       case NodeMutationTypes.STROKE_OPACITY: {
-        const parsed = typeof value === 'string' ? parseFloat(value) : value;
-        if (isNaN(parsed)) break;
+        if (
+          isNaN(parsed) ||
+          parsed < (props.min || 0) ||
+          parsed > (props.max || 100)
+        )
+          break;
         const correctedPercentage = parsed / 100;
         const rect = getRectFromGroup(props.node as Group);
         const stroke = rect.stroke();
@@ -182,6 +195,12 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
             rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
           }
         }
+        break;
+      }
+      case NodeMutationTypes.STROKE_WIDTH: {
+        if (isNaN(parsed) || parsed < (props.min || 0)) break;
+        const rect = getRectFromGroup(props.node as Group);
+        rect.strokeWidth(parsed);
         break;
       }
     }

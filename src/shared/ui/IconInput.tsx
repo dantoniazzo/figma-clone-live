@@ -20,7 +20,7 @@ export const IconInput = (props: IconInputProps) => {
   return (
     <div
       className={cn(
-        'relative w-11/12 mx-auto h-fit border-2 border-transparent bg-gray-600 focus-within:border-primary-100 rounded-sm grid grid-cols-10 items-center',
+        'relative w-11/12 mx-auto h-fit border-2 border-transparent bg-gray-400 focus-within:border-primary-100 rounded-sm grid grid-cols-10 items-center',
         props.className
       )}
     >

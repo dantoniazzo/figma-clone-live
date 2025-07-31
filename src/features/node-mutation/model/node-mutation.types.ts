@@ -10,4 +10,5 @@ export enum NodeMutationTypes {
   FILL_OPACITY = 'fill-opacity',
   STROKE = 'stroke',
   STROKE_OPACITY = 'stroke-opacity',
+  STROKE_WIDTH = 'stroke-width',
 }

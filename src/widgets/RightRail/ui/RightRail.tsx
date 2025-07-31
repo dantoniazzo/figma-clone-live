@@ -7,7 +7,7 @@ import {
   isRgba,
   RailContainer,
 } from 'shared';
-import { Square, RotateCw, Blend, Scan } from 'lucide-react';
+import { Square, RotateCw, Blend, Scan, StretchHorizontal } from 'lucide-react';
 import { getRightRailContainerId } from '../lib';
 import { useEffect, useState } from 'react';
 import {
@@ -36,6 +36,7 @@ interface SelectedNode {
   fillOpacity?: number;
   stroke?: string | CanvasGradient;
   strokeOpacity?: number;
+  strokeWidth?: number;
 }
 
 export const RightRail = (props: RightRailProps) => {
@@ -106,6 +107,7 @@ export const RightRail = (props: RightRailProps) => {
       fillOpacity: getFillOpacity(node),
       stroke: getRectFromGroup(node).stroke(),
       strokeOpacity: getStrokeOpacity(node),
+      strokeWidth: getRectFromGroup(node).strokeWidth(),
     });
   };
 
@@ -223,6 +225,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             value={props.properties.opacity || 0}
             icon={<Blend size={12} />}
             min={0}
+            max={100}
           />
           <NodeMutationInput
             node={props.node}
@@ -251,6 +254,8 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.FILL_OPACITY}
             value={props.properties.fillOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
+            min={0}
+            max={100}
           />
         </div>
       </div>
@@ -272,6 +277,17 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.STROKE_OPACITY}
             value={props.properties.strokeOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
+            min={0}
+            max={100}
+          />
+          <NodeMutationInput
+            node={props.node}
+            type="number"
+            mutationType={NodeMutationTypes.STROKE_WIDTH}
+            value={props.properties.strokeWidth || 0}
+            icon={<StretchHorizontal size={12} />}
+            min={0}
+            max={100}
           />
         </div>
       </div>
