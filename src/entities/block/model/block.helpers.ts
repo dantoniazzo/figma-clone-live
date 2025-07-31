@@ -1,9 +1,13 @@
-import { getLayer } from "entities/layer";
-import { blockConfig } from "./block.config";
-import { findNode, getRectFromGroup } from "entities/node";
-import type { Group } from "konva/lib/Group";
-import type { Rect } from "shared/model";
-import { ConnectionAnchorSide } from "features/connection";
+import { getLayer } from 'entities/layer';
+import { blockConfig } from './block.config';
+import { findNode, getRectFromGroup } from 'entities/node';
+import type { Group } from 'konva/lib/Group';
+import type { Rect } from 'shared/model';
+import { ConnectionAnchorSide } from 'features/connection';
+import { BlockTypes } from './block.types';
+import { getLineRectFromPoints } from 'features/line';
+import { reScaleRect } from 'features/scale';
+import { getStageIdFromNode } from 'entities/stage';
 
 export const getBlockNodes = (id: string) => {
   const layer = getLayer(id);
@@ -36,12 +40,25 @@ export const getBlockRect = (stageId: string, id: string): Rect | null => {
   if (!node) return null;
   const allNodes = getAllBlocks(stageId);
   if (!allNodes || allNodes.length === 0) return null;
-  return {
-    x: node.x(),
-    y: node.y(),
-    width: getRectFromGroup(node as Group).width(),
-    height: getRectFromGroup(node as Group).height(),
-  };
+  return getBlockRectFromNode(node as Group);
+};
+
+export const getBlockRectFromNode = (node: Group): Rect | null => {
+  if (!node) return null;
+  const type = node.getAttr('blockType');
+  if (!type) return null;
+  if (type === BlockTypes.LINE) {
+    const points = node.getAttr('points');
+    if (!points || points.length < 4) return null;
+    const rect = getLineRectFromPoints(points);
+    const stageId = getStageIdFromNode(node);
+    if (!stageId) return null;
+    const unScaledRect = reScaleRect(stageId, rect);
+    if (!unScaledRect) return null;
+    return unScaledRect;
+  } else {
+    return node.getClientRect();
+  }
 };
 
 export const getNearestBlock = (stageId: string, id: string): Group | null => {

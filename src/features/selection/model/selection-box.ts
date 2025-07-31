@@ -1,5 +1,5 @@
 import { type Position } from 'shared/model';
-import { getBlockNodes } from 'entities/block';
+import { getBlockNodes, getBlockRectFromNode } from 'entities/block';
 import { selectionBoxConfig } from './selection-box.config';
 import { getStage } from 'entities/stage';
 import { Node } from 'konva/lib/Node';
@@ -11,6 +11,7 @@ import {
 import { SELECTION_BOX_ID } from '../lib';
 import { haveRectsIntersection } from 'shared';
 import { selectNodes } from './transformer-selection';
+import type { Group } from 'konva/lib/Group';
 
 export const getSelectionBox = (stageId: string) => {
   return getDrawnRectangleBox(stageId, SELECTION_BOX_ID);
@@ -45,7 +46,9 @@ export const getNodesIntersectingWithBoundingBox = (stageId: string) => {
   if (allNodes && boundingBox) {
     const box = boundingBox.getClientRect();
     return allNodes.filter((node: Node) => {
-      return haveRectsIntersection(box, node.getClientRect());
+      const rect = getBlockRectFromNode(node as Group);
+      if (!rect) return false;
+      return haveRectsIntersection(box, rect);
     });
   }
 };

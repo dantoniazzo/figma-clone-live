@@ -76,7 +76,8 @@ export const RightRail = (props: RightRailProps) => {
   };
 
   const setNodeProperties = (node: Group) => {
-    if (node.getAttr('blockType') === BlockTypes.LINE) return;
+    const blockType = node.getAttr('blockType');
+    if (!blockType || blockType === BlockTypes.LINE) return;
     setProperties({
       position: node.position(),
       rotation: node.rotation(),

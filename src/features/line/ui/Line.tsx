@@ -40,6 +40,7 @@ export const Line = (props: IBlock) => {
       id={props.id}
       ref={groupRef}
       draggable
+      points={props.points}
     >
       <Shape
         id={props.id}

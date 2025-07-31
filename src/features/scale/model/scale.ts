@@ -1,6 +1,6 @@
-import { getStage } from "entities/stage";
-import { type KonvaEventObject, Node, type NodeConfig } from "konva/lib/Node";
-import { type Position, type Size } from "shared/model";
+import { getStage, getStageIdFromNode } from 'entities/stage';
+import { type KonvaEventObject, Node, type NodeConfig } from 'konva/lib/Node';
+import { type Position, type Rect, type Size } from 'shared/model';
 
 const scaleBy = 1.05;
 
@@ -55,6 +55,22 @@ export const reScalePosition = (stageId: string, position: Position) => {
   };
 };
 
+export const unScalePositionFromNode = (node: Node) => {
+  const stageId = getStageIdFromNode(node);
+  if (!stageId) return;
+  const position = node.position();
+  if (!stageId || !position) return;
+  return unScalePosition(stageId, position);
+};
+
+export const reScalePositionFromNode = (node: Node) => {
+  const stageId = getStageIdFromNode(node);
+  if (!stageId) return;
+  const position = node.position();
+  if (!stageId || !position) return;
+  return reScalePosition(stageId, position);
+};
+
 export const unScale = (stageId: string, val: number) => {
   const scaleX = getStage(stageId)?.scaleX();
   if (scaleX) return val / scaleX;
@@ -82,5 +98,43 @@ export const reScaleSize = (stageId: string, size: Size) => {
   return {
     width: size.width * stage.scaleX(),
     height: size.height * stage.scaleX(),
+  };
+};
+
+export const unScaleRect = (stageId: string, rect: Rect): Rect | undefined => {
+  const stage = getStage(stageId);
+  if (!stage) return;
+  const unScaledPosition = unScalePosition(stageId, {
+    x: rect.x,
+    y: rect.y,
+  });
+  if (!unScaledPosition) return;
+  const unScaledSize = unScaleSize(stageId, {
+    width: rect.width,
+    height: rect.height,
+  });
+  if (!unScaledSize) return;
+  return {
+    ...unScaledPosition,
+    ...unScaledSize,
+  };
+};
+
+export const reScaleRect = (stageId: string, rect: Rect): Rect | undefined => {
+  const stage = getStage(stageId);
+  if (!stage) return;
+  const reScaledPosition = reScalePosition(stageId, {
+    x: rect.x,
+    y: rect.y,
+  });
+  if (!reScaledPosition) return;
+  const reScaledSize = reScaleSize(stageId, {
+    width: rect.width,
+    height: rect.height,
+  });
+  if (!reScaledSize) return;
+  return {
+    ...reScaledPosition,
+    ...reScaledSize,
   };
 };
