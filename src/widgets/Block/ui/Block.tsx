@@ -30,9 +30,12 @@ import {
 } from 'shared';
 import { debounce } from 'lodash';
 import type { Delta } from 'quill';
-import { Connection, updateConnection } from 'features/connection';
+import {
+  Connection,
+  updateConnection,
+  setConnectionAnchors,
+} from 'features/connection';
 import { forceUpdateTransformer, isTransforming } from 'entities/transformer';
-import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
 import { SpaceType } from 'entities/space';
 
 export const Block = (props: IBlock) => {

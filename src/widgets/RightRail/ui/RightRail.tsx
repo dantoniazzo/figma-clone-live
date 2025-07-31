@@ -16,7 +16,7 @@ import { findNode, getRectFromGroup } from 'entities/node';
 import type { Position, Size } from 'shared/model';
 import type { Group } from 'konva/lib/Group';
 import { BlockTypes } from 'entities/block';
-import { NodeMutationInput } from 'features/node-mutation';
+import { NodeMutationInput, NodeMutationTypes } from 'features/node-mutation';
 import type { Node } from 'konva/lib/Node';
 
 interface RightRailProps {
@@ -148,14 +148,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-x"
+            mutationType={NodeMutationTypes.X}
             value={props.properties.position?.x || 0}
             icon={<span className="text-sm text-gray-200">X</span>}
           />
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-y"
+            mutationType={NodeMutationTypes.Y}
             value={props.properties.position?.y || 0}
             icon={<span className="text-sm text-gray-200">Y</span>}
           />
@@ -167,7 +167,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-rotation"
+            mutationType={NodeMutationTypes.ROTATION}
             value={props.properties.rotation || 0}
             icon={<RotateCw size={12} />}
           />
@@ -182,14 +182,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-width"
+            mutationType={NodeMutationTypes.WIDTH}
             value={props.properties.size?.width || 0}
             icon={<span className="text-sm text-gray-200">W</span>}
           />
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-height"
+            mutationType={NodeMutationTypes.HEIGHT}
             value={props.properties.size?.height || 0}
             icon={<span className="text-sm text-gray-200">H</span>}
           />
@@ -204,16 +204,18 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-opacity"
+            mutationType={NodeMutationTypes.OPACITY}
             value={props.properties.opacity || 0}
             icon={<Blend size={12} />}
+            min={0}
           />
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-radius"
+            mutationType={NodeMutationTypes.CORNER_RADIUS}
             value={props.properties.radius?.toString() || 0}
             icon={<Scan size={12} />}
+            min={0}
           />
         </div>
       </div>
@@ -225,14 +227,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           {' '}
           <NodeMutationInput
             node={props.node}
-            id="position-edit-fill"
+            mutationType={NodeMutationTypes.FILL}
             value={props.properties.fill?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-fill-opacity"
+            mutationType={NodeMutationTypes.FILL_OPACITY}
             value={props.properties.fillOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
           />
@@ -246,14 +248,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           {' '}
           <NodeMutationInput
             node={props.node}
-            id="position-edit-stroke"
+            mutationType={NodeMutationTypes.STROKE}
             value={props.properties.stroke?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
             node={props.node}
             type="number"
-            id="position-edit-stroke-opacity"
+            mutationType={NodeMutationTypes.STROKE_OPACITY}
             value={props.properties.strokeOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
           />

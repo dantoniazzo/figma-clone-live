@@ -1,21 +1,21 @@
-import { Tools, toolsConfig } from "../model/tools.config";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Tools, toolsConfig } from '../model/tools.config';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getTool,
   getToolbarElement,
   getToolbarId,
   setTool,
   TOOL_ATTR_NAME,
-} from "../lib/toolbar.element";
-import { observeAttribute, setDataAttribute } from "shared/model";
-import { ToolbarButton } from "./ToolbarButton";
-import { disableHandTool, enableHandTool } from "features/hand";
-import { useParams } from "react-router-dom";
-import { createBlock, deleteBlock } from "features/block-mutation";
-import { BlockTypes, blockConfig } from "entities/block";
-import { getCenteredBlockPosition } from "features/position";
-import { getSelectedNodes } from "features/selection";
-import { SpaceType } from "entities/space";
+} from '../lib/toolbar.element';
+import { observeAttribute, setDataAttribute } from 'shared/model';
+import { ToolbarButton } from './ToolbarButton';
+import { disableHandTool, enableHandTool } from 'features/hand';
+import { useParams } from 'react-router-dom';
+import { createBlock, deleteBlock } from 'features/block-mutation';
+import { BlockTypes, blockConfig } from 'entities/block';
+import { getCenteredBlockPosition } from 'features/position';
+import { getSelectedNodes } from 'features/selection';
+import { SpaceType } from 'entities/space';
 
 export const Toolbar = () => {
   const [currentTool, setCurrentTool] = useState(Tools.POINTER);
@@ -23,7 +23,7 @@ export const Toolbar = () => {
   const toolObserver = useRef<MutationObserver | null>(null);
 
   const id = useMemo(() => {
-    return params.id || "default";
+    return params.id || 'default';
   }, [params]);
 
   const type = useMemo(() => {
@@ -39,7 +39,7 @@ export const Toolbar = () => {
           blockConfig.height
         );
         if (!centeredBlockPosition) return;
-        createBlock(id || "default", {
+        createBlock(id || 'default', {
           type: BlockTypes.RECTANGLE,
           position: {
             x: centeredBlockPosition.x,
@@ -65,18 +65,20 @@ export const Toolbar = () => {
 
   const handleKeydown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === " " && getTool() !== Tools.HAND) {
+      if (e.key === ' ' && getTool() !== Tools.HAND) {
         handleToolSelection(Tools.HAND);
       }
       if (
-        e.key === "Delete" ||
-        (e.key === "Backspace" &&
-          !(document.activeElement as HTMLElement).isContentEditable)
+        e.key === 'Delete' ||
+        (e.key === 'Backspace' &&
+          !(document.activeElement as HTMLElement).isContentEditable &&
+          !(document.activeElement as HTMLElement).hasAttribute('data-slot'))
       ) {
+        console.log('Active element:', document.activeElement);
         const selectedNodes = getSelectedNodes(id);
         if (!selectedNodes || !selectedNodes.length) return;
         deleteBlock(id, {
-          blocksToDelete: selectedNodes.map((node) => node.getAttr("id")),
+          blocksToDelete: selectedNodes.map((node) => node.getAttr('id')),
         });
       }
     },
@@ -85,7 +87,7 @@ export const Toolbar = () => {
 
   const handleKeyup = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === " " && getTool() === Tools.HAND) {
+      if (e.key === ' ' && getTool() === Tools.HAND) {
         handleToolSelection(Tools.POINTER);
       }
     },
@@ -97,12 +99,12 @@ export const Toolbar = () => {
     if (toolbar) {
       setDataAttribute(toolbar, TOOL_ATTR_NAME, currentTool);
     }
-    document.addEventListener("keydown", handleKeydown);
-    document.addEventListener("keyup", handleKeyup);
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keyup', handleKeyup);
 
     return () => {
-      document.removeEventListener("keydown", handleKeydown);
-      document.removeEventListener("keyup", handleKeyup);
+      document.removeEventListener('keydown', handleKeydown);
+      document.removeEventListener('keyup', handleKeyup);
     };
   }, [currentTool, handleKeydown, handleKeyup]);
 
