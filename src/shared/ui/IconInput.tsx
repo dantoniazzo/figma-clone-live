@@ -9,6 +9,8 @@ export interface IconInputProps {
   iconClassName?: string;
   disabled?: boolean;
   type?: React.HTMLInputTypeAttribute;
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const IconInput = (props: IconInputProps) => {
@@ -21,6 +23,8 @@ export const IconInput = (props: IconInputProps) => {
     >
       <div className={cn('col-span-2', props.iconClassName)}>{props.icon}</div>
       <Input
+        value={props.value}
+        onChange={props.onChange}
         type={props.type}
         disabled={props.disabled}
         id={props.id}

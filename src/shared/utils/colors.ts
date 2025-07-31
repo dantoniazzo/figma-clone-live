@@ -54,3 +54,13 @@ export const getAlphaPercentageFromRgba = (
   const alpha = getAlphaFromRgba(rgba);
   return alpha !== undefined ? alpha * 100 : undefined;
 };
+
+export const isHex = (color: string): boolean => {
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(color);
+};
+
+export const isRgba = (color: string): boolean => {
+  return /^rgba?\(\d{1,3}, \d{1,3}, \d{1,3}(?:, [0-1](?:\.\d+)?)?\)$/.test(
+    color
+  );
+};

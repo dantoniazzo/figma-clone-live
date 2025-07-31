@@ -144,13 +144,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             type="number"
             id="position-edit-x"
-            placeholder={props.properties.position?.x.toString() || 'Unknown'}
+            value={props.properties.position?.x || 0}
             icon={<span className="text-sm text-gray-200">X</span>}
           />
           <NodeMutationInput
             type="number"
             id="position-edit-y"
-            placeholder={props.properties.position?.y.toString() || 'Unknown'}
+            value={props.properties.position?.y || 0}
             icon={<span className="text-sm text-gray-200">Y</span>}
           />
         </div>
@@ -161,7 +161,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             type="number"
             id="position-edit-rotation"
-            placeholder={props.properties.rotation?.toString() || 'Unknown'}
+            value={props.properties.rotation || 0}
             icon={<RotateCw size={12} />}
           />
         </div>
@@ -175,13 +175,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             type="number"
             id="position-edit-width"
-            placeholder={props.properties.size?.width.toString() || 'Unknown'}
+            value={props.properties.size?.width || 0}
             icon={<span className="text-sm text-gray-200">W</span>}
           />
           <NodeMutationInput
             type="number"
             id="position-edit-height"
-            placeholder={props.properties.size?.height.toString() || 'Unknown'}
+            value={props.properties.size?.height || 0}
             icon={<span className="text-sm text-gray-200">H</span>}
           />
         </div>
@@ -195,15 +195,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           <NodeMutationInput
             type="number"
             id="position-edit-opacity"
-            placeholder={
-              props.properties.opacity?.toString() + ' %' || 'Unknown'
-            }
+            value={props.properties.opacity || 0}
             icon={<Blend size={12} />}
           />
           <NodeMutationInput
             type="number"
             id="position-edit-radius"
-            placeholder={props.properties.radius?.toString() || 'Unknown'}
+            value={props.properties.radius?.toString() || 0}
             icon={<Scan size={12} />}
           />
         </div>
@@ -216,13 +214,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           {' '}
           <NodeMutationInput
             id="position-edit-fill"
-            placeholder={props.properties.fill?.toString() || 'Unknown'}
+            value={props.properties.fill?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
             type="number"
             id="position-edit-fill-opacity"
-            placeholder={props.properties.fillOpacity?.toString() || 'Unknown'}
+            value={props.properties.fillOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
           />
         </div>
@@ -235,15 +233,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           {' '}
           <NodeMutationInput
             id="position-edit-stroke"
-            placeholder={props.properties.stroke?.toString() || 'Unknown'}
+            value={props.properties.stroke?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
             type="number"
             id="position-edit-stroke-opacity"
-            placeholder={
-              props.properties.strokeOpacity?.toString() || 'Unknown'
-            }
+            value={props.properties.strokeOpacity || 0}
             icon={<span className="text-sm text-gray-200">%</span>}
           />
         </div>
