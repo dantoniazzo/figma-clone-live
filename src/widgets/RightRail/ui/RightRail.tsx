@@ -2,6 +2,9 @@ import {
   getAlphaPercentageFromRgba,
   getColor,
   hexToRgba,
+  isHex,
+  isRgb,
+  isRgba,
   RailContainer,
 } from 'shared';
 import { Square, RotateCw, Blend, Scan } from 'lucide-react';
@@ -63,8 +66,14 @@ export const RightRail = (props: RightRailProps) => {
     if (!rect.fill) return;
     const fill = rect.fill();
     if (typeof fill === 'string') {
-      const rgba = hexToRgba(fill);
-      return getAlphaPercentageFromRgba(rgba);
+      if (isHex(fill)) {
+        const rgba = hexToRgba(fill);
+        return getAlphaPercentageFromRgba(rgba);
+      } else if (isRgb(fill)) {
+        return 1;
+      } else if (isRgba(fill)) {
+        return getAlphaPercentageFromRgba(fill);
+      }
     }
   };
 

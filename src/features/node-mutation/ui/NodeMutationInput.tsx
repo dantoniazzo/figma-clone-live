@@ -1,6 +1,18 @@
 import type { Node } from 'konva/lib/Node';
 import { useEffect, useState } from 'react';
-import { IconInput, isHex, type IconInputProps } from 'shared';
+import {
+  convertRgbToRgba,
+  getAlphaFromRgba,
+  getRgbFromRgba,
+  hexToRgba,
+  IconInput,
+  isHex,
+  isRgb,
+  isRgba,
+  isRgbValues,
+  rgbValuesToRgb,
+  type IconInputProps,
+} from 'shared';
 import { NodeMutationTypes } from '../model/node-mutation.types';
 import { getRectFromGroup } from 'entities/node';
 import type { Group } from 'konva/lib/Group';
@@ -89,11 +101,42 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
       case NodeMutationTypes.FILL: {
         const isString = typeof value === 'string';
         const hex = isHex(isString ? value : '');
+        const rgbValues = isRgbValues(isString ? value : '');
+        const rgb = isRgb(isString ? value : '');
         if (hex) {
+          const rect = getRectFromGroup(props.node as Group);
+          const rgba = hexToRgba(value as string);
+          rect.fill(rgba);
+        } else if (rgbValues) {
+          const rect = getRectFromGroup(props.node as Group);
+          rect.fill(rgbValuesToRgb(value as string));
+        } else if (rgb) {
           const rect = getRectFromGroup(props.node as Group);
           rect.fill(value as string);
         } else {
           console.warn('Invalid hex color:', value);
+        }
+        break;
+      }
+      case NodeMutationTypes.FILL_OPACITY: {
+        const parsed = typeof value === 'string' ? parseFloat(value) : value;
+        if (isNaN(parsed)) break;
+        const correctedPercentage = parsed / 100;
+        const rect = getRectFromGroup(props.node as Group);
+        const fill = rect.fill();
+        if (typeof fill === 'string') {
+          if (isHex(fill)) {
+            const rgba = hexToRgba(fill);
+            const rgb = getRgbFromRgba(rgba);
+            if (!rgb) break;
+            rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+          } else if (isRgb(fill)) {
+            rect.fill(convertRgbToRgba(fill, correctedPercentage));
+          } else if (isRgba(fill)) {
+            const rgb = getRgbFromRgba(fill);
+            if (!rgb) break;
+            rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+          }
         }
         break;
       }
