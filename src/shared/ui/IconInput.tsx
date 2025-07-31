@@ -2,12 +2,14 @@ import { cn } from 'shared/utils';
 import { Input } from './input';
 
 export interface IconInputProps {
+  ref?: React.RefObject<HTMLInputElement | null>;
   icon: React.ReactNode;
   placeholder?: string;
   id?: string;
   className?: string;
   iconClassName?: string;
   onIconClick?: () => void;
+  onIconMouseDown?: () => void;
   disabled?: boolean;
   type?: React.HTMLInputTypeAttribute;
   value?: string | number;
@@ -25,12 +27,14 @@ export const IconInput = (props: IconInputProps) => {
       )}
     >
       <div
+        onMouseDown={props.onIconMouseDown}
         onClick={props.onIconClick}
         className={cn('col-span-2', props.iconClassName)}
       >
         {props.icon}
       </div>
       <Input
+        ref={props.ref}
         min={props.min}
         max={props.max}
         value={props.value}

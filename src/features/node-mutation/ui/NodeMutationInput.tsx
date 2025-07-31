@@ -1,5 +1,5 @@
 import type { Node } from 'konva/lib/Node';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   convertRgbToRgba,
   getRgbFromRgba,
@@ -27,9 +27,11 @@ export interface NodeMutationInputProps extends IconInputProps {
 }
 
 export const NodeMutationInput = (props: NodeMutationInputProps) => {
+  const [mouseDown, setMouseDown] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [value, setValue] = useState<string | number | undefined>(props.value);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const setMutationValue = (value: string | number) => {
     const isNumber = typeof value === 'number';
     if (isNumber && !isNaN(value)) {
@@ -43,168 +45,200 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
     if (props.value) setMutationValue(props.value);
   }, [props.value]);
 
-  const handleOnChange = (value: string | number) => {
-    const parsed = typeof value === 'string' ? parseFloat(value) : value;
-    if (props.min === 0 && parsed < 0) {
-      value = 0;
-    }
-    if (props.max === 100 && parsed > 100) {
-      value = 100;
-    }
-    setMutationValue(value);
-    switch (props.mutationType) {
-      case NodeMutationTypes.X: {
-        if (isNaN(parsed)) break;
-        props.node.x(parsed);
-        break;
+  const handleOnChange = useCallback(
+    (value: string | number) => {
+      const parsed = typeof value === 'string' ? parseFloat(value) : value;
+      if (props.min === 0 && parsed < 0) {
+        value = 0;
       }
-      case NodeMutationTypes.Y: {
-        if (isNaN(parsed)) break;
-        props.node.y(parsed);
-        break;
+      if (props.max === 100 && parsed > 100) {
+        value = 100;
       }
-      case NodeMutationTypes.ROTATION: {
-        if (isNaN(parsed)) break;
-        props.node.rotation(parsed);
-        break;
-      }
-      case NodeMutationTypes.WIDTH: {
-        if (isNaN(parsed)) break;
-        const rect = getRectFromGroup(props.node as Group);
-        rect.width(parsed);
-        const stageId = getStageIdFromNode(props.node);
-        if (!stageId) return;
-        forceUpdateTransformer(stageId);
-        setConnectionAnchors(stageId);
-        break;
-      }
-      case NodeMutationTypes.HEIGHT: {
-        if (isNaN(parsed)) break;
-        const rect = getRectFromGroup(props.node as Group);
-        rect.height(parsed);
-        const stageId = getStageIdFromNode(props.node);
-        if (!stageId) return;
-        forceUpdateTransformer(stageId);
-        setConnectionAnchors(stageId);
-        break;
-      }
-      case NodeMutationTypes.OPACITY: {
-        if (
-          isNaN(parsed) ||
-          parsed < (props.min || 0) ||
-          parsed > (props.max || 100)
-        )
+      setMutationValue(value);
+      switch (props.mutationType) {
+        case NodeMutationTypes.X: {
+          if (isNaN(parsed)) break;
+          props.node.x(parsed);
           break;
-        const correctedPercentage = parsed / 100;
-        props.node.opacity(correctedPercentage);
-        break;
-      }
-      case NodeMutationTypes.CORNER_RADIUS: {
-        if (isNaN(parsed) || parsed < (props.min || 0)) break;
-        const rect = getRectFromGroup(props.node as Group);
-        rect.cornerRadius(parsed);
-        break;
-      }
-      case NodeMutationTypes.FILL: {
-        const isString = typeof value === 'string';
-        const hex = isHex(isString ? (value as string) : '');
-        const rgbValues = isRgbValues(isString ? (value as string) : '');
-        const rgb = isRgb(isString ? (value as string) : '');
-        if (hex) {
-          const rect = getRectFromGroup(props.node as Group);
-          const rgba = hexToRgba(value as string);
-          rect.fill(rgba);
-        } else if (rgbValues) {
-          const rect = getRectFromGroup(props.node as Group);
-          rect.fill(rgbValuesToRgb(value as string));
-        } else if (rgb) {
-          const rect = getRectFromGroup(props.node as Group);
-          rect.fill(value as string);
-        } else {
-          console.warn('Invalid hex color:', value);
         }
-        break;
-      }
-      case NodeMutationTypes.FILL_OPACITY: {
-        if (
-          isNaN(parsed) ||
-          parsed < (props.min || 0) ||
-          parsed > (props.max || 100)
-        )
+        case NodeMutationTypes.Y: {
+          if (isNaN(parsed)) break;
+          props.node.y(parsed);
           break;
-        const correctedPercentage = parsed / 100;
-        const rect = getRectFromGroup(props.node as Group);
-        const fill = rect.fill();
-        if (typeof fill === 'string') {
-          if (isHex(fill)) {
-            const rgba = hexToRgba(fill);
-            const rgb = getRgbFromRgba(rgba);
-            if (!rgb) break;
-            rect.fill(convertRgbToRgba(rgb, correctedPercentage));
-          } else if (isRgb(fill)) {
-            rect.fill(convertRgbToRgba(fill, correctedPercentage));
-          } else if (isRgba(fill)) {
-            const rgb = getRgbFromRgba(fill);
-            if (!rgb) break;
-            rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+        }
+        case NodeMutationTypes.ROTATION: {
+          if (isNaN(parsed)) break;
+          props.node.rotation(parsed);
+          break;
+        }
+        case NodeMutationTypes.WIDTH: {
+          if (isNaN(parsed)) break;
+          const rect = getRectFromGroup(props.node as Group);
+          rect.width(parsed);
+          const stageId = getStageIdFromNode(props.node);
+          if (!stageId) return;
+          forceUpdateTransformer(stageId);
+          setConnectionAnchors(stageId);
+          break;
+        }
+        case NodeMutationTypes.HEIGHT: {
+          if (isNaN(parsed)) break;
+          const rect = getRectFromGroup(props.node as Group);
+          rect.height(parsed);
+          const stageId = getStageIdFromNode(props.node);
+          if (!stageId) return;
+          forceUpdateTransformer(stageId);
+          setConnectionAnchors(stageId);
+          break;
+        }
+        case NodeMutationTypes.OPACITY: {
+          if (
+            isNaN(parsed) ||
+            parsed < (props.min || 0) ||
+            parsed > (props.max || 100)
+          )
+            break;
+          const correctedPercentage = parsed / 100;
+          props.node.opacity(correctedPercentage);
+          break;
+        }
+        case NodeMutationTypes.CORNER_RADIUS: {
+          if (isNaN(parsed) || parsed < (props.min || 0)) break;
+          const rect = getRectFromGroup(props.node as Group);
+          rect.cornerRadius(parsed);
+          break;
+        }
+        case NodeMutationTypes.FILL: {
+          const isString = typeof value === 'string';
+          const hex = isHex(isString ? (value as string) : '');
+          const rgbValues = isRgbValues(isString ? (value as string) : '');
+          const rgb = isRgb(isString ? (value as string) : '');
+          if (hex) {
+            const rect = getRectFromGroup(props.node as Group);
+            const rgba = hexToRgba(value as string);
+            rect.fill(rgba);
+          } else if (rgbValues) {
+            const rect = getRectFromGroup(props.node as Group);
+            rect.fill(rgbValuesToRgb(value as string));
+          } else if (rgb) {
+            const rect = getRectFromGroup(props.node as Group);
+            rect.fill(value as string);
+          } else {
+            console.warn('Invalid hex color:', value);
           }
-        }
-        break;
-      }
-      case NodeMutationTypes.STROKE: {
-        const isString = typeof value === 'string';
-        const hex = isHex(isString ? (value as string) : '');
-        const rgbValues = isRgbValues(isString ? (value as string) : '');
-        const rgb = isRgb(isString ? (value as string) : '');
-        if (hex) {
-          const rect = getRectFromGroup(props.node as Group);
-          const rgba = hexToRgba(value as string);
-          rect.stroke(rgba);
-        } else if (rgbValues) {
-          const rect = getRectFromGroup(props.node as Group);
-          rect.stroke(rgbValuesToRgb(value as string));
-        } else if (rgb) {
-          const rect = getRectFromGroup(props.node as Group);
-          rect.stroke(value as string);
-        } else {
-          console.warn('Invalid hex color:', value);
-        }
-        break;
-      }
-      case NodeMutationTypes.STROKE_OPACITY: {
-        if (
-          isNaN(parsed) ||
-          parsed < (props.min || 0) ||
-          parsed > (props.max || 100)
-        )
           break;
-        const correctedPercentage = parsed / 100;
-        const rect = getRectFromGroup(props.node as Group);
-        const stroke = rect.stroke();
-        if (typeof stroke === 'string') {
-          if (isHex(stroke)) {
-            const rgba = hexToRgba(stroke);
-            const rgb = getRgbFromRgba(rgba);
-            if (!rgb) break;
-            rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
-          } else if (isRgb(stroke)) {
-            rect.stroke(convertRgbToRgba(stroke, correctedPercentage));
-          } else if (isRgba(stroke)) {
-            const rgb = getRgbFromRgba(stroke);
-            if (!rgb) break;
-            rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
-          }
         }
-        break;
+        case NodeMutationTypes.FILL_OPACITY: {
+          if (
+            isNaN(parsed) ||
+            parsed < (props.min || 0) ||
+            parsed > (props.max || 100)
+          )
+            break;
+          const correctedPercentage = parsed / 100;
+          const rect = getRectFromGroup(props.node as Group);
+          const fill = rect.fill();
+          if (typeof fill === 'string') {
+            if (isHex(fill)) {
+              const rgba = hexToRgba(fill);
+              const rgb = getRgbFromRgba(rgba);
+              if (!rgb) break;
+              rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+            } else if (isRgb(fill)) {
+              rect.fill(convertRgbToRgba(fill, correctedPercentage));
+            } else if (isRgba(fill)) {
+              const rgb = getRgbFromRgba(fill);
+              if (!rgb) break;
+              rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+            }
+          }
+          break;
+        }
+        case NodeMutationTypes.STROKE: {
+          const isString = typeof value === 'string';
+          const hex = isHex(isString ? (value as string) : '');
+          const rgbValues = isRgbValues(isString ? (value as string) : '');
+          const rgb = isRgb(isString ? (value as string) : '');
+          if (hex) {
+            const rect = getRectFromGroup(props.node as Group);
+            const rgba = hexToRgba(value as string);
+            rect.stroke(rgba);
+          } else if (rgbValues) {
+            const rect = getRectFromGroup(props.node as Group);
+            rect.stroke(rgbValuesToRgb(value as string));
+          } else if (rgb) {
+            const rect = getRectFromGroup(props.node as Group);
+            rect.stroke(value as string);
+          } else {
+            console.warn('Invalid hex color:', value);
+          }
+          break;
+        }
+        case NodeMutationTypes.STROKE_OPACITY: {
+          if (
+            isNaN(parsed) ||
+            parsed < (props.min || 0) ||
+            parsed > (props.max || 100)
+          )
+            break;
+          const correctedPercentage = parsed / 100;
+          const rect = getRectFromGroup(props.node as Group);
+          const stroke = rect.stroke();
+          if (typeof stroke === 'string') {
+            if (isHex(stroke)) {
+              const rgba = hexToRgba(stroke);
+              const rgb = getRgbFromRgba(rgba);
+              if (!rgb) break;
+              rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+            } else if (isRgb(stroke)) {
+              rect.stroke(convertRgbToRgba(stroke, correctedPercentage));
+            } else if (isRgba(stroke)) {
+              const rgb = getRgbFromRgba(stroke);
+              if (!rgb) break;
+              rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+            }
+          }
+          break;
+        }
+        case NodeMutationTypes.STROKE_WIDTH: {
+          if (isNaN(parsed) || parsed < (props.min || 0)) break;
+          const rect = getRectFromGroup(props.node as Group);
+          rect.strokeWidth(parsed);
+          break;
+        }
       }
-      case NodeMutationTypes.STROKE_WIDTH: {
-        if (isNaN(parsed) || parsed < (props.min || 0)) break;
-        const rect = getRectFromGroup(props.node as Group);
-        rect.strokeWidth(parsed);
-        break;
-      }
+    },
+    [props.min, props.max, props.node, props.mutationType]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      const input = inputRef.current;
+      if (!input || !mouseDown) return;
+      const value = input.value;
+      const isNumber = typeof value === 'number';
+      if (isNumber && isNaN(value)) return;
+      const movementX = e.movementX;
+      handleOnChange((Number(value) + movementX).toString());
+    },
+    [mouseDown, handleOnChange]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (mouseDown) {
+      setMouseDown(false);
     }
-  };
+  }, [mouseDown]);
+
+  useEffect(() => {
+    if (!mouseDown) return;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp, mouseDown]);
 
   useOnClickOutside(colorPickerRef, () => {
     if (showColorPicker) {
@@ -225,6 +259,7 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         </div>
       ) : null}
       <IconInput
+        ref={inputRef}
         onIconClick={() => {
           setShowColorPicker(!showColorPicker);
         }}
@@ -235,7 +270,8 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         className="w-full px-2"
         {...props}
         value={value}
-        iconClassName="cursor-pointer"
+        iconClassName={props.iconClassName}
+        onIconMouseDown={() => setMouseDown(true)}
       />
     </div>
   );

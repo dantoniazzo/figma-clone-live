@@ -168,6 +168,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.X}
             value={props.properties.position?.x || 0}
             icon={<span className="text-sm text-gray-200">X</span>}
+            iconClassName="cursor-ew-resize"
           />
           <NodeMutationInput
             node={props.node}
@@ -175,6 +176,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.Y}
             value={props.properties.position?.y || 0}
             icon={<span className="text-sm text-gray-200">Y</span>}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
@@ -187,6 +189,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.ROTATION}
             value={props.properties.rotation || 0}
             icon={<RotateCw size={12} />}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
@@ -202,6 +205,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.WIDTH}
             value={props.properties.size?.width || 0}
             icon={<span className="text-sm text-gray-200">W</span>}
+            iconClassName="cursor-ew-resize"
           />
           <NodeMutationInput
             node={props.node}
@@ -209,6 +213,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             mutationType={NodeMutationTypes.HEIGHT}
             value={props.properties.size?.height || 0}
             icon={<span className="text-sm text-gray-200">H</span>}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
@@ -226,6 +231,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             icon={<Blend size={12} />}
             min={0}
             max={100}
+            iconClassName="cursor-ew-resize"
           />
           <NodeMutationInput
             node={props.node}
@@ -234,6 +240,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             value={props.properties.radius?.toString() || 0}
             icon={<Scan size={12} />}
             min={0}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
@@ -256,6 +263,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             icon={<span className="text-sm text-gray-200">%</span>}
             min={0}
             max={100}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
@@ -279,6 +287,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             icon={<span className="text-sm text-gray-200">%</span>}
             min={0}
             max={100}
+            iconClassName="cursor-ew-resize"
           />
           <NodeMutationInput
             node={props.node}
@@ -288,6 +297,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
             icon={<StretchHorizontal size={12} />}
             min={0}
             max={100}
+            iconClassName="cursor-ew-resize"
           />
         </div>
       </div>
