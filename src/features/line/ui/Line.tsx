@@ -1,22 +1,17 @@
-import { Group, Shape, Circle, Line as KonvaLine } from "react-konva";
-import { Line as KonvaLineType } from "konva/lib/shapes/Line";
-import { LINE_ANCHOR_NAME } from "../lib";
-import { getTool, Tools } from "widgets";
-import { useMemo, useRef } from "react";
-import type { Group as GroupType } from "konva/lib/Group";
-import { getStageIdFromEvent, type KonvaDragEvent } from "entities/stage";
-import { updateBlock } from "features/block-mutation";
-import { debounce } from "lodash";
-import { getColor } from "shared";
-import { LineConfig } from "../model";
-import { blockConfig } from "entities/block";
+import { Group, Shape, Circle, Line as KonvaLine } from 'react-konva';
+import { Line as KonvaLineType } from 'konva/lib/shapes/Line';
+import { LINE_ANCHOR_NAME } from '../lib';
+import { getTool, Tools } from 'widgets';
+import { useMemo, useRef } from 'react';
+import type { Group as GroupType } from 'konva/lib/Group';
+import { getStageIdFromEvent, type KonvaDragEvent } from 'entities/stage';
+import { updateBlock } from 'features/block-mutation';
+import { debounce } from 'lodash';
+import { getColor } from 'shared';
+import { LineConfig } from '../model';
+import { blockConfig, type IBlock } from 'entities/block';
 
-interface LineProps {
-  id: string;
-  points: number[];
-}
-
-export const Line = (props: LineProps) => {
+export const Line = (props: IBlock) => {
   const groupRef = useRef<GroupType | null>(null);
   const firstAnchorLine = useRef<KonvaLineType | null>(null);
   const secondAnchorLine = useRef<KonvaLineType | null>(null);
@@ -25,7 +20,7 @@ export const Line = (props: LineProps) => {
     () =>
       debounce((e: KonvaDragEvent, index: number) => {
         const stageId = getStageIdFromEvent(e);
-        if (!stageId) return;
+        if (!stageId || !props.points) return;
         updateBlock(stageId, {
           id: props.id,
           points: props.points.map((point, i) => {
@@ -37,9 +32,15 @@ export const Line = (props: LineProps) => {
       }, 300),
     [props.id, props.points]
   );
-
+  if (!props.points) return;
   return (
-    <Group name={blockConfig.name} id={props.id} ref={groupRef} draggable>
+    <Group
+      blockType={props.type}
+      name={blockConfig.name}
+      id={props.id}
+      ref={groupRef}
+      draggable
+    >
       <Shape
         id={props.id}
         stroke={LineConfig.stroke}
@@ -152,12 +153,12 @@ export const Line = (props: LineProps) => {
           id={`${props.id}-anchor${index}`}
           radius={3}
           fill="white"
-          stroke={getColor("--color-primary-100")}
+          stroke={getColor('--color-primary-100')}
           strokeWidth={2}
           draggable
           name={LINE_ANCHOR_NAME}
-          x={props.points[index * 2]}
-          y={props.points[index * 2 + 1]}
+          x={props.points?.[index * 2]}
+          y={props.points?.[index * 2 + 1]}
         />
       ))}
     </Group>

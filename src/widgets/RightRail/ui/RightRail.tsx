@@ -16,6 +16,7 @@ import {
 import { findNode, getRectFromGroup } from 'entities/node';
 import type { Position, Size } from 'shared/model';
 import type { Group } from 'konva/lib/Group';
+import { BlockTypes } from 'entities/block';
 
 interface RightRailProps {
   id: string;
@@ -75,6 +76,7 @@ export const RightRail = (props: RightRailProps) => {
   };
 
   const setNodeProperties = (node: Group) => {
+    if (node.getAttr('blockType') === BlockTypes.LINE) return;
     setProperties({
       position: node.position(),
       rotation: node.rotation(),
