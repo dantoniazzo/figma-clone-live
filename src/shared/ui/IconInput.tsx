@@ -29,7 +29,7 @@ export const IconInput = (props: IconInputProps) => {
       <div
         onMouseDown={props.onIconMouseDown}
         onClick={props.onIconClick}
-        className={cn('col-span-2', props.iconClassName)}
+        className={cn('col-span-2 select-none', props.iconClassName)}
       >
         {props.icon}
       </div>
