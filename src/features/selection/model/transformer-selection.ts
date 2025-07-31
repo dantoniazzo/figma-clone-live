@@ -22,6 +22,7 @@ export const selectNode = (stageId: string, node: Node) => {
   if (transformer) {
     selectBlock(stageId, {
       id: node.id(),
+      type: node.getAttr('blockType'),
     });
     transformer.nodes([node]);
     setConnectionAnchors(stageId);
@@ -36,6 +37,7 @@ export const selectNodes = (stageId: string, nodes: Node[]) => {
     if (nodes.length === 1) {
       selectBlock(stageId, {
         id: nodes[0].id(),
+        type: nodes[0].getAttr('blockType'),
       });
     }
   }

@@ -1,7 +1,10 @@
+import type { Node } from 'konva/lib/Node';
 import { useEffect, useState } from 'react';
 import { IconInput, type IconInputProps } from 'shared';
 
-export type NodeMutationInputProps = IconInputProps;
+export interface NodeMutationInputProps extends IconInputProps {
+  node: Node;
+}
 
 export const NodeMutationInput = (props: NodeMutationInputProps) => {
   const [value, setValue] = useState<string | number | undefined>(props.value);

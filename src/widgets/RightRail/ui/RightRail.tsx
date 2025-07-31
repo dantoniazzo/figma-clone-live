@@ -17,6 +17,7 @@ import type { Position, Size } from 'shared/model';
 import type { Group } from 'konva/lib/Group';
 import { BlockTypes } from 'entities/block';
 import { NodeMutationInput } from 'features/node-mutation';
+import type { Node } from 'konva/lib/Node';
 
 interface RightRailProps {
   id: string;
@@ -35,17 +36,19 @@ interface SelectedNode {
 }
 
 export const RightRail = (props: RightRailProps) => {
-  const [nodeId, setNodeId] = useState<string | null>(null);
+  const [node, setNode] = useState<Node | null>(null);
   const [properties, setProperties] = useState<SelectedNode | null>(null);
 
   useEffect(() => {
     BlockEventListener(props.id, (detail) => {
       if (detail.eventType === BlockEvents.SELECT) {
         if (!detail.data.id) return;
-        setNodeId(detail.data.id);
+        const node = findNode(props.id, detail.data.id);
+        if (!node) return;
+        setNode(node);
       }
       if (detail.eventType === BlockEvents.DESELECT) {
-        setNodeId(null);
+        setNode(null);
         setProperties(null);
       }
     });
@@ -92,30 +95,30 @@ export const RightRail = (props: RightRailProps) => {
   };
 
   useEffect(() => {
-    if (nodeId) {
-      const node = findNode(props.id, nodeId);
-      if (node) {
+    if (node) {
+      setNodeProperties(node as Group);
+      node.on('xChange yChange transform', () => {
         setNodeProperties(node as Group);
-        node.on('xChange yChange transform', () => {
-          setNodeProperties(node as Group);
-        });
-      }
+      });
+
       return () => {
         if (node) {
           node.off('xChange yChange transform');
         }
-        setNodeId(null);
+        setNode(null);
         setProperties(null);
       };
     }
-  }, [props.id, nodeId]);
+  }, [props.id, node]);
 
   return (
     <RailContainer
       id={getRightRailContainerId(props.id)}
       className="top-0 right-0 absolute h-full bg-background-400 border-l border-gray-400 hidden lg:block"
     >
-      {properties && <RightRailContent properties={properties} />}
+      {properties && node && (
+        <RightRailContent node={node} properties={properties} />
+      )}
       {!properties && (
         <div>
           <p className="mt-20 p-4 text-center text-gray-300">
@@ -128,6 +131,7 @@ export const RightRail = (props: RightRailProps) => {
 };
 
 export interface RightRailContentProperties {
+  node: Node;
   properties: SelectedNode;
 }
 
@@ -142,12 +146,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2 gap-1">
           {' '}
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-x"
             value={props.properties.position?.x || 0}
             icon={<span className="text-sm text-gray-200">X</span>}
           />
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-y"
             value={props.properties.position?.y || 0}
@@ -159,6 +165,7 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2">
           {' '}
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-rotation"
             value={props.properties.rotation || 0}
@@ -173,12 +180,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2 gap-1">
           {' '}
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-width"
             value={props.properties.size?.width || 0}
             icon={<span className="text-sm text-gray-200">W</span>}
           />
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-height"
             value={props.properties.size?.height || 0}
@@ -193,12 +202,14 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2 gap-1">
           {' '}
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-opacity"
             value={props.properties.opacity || 0}
             icon={<Blend size={12} />}
           />
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-radius"
             value={props.properties.radius?.toString() || 0}
@@ -213,11 +224,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2 gap-1">
           {' '}
           <NodeMutationInput
+            node={props.node}
             id="position-edit-fill"
             value={props.properties.fill?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-fill-opacity"
             value={props.properties.fillOpacity || 0}
@@ -232,11 +245,13 @@ export const RightRailContent = (props: RightRailContentProperties) => {
         <div className="grid grid-cols-2 gap-1">
           {' '}
           <NodeMutationInput
+            node={props.node}
             id="position-edit-stroke"
             value={props.properties.stroke?.toString() || 'Unknown'}
             icon={<Square fill={getColor('--color-gray-400')} size={12} />}
           />
           <NodeMutationInput
+            node={props.node}
             type="number"
             id="position-edit-stroke-opacity"
             value={props.properties.strokeOpacity || 0}
