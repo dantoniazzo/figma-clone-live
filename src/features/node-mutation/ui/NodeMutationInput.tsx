@@ -366,7 +366,7 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
       showColorPicker ? (
         <div
           ref={colorPickerRef}
-          className="absolute -translate-x-full top-0 z-10"
+          className="absolute -translate-x-full top-0 z-10 "
         >
           <HexColorPicker onChange={handleOnChange} />
         </div>
