@@ -154,9 +154,8 @@ export interface RightRailContentProperties {
 
 export const RightRailContent = (props: RightRailContentProperties) => {
   return (
-    <>
-      <div className="h-20" />
-      <div className="w-full h-fit pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
+    <div className="h-full overflow-y-auto scrollbar">
+      <div className="w-full h-fit mt-20 pt-4 px-6 text-sm font-bold flex items-center gap-2 border-t border-gray-400">
         Position
       </div>
       <div className="flex flex-col gap-1 px-4 pt-4 pb-1">
@@ -301,6 +300,6 @@ export const RightRailContent = (props: RightRailContentProperties) => {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };

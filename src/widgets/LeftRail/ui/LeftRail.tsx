@@ -13,16 +13,15 @@ export const LeftRail = (props: LeftRailProps) => {
   const blocks = useStorage((storage) => storage.blocks);
 
   return (
-    <RailContainer className="absolute top-0 left-0 bg-background-400 border-gray-400 hidden lg:block">
-      <div className="h-16" />
+    <RailContainer className="h-full absolute top-0 left-0 bg-background-400 border-gray-400 hidden lg:block pt-16">
       <div className="w-full h-fit py-2 px-6 text-sm font-bold flex items-center gap-2 ">
         Layers
       </div>
-      <div className="flex flex-col gap-1 overflow-y-auto h-fit">
+      <div className="h-11/12 overflow-y-auto scrollbar">
         {blocks &&
           (blocks as IBlock[]).map((block) => (
             <div
-              className="w-full h-fit px-4 text-sm flex items-center"
+              className="w-full mt-1 h-fit px-4 text-sm flex items-center"
               key={`left-rail-block-${block.id}`}
             >
               <div
