@@ -1,5 +1,5 @@
 import type { Node } from 'konva/lib/Node';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   convertRgbToRgba,
   getRgbFromRgba,
@@ -20,6 +20,8 @@ import { forceUpdateTransformer } from 'entities/transformer';
 import { setConnectionAnchors } from 'features/connection';
 import { getStageIdFromNode } from 'entities/stage';
 import { HexColorPicker } from 'react-colorful';
+import { debounce } from 'lodash';
+import { updateBlock, type Params } from 'features/block-mutation';
 
 export interface NodeMutationInputProps extends IconInputProps {
   node: Node;
@@ -45,6 +47,16 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
     if (props.value) setMutationValue(props.value);
   }, [props.value]);
 
+  const debounceChange = useMemo(
+    () =>
+      debounce((params: Params) => {
+        const stageId = getStageIdFromNode(props.node);
+        if (!stageId) return;
+        updateBlock(stageId, params);
+      }, 300),
+    [props.node]
+  );
+
   const handleOnChange = useCallback(
     (value: string | number) => {
       const parsed = typeof value === 'string' ? parseFloat(value) : value;
@@ -59,16 +71,34 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
         case NodeMutationTypes.X: {
           if (isNaN(parsed)) break;
           props.node.x(parsed);
+          debounceChange({
+            id: props.node.id(),
+            position: {
+              x: props.node.x(),
+              y: props.node.y(),
+            },
+          });
           break;
         }
         case NodeMutationTypes.Y: {
           if (isNaN(parsed)) break;
           props.node.y(parsed);
+          debounceChange({
+            id: props.node.id(),
+            position: {
+              x: props.node.x(),
+              y: props.node.y(),
+            },
+          });
           break;
         }
         case NodeMutationTypes.ROTATION: {
           if (isNaN(parsed)) break;
           props.node.rotation(parsed);
+          debounceChange({
+            id: props.node.id(),
+            rotation: parsed,
+          });
           break;
         }
         case NodeMutationTypes.WIDTH: {
@@ -79,6 +109,13 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
           if (!stageId) return;
           forceUpdateTransformer(stageId);
           setConnectionAnchors(stageId);
+          debounceChange({
+            id: props.node.id(),
+            size: {
+              width: rect.width(),
+              height: rect.height(),
+            },
+          });
           break;
         }
         case NodeMutationTypes.HEIGHT: {
@@ -89,6 +126,13 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
           if (!stageId) return;
           forceUpdateTransformer(stageId);
           setConnectionAnchors(stageId);
+          debounceChange({
+            id: props.node.id(),
+            size: {
+              width: rect.width(),
+              height: rect.height(),
+            },
+          });
           break;
         }
         case NodeMutationTypes.OPACITY: {
@@ -100,12 +144,20 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
             break;
           const correctedPercentage = parsed / 100;
           props.node.opacity(correctedPercentage);
+          debounceChange({
+            id: props.node.id(),
+            opacity: correctedPercentage,
+          });
           break;
         }
         case NodeMutationTypes.CORNER_RADIUS: {
           if (isNaN(parsed) || parsed < (props.min || 0)) break;
           const rect = getRectFromGroup(props.node as Group);
           rect.cornerRadius(parsed);
+          debounceChange({
+            id: props.node.id(),
+            cornerRadius: parsed,
+          });
           break;
         }
         case NodeMutationTypes.FILL: {
@@ -117,12 +169,25 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
             const rect = getRectFromGroup(props.node as Group);
             const rgba = hexToRgba(value as string);
             rect.fill(rgba);
+            debounceChange({
+              id: props.node.id(),
+              fill: rgba,
+            });
           } else if (rgbValues) {
             const rect = getRectFromGroup(props.node as Group);
-            rect.fill(rgbValuesToRgb(value as string));
+            const rgb = rgbValuesToRgb(value as string);
+            rect.fill(rgb);
+            debounceChange({
+              id: props.node.id(),
+              fill: rgb,
+            });
           } else if (rgb) {
             const rect = getRectFromGroup(props.node as Group);
             rect.fill(value as string);
+            debounceChange({
+              id: props.node.id(),
+              fill: value as string,
+            });
           } else {
             console.warn('Invalid hex color:', value);
           }
@@ -143,13 +208,28 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
               const rgba = hexToRgba(fill);
               const rgb = getRgbFromRgba(rgba);
               if (!rgb) break;
-              rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+              const converted = convertRgbToRgba(rgb, correctedPercentage);
+              rect.fill(converted);
+              debounceChange({
+                id: props.node.id(),
+                fill: converted,
+              });
             } else if (isRgb(fill)) {
-              rect.fill(convertRgbToRgba(fill, correctedPercentage));
+              const converted = convertRgbToRgba(fill, correctedPercentage);
+              rect.fill(converted);
+              debounceChange({
+                id: props.node.id(),
+                fill: converted,
+              });
             } else if (isRgba(fill)) {
               const rgb = getRgbFromRgba(fill);
               if (!rgb) break;
-              rect.fill(convertRgbToRgba(rgb, correctedPercentage));
+              const converted = convertRgbToRgba(rgb, correctedPercentage);
+              rect.fill(converted);
+              debounceChange({
+                id: props.node.id(),
+                fill: converted,
+              });
             }
           }
           break;
@@ -163,12 +243,25 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
             const rect = getRectFromGroup(props.node as Group);
             const rgba = hexToRgba(value as string);
             rect.stroke(rgba);
+            debounceChange({
+              id: props.node.id(),
+              stroke: rgba,
+            });
           } else if (rgbValues) {
             const rect = getRectFromGroup(props.node as Group);
+            const rgb = rgbValuesToRgb(value as string);
             rect.stroke(rgbValuesToRgb(value as string));
+            debounceChange({
+              id: props.node.id(),
+              stroke: rgb,
+            });
           } else if (rgb) {
             const rect = getRectFromGroup(props.node as Group);
             rect.stroke(value as string);
+            debounceChange({
+              id: props.node.id(),
+              stroke: value as string,
+            });
           } else {
             console.warn('Invalid hex color:', value);
           }
@@ -189,13 +282,28 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
               const rgba = hexToRgba(stroke);
               const rgb = getRgbFromRgba(rgba);
               if (!rgb) break;
-              rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+              const converted = convertRgbToRgba(rgb, correctedPercentage);
+              rect.stroke(converted);
+              debounceChange({
+                id: props.node.id(),
+                stroke: converted,
+              });
             } else if (isRgb(stroke)) {
-              rect.stroke(convertRgbToRgba(stroke, correctedPercentage));
+              const converted = convertRgbToRgba(stroke, correctedPercentage);
+              rect.stroke(converted);
+              debounceChange({
+                id: props.node.id(),
+                stroke: converted,
+              });
             } else if (isRgba(stroke)) {
               const rgb = getRgbFromRgba(stroke);
               if (!rgb) break;
-              rect.stroke(convertRgbToRgba(rgb, correctedPercentage));
+              const converted = convertRgbToRgba(rgb, correctedPercentage);
+              rect.stroke(converted);
+              debounceChange({
+                id: props.node.id(),
+                stroke: converted,
+              });
             }
           }
           break;
@@ -204,11 +312,15 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
           if (isNaN(parsed) || parsed < (props.min || 0)) break;
           const rect = getRectFromGroup(props.node as Group);
           rect.strokeWidth(parsed);
+          debounceChange({
+            id: props.node.id(),
+            strokeWidth: parsed,
+          });
           break;
         }
       }
     },
-    [props.min, props.max, props.node, props.mutationType]
+    [props.min, props.max, props.node, props.mutationType, debounceChange]
   );
 
   const handleMouseMove = useCallback(

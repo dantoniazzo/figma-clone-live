@@ -23,7 +23,6 @@ import { observeResize, type Size } from 'shared/model';
 import { getEditor, getQlEditorElement, getQuillId } from 'features/text';
 import { TextEditor } from 'features/text/ui/text-editor';
 import {
-  getColor,
   isJsonString,
   listenToClickOutside,
   removeClickOutsideListener,
@@ -41,7 +40,7 @@ import { SpaceType } from 'entities/space';
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const { name, ...rest } = blockConfig;
+  const { name } = blockConfig;
   const ref = useRef<GroupType>(null);
   const imageRef = useRef<ImageType | null>(null);
 
@@ -163,6 +162,8 @@ export const Block = (props: IBlock) => {
         text={props.text}
         position={props.position}
         scale={props.scale}
+        opacity={props.opacity}
+        rotation={props.rotation}
         draggable
         onDragMove={onDragMove}
         onDragEnd={onDragEnd}
@@ -197,19 +198,12 @@ export const Block = (props: IBlock) => {
       >
         <Rect
           ref={imageRef}
-          strokeEnabled={props.type !== BlockTypes.TEXT}
-          stroke={
-            ref.current?.getStage()?.attrs?.type === SpaceType.DESIGN
-              ? 'transparent'
-              : getColor('--color-gray-300')
-          }
-          {...rest}
-          fill={props.type === BlockTypes.TEXT ? 'transparent' : rest.fill}
-          cornerRadius={
-            ref.current?.getStage()?.attrs?.type === SpaceType.DESIGN ? 0 : 6
-          }
           width={props.size.width}
           height={props.size.height}
+          cornerRadius={props.cornerRadius}
+          fill={props.fill}
+          stroke={props.stroke}
+          strokeWidth={props.strokeWidth}
         />
         <Html
           divProps={{

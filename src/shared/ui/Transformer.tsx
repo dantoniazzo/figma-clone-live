@@ -31,7 +31,7 @@ export const Transformer = () => {
       anchorStrokeWidth={2}
       anchorFill="black"
       resizeEnabled={true}
-      rotateEnabled={type === SpaceType.DESIGN}
+      rotateEnabled={false}
       borderEnabled={true}
       borderStroke={getColor('--color-primary-100')}
       borderStrokeWidth={2}

@@ -154,6 +154,15 @@ export const Canvas = (props: CanvasProps) => {
           points: params.points || blockObject.points || [],
           text: params.text || blockObject.text,
           connections: params.connections || blockObject.connections,
+          type: params.type || blockObject.type,
+          rotation: params.rotation || blockObject.rotation,
+          opacity: params.opacity || blockObject.opacity,
+          cornerRadius: params.cornerRadius || blockObject.cornerRadius,
+          fill: params.fill || blockObject.fill,
+          fillOpacity: params.fillOpacity || blockObject.fillOpacity,
+          stroke: params.stroke || blockObject.stroke,
+          strokeOpacity: params.strokeOpacity || blockObject.strokeOpacity,
+          strokeWidth: params.strokeWidth || blockObject.strokeWidth,
         });
         blocks.set(index, newLiveBlock);
       }

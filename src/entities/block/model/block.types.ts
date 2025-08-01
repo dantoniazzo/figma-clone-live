@@ -5,6 +5,14 @@ export type IBlock = {
   position: Position;
   size: Size;
   scale?: Scale;
+  rotation?: number;
+  opacity?: number;
+  cornerRadius?: number;
+  fill?: string;
+  fillOpacity?: number;
+  stroke?: string;
+  strokeOpacity?: number;
+  strokeWidth?: number;
   connections?: Connection[];
   points?: number[];
   id: string;

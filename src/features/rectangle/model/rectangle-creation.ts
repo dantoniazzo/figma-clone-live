@@ -7,9 +7,11 @@ import { basicRectangleConfig } from './rectangle.config';
 import { unSelectAllNodes } from 'features/selection';
 import { snapToGrid } from 'features/grid';
 import { createBlock } from 'features/block-mutation';
-import { BlockTypes } from 'entities/block';
+import { BlockTypes, blockConfig } from 'entities/block';
 import { SpaceType } from 'entities/space';
 import { showConnectionAnchors } from 'features/connection/model/connection-anchor';
+import { getStage } from 'entities/stage';
+import { getColor } from 'shared';
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -88,6 +90,13 @@ export const finishDrawingRectangle = (stageId: string, id?: string) => {
       width: rect.width(),
       height: rect.height(),
     },
+    fill: blockConfig.fill,
+    stroke:
+      getStage(stageId)?.attrs?.type === SpaceType.FIGJAM
+        ? getColor('--color-gray-300')
+        : 'transparent',
+    strokeWidth: 1,
+    cornerRadius: getStage(stageId)?.attrs?.type === SpaceType.DESIGN ? 0 : 6,
   });
   unSelectAllNodes(stageId);
   showConnectionAnchors(stageId);
