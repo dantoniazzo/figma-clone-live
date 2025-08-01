@@ -136,7 +136,7 @@ export const Block = (props: IBlock) => {
   useEffect(() => {
     setQuillContents();
   }, [props.text, setQuillContents]);
-
+  console.log('Opacity:', props.opacity);
   return (
     <>
       <Group
@@ -162,7 +162,6 @@ export const Block = (props: IBlock) => {
         text={props.text}
         position={props.position}
         scale={props.scale}
-        opacity={props.opacity}
         rotation={props.rotation}
         draggable
         onDragMove={onDragMove}
@@ -204,6 +203,8 @@ export const Block = (props: IBlock) => {
           fill={props.fill}
           stroke={props.stroke}
           strokeWidth={props.strokeWidth}
+          opacity={props.opacity}
+          perfectDrawEnabled={false}
         />
         <Html
           divProps={{

@@ -143,7 +143,8 @@ export const NodeMutationInput = (props: NodeMutationInputProps) => {
           )
             break;
           const correctedPercentage = parsed / 100;
-          props.node.opacity(correctedPercentage);
+          const rect = getRectFromGroup(props.node as Group);
+          rect.opacity(correctedPercentage);
           debounceChange({
             id: props.node.id(),
             opacity: correctedPercentage,
