@@ -65,7 +65,11 @@ export const Toolbar = () => {
 
   const handleKeydown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === ' ' && getTool() !== Tools.HAND) {
+      if (
+        e.key === ' ' &&
+        getTool() !== Tools.HAND &&
+        !(document.activeElement as HTMLElement).isContentEditable
+      ) {
         handleToolSelection(Tools.HAND);
       }
       if (
@@ -74,7 +78,6 @@ export const Toolbar = () => {
           !(document.activeElement as HTMLElement).isContentEditable &&
           !(document.activeElement as HTMLElement).hasAttribute('data-slot'))
       ) {
-        console.log('Active element:', document.activeElement);
         const selectedNodes = getSelectedNodes(id);
         if (!selectedNodes || !selectedNodes.length) return;
         deleteBlock(id, {
