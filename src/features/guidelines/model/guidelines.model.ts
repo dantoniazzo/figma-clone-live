@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Node } from 'konva/lib/Node';
-import { getAllBlocks } from 'entities/block';
+import { getAllBlocks, getBlockRectFromNode } from 'entities/block';
 import { getLayer } from 'entities/layer';
 import { getStageIdFromNode } from 'entities/stage';
 import { getColor } from 'shared';
@@ -42,7 +42,9 @@ export const getLineGuideStops = (
     if (guideItem === skipShape) {
       return;
     }
-    const box = guideItem.getClientRect();
+    const box = getBlockRectFromNode(guideItem);
+    if (!box) return;
+    // we can snap to all edges of the object
     // and we can snap to all edges of shapes
     vertical.push(box.x);
     vertical.push(box.x + box.width);
