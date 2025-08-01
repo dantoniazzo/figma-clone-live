@@ -49,6 +49,13 @@ import { SpaceType } from 'entities/space';
 
 import { RightRail } from 'widgets/RightRail';
 import { LeftRail } from 'widgets/LeftRail';
+import {
+  drawGuides,
+  getGuides,
+  getLineGuideStops,
+  getObjectSnappingEdges,
+} from 'features/guidelines';
+import { TRANSFORMER_KEY } from 'entities/transformer';
 
 export interface CanvasProps {
   id: string;
@@ -287,7 +294,57 @@ export const Canvas = (props: CanvasProps) => {
       >
         {/* Grid layer */}
         {type === SpaceType.FIGJAM && <Layer id={getGridLayerId(id)} />}
-        <Layer ref={layerRef} id={getLayerId(id)}>
+        <Layer
+          onDragMove={(e) => {
+            const layer = layerRef.current;
+            if (!layer) return;
+            const target = e.target;
+            if (target.className === TRANSFORMER_KEY) return;
+            // clear all previous lines on the screen
+            layer.find('.guid-line').forEach((l) => l.destroy());
+
+            // find possible snapping lines
+            const lineGuideStops = getLineGuideStops(target);
+
+            /*      console.log('lineGuideStops', lineGuideStops); */
+            // find snapping points of current object
+            const itemBounds = getObjectSnappingEdges(target);
+            if (!lineGuideStops) return;
+            // now find where can we snap current object
+            const guides = getGuides(lineGuideStops, itemBounds);
+
+            // do nothing of no snapping
+            if (!guides.length) {
+              return;
+            }
+
+            drawGuides(id, guides);
+
+            const absPos = target.absolutePosition();
+            // now force object position
+            guides.forEach((lg) => {
+              switch (lg.orientation) {
+                case 'V': {
+                  absPos.x = lg.guide + lg.offset;
+                  break;
+                }
+                case 'H': {
+                  absPos.y = lg.guide + lg.offset;
+                  break;
+                }
+              }
+            });
+            target.absolutePosition(absPos);
+          }}
+          onDragEnd={() => {
+            const layer = layerRef.current;
+            if (!layer) return;
+            // clear all previous lines on the screen
+            layer.find('.guid-line').forEach((l) => l.destroy());
+          }}
+          ref={layerRef}
+          id={getLayerId(id)}
+        >
           {blocks &&
             (blocks as IBlock[]).map((block) => {
               if (block.type === BlockTypes.LINE && block.points) {
