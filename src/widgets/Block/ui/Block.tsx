@@ -1,41 +1,41 @@
-import { Group, Rect } from 'react-konva';
-import { BlockTypes, blockConfig, type IBlock } from 'entities/block';
+import { Group, Rect } from "react-konva";
+import { BlockTypes, blockConfig, type IBlock } from "entities/block";
 import {
   getStageIdFromEvent,
   getStageIdFromNode,
   type KonvaDragEvent,
-} from 'entities/stage';
-import { selectNode } from 'features/selection';
-import { type Group as GroupType } from 'konva/lib/Group';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+} from "entities/stage";
+import { selectNode } from "features/selection";
+import { type Group as GroupType } from "konva/lib/Group";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BlockEvents,
   mutationEvent,
   updateBlock,
-} from 'features/block-mutation';
-import { onMoveOnGrid } from 'features/grid';
-import type { Image as ImageType } from 'konva/lib/shapes/Image';
-import { getRectFromGroup } from 'entities/node';
-import { Html } from 'react-konva-utils';
-import { getBlockHtmlElement, getBlockHtmlId } from '../lib';
-import { unScaleSize } from 'features/scale';
-import { observeResize, type Size } from 'shared/model';
-import { getEditor, getQlEditorElement, getQuillId } from 'features/text';
-import { TextEditor } from 'features/text/ui/text-editor';
+} from "features/block-mutation";
+import { onMoveOnGrid } from "features/grid";
+import type { Image as ImageType } from "konva/lib/shapes/Image";
+import { getRectFromGroup } from "entities/node";
+import { Html } from "react-konva-utils";
+import { getBlockHtmlElement, getBlockHtmlId } from "../lib";
+import { unScaleSize } from "features/scale";
+import { observeResize, type Size } from "shared/model";
+import { getEditor, getQlEditorElement, getQuillId } from "features/text";
+import { TextEditor } from "features/text/ui/text-editor";
 import {
   isJsonString,
   listenToClickOutside,
   removeClickOutsideListener,
-} from 'shared';
-import { debounce } from 'lodash';
-import type { Delta } from 'quill';
+} from "shared";
+import { debounce } from "lodash";
+import type { Delta } from "quill";
 import {
   Connection,
   updateConnection,
   setConnectionAnchors,
-} from 'features/connection';
-import { forceUpdateTransformer, isTransforming } from 'entities/transformer';
-import { SpaceType } from 'entities/space';
+} from "features/connection";
+import { forceUpdateTransformer, isTransforming } from "entities/transformer";
+import { SpaceType } from "entities/space";
 
 export const Block = (props: IBlock) => {
   const [loaded, setLoaded] = useState(false);
@@ -136,7 +136,7 @@ export const Block = (props: IBlock) => {
   useEffect(() => {
     setQuillContents();
   }, [props.text, setQuillContents]);
-  console.log('Opacity:', props.opacity);
+
   return (
     <>
       <Group
@@ -210,16 +210,16 @@ export const Block = (props: IBlock) => {
           divProps={{
             id: getBlockHtmlId(props.id),
             style: {
-              pointerEvents: editing ? 'auto' : 'none',
-              borderRadius: '6px',
+              pointerEvents: editing ? "auto" : "none",
+              borderRadius: "6px",
               display:
                 props.type === BlockTypes.TEXT ||
                 ref.current?.getStage()?.attrs?.type === SpaceType.FIGJAM
-                  ? 'flex'
-                  : 'none',
-              justifyContent: 'center',
-              alignItems: 'center',
-              color: 'var(--color-gray-300)',
+                  ? "flex"
+                  : "none",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "var(--color-gray-300)",
               zIndex: 0,
             },
           }}
@@ -230,8 +230,8 @@ export const Block = (props: IBlock) => {
               if (!node || loaded) return;
               const quill = TextEditor({ id: getQuillId(props.id) });
               setQuillContents();
-              quill.on('text-change', (_, __, source) => {
-                if (source !== 'user') return;
+              quill.on("text-change", (_, __, source) => {
+                if (source !== "user") return;
 
                 const contents = quill.getContents();
                 debounceChange(contents);
@@ -273,4 +273,4 @@ export const Block = (props: IBlock) => {
     </>
   );
 };
-Block.displayName = 'Block';
+Block.displayName = "Block";

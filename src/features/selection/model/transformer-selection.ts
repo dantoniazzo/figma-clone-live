@@ -1,7 +1,8 @@
-import { getTransformer } from 'entities/transformer';
-import { deSelectBlocks, selectBlock } from 'features/block-mutation';
-import { setConnectionAnchors } from 'features/connection/model/connection-anchor';
-import { Node } from 'konva/lib/Node';
+import { BlockTypes } from "entities/block";
+import { getTransformer } from "entities/transformer";
+import { deSelectBlocks, selectBlock } from "features/block-mutation";
+import { setConnectionAnchors } from "features/connection/model/connection-anchor";
+import { Node } from "konva/lib/Node";
 
 export const getSelectedNode = (stageId: string) => {
   const transformer = getTransformer(stageId);
@@ -20,9 +21,12 @@ export const getSelectedNodes = (stageId: string) => {
 export const selectNode = (stageId: string, node: Node) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
+    const type = node.getAttr("blockType");
+    if (type === BlockTypes.LINE) transformer.resizeEnabled(false);
+    else transformer.resizeEnabled(true);
     selectBlock(stageId, {
       id: node.id(),
-      type: node.getAttr('blockType'),
+      type,
     });
     transformer.nodes([node]);
     setConnectionAnchors(stageId);
@@ -32,12 +36,17 @@ export const selectNode = (stageId: string, node: Node) => {
 export const selectNodes = (stageId: string, nodes: Node[]) => {
   const transformer = getTransformer(stageId);
   if (transformer) {
+    const line = nodes.find(
+      (node) => node.getAttr("blockType") === BlockTypes.LINE
+    );
+    if (line) transformer.resizeEnabled(false);
+    else transformer.resizeEnabled(true);
     transformer.nodes(nodes);
     setConnectionAnchors(stageId);
     if (nodes.length === 1) {
       selectBlock(stageId, {
         id: nodes[0].id(),
-        type: nodes[0].getAttr('blockType'),
+        type: nodes[0].getAttr("blockType"),
       });
     }
   }

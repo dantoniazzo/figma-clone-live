@@ -1,15 +1,15 @@
-import { Group, Shape, Circle, Line as KonvaLine } from 'react-konva';
-import { Line as KonvaLineType } from 'konva/lib/shapes/Line';
-import { LINE_ANCHOR_NAME } from '../lib';
-import { getTool, Tools } from 'widgets';
-import { useMemo, useRef } from 'react';
-import type { Group as GroupType } from 'konva/lib/Group';
-import { getStageIdFromEvent, type KonvaDragEvent } from 'entities/stage';
-import { updateBlock } from 'features/block-mutation';
-import { debounce } from 'lodash';
-import { getColor } from 'shared';
-import { LineConfig } from '../model';
-import { blockConfig, type IBlock } from 'entities/block';
+import { Group, Shape, Circle, Line as KonvaLine } from "react-konva";
+import { Line as KonvaLineType } from "konva/lib/shapes/Line";
+import { LINE_ANCHOR_NAME } from "../lib";
+import { getTool, Tools } from "widgets";
+import { useMemo, useRef } from "react";
+import type { Group as GroupType } from "konva/lib/Group";
+import { getStageIdFromEvent, type KonvaDragEvent } from "entities/stage";
+import { updateBlock } from "features/block-mutation";
+import { debounce } from "lodash";
+import { getColor } from "shared";
+import { LineConfig } from "../model";
+import { blockConfig, type IBlock } from "entities/block";
 
 export const Line = (props: IBlock) => {
   const groupRef = useRef<GroupType | null>(null);
@@ -41,6 +41,7 @@ export const Line = (props: IBlock) => {
       ref={groupRef}
       draggable
       points={props.points}
+      scale={props.scale}
     >
       <Shape
         id={props.id}
@@ -154,7 +155,7 @@ export const Line = (props: IBlock) => {
           id={`${props.id}-anchor${index}`}
           radius={3}
           fill="white"
-          stroke={getColor('--color-primary-100')}
+          stroke={getColor("--color-primary-100")}
           strokeWidth={2}
           draggable
           name={LINE_ANCHOR_NAME}

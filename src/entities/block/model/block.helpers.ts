@@ -1,13 +1,13 @@
-import { getLayer } from 'entities/layer';
-import { blockConfig } from './block.config';
-import { findNode, getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import type { Rect } from 'shared/model';
-import { ConnectionAnchorSide } from 'features/connection';
-import { BlockTypes } from './block.types';
-import { getLineRectFromPoints } from 'features/line';
-import { reScaleRect } from 'features/scale';
-import { getStageIdFromNode } from 'entities/stage';
+import { getLayer } from "entities/layer";
+import { blockConfig } from "./block.config";
+import { findNode, getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import type { Rect } from "shared/model";
+import { ConnectionAnchorSide } from "features/connection";
+import { BlockTypes } from "./block.types";
+import { getLineRectFromPoints } from "features/line";
+import { reScaleRect } from "features/scale";
+import { getStageIdFromNode } from "entities/stage";
 
 export const getBlockNodes = (id: string) => {
   const layer = getLayer(id);
@@ -43,12 +43,41 @@ export const getBlockRect = (stageId: string, id: string): Rect | null => {
   return getBlockRectFromNode(node as Group);
 };
 
+export const getBlockClientRect = (
+  stageId: string,
+  id: string
+): Rect | null => {
+  const node = findNode(stageId, id);
+  if (!node) return null;
+  const allNodes = getAllBlocks(stageId);
+  if (!allNodes || allNodes.length === 0) return null;
+  return getBlockClientRectFromNode(node as Group);
+};
+
 export const getBlockRectFromNode = (node: Group): Rect | null => {
   if (!node) return null;
-  const type = node.getAttr('blockType');
+  const type = node.getAttr("blockType");
   if (!type) return null;
   if (type === BlockTypes.LINE) {
-    const points = node.getAttr('points');
+    const points = node.getAttr("points");
+    if (!points || points.length < 4) return null;
+    return getLineRectFromPoints(points);
+  } else {
+    return {
+      x: node.x(),
+      y: node.y(),
+      width: getRectFromGroup(node as Group).width(),
+      height: getRectFromGroup(node as Group).height(),
+    };
+  }
+};
+
+export const getBlockClientRectFromNode = (node: Group): Rect | null => {
+  if (!node) return null;
+  const type = node.getAttr("blockType");
+  if (!type) return null;
+  if (type === BlockTypes.LINE) {
+    const points = node.getAttr("points");
     if (!points || points.length < 4) return null;
     const rect = getLineRectFromPoints(points);
     const stageId = getStageIdFromNode(node);
