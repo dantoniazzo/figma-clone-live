@@ -1,17 +1,17 @@
-import { findNode, getRectFromGroup } from 'entities/node';
-import type { Group } from 'konva/lib/Group';
-import { ConnectionAnchorSide, OppositeSides } from './connection.types';
-import { FULL_SIZE } from 'features/grid';
+import { findNode, getRectFromGroup } from "entities/node";
+import type { Group } from "konva/lib/Group";
+import { ConnectionAnchorSide, OppositeSides } from "./connection.types";
+import { FULL_SIZE } from "features/grid";
 import {
   getStageIdFromEvent,
   getStageIdFromNode,
   type KonvaEvent,
-} from 'entities/stage';
-import { getNearestBlockInDirection, type Connection } from 'entities/block';
-import { getLayer } from 'entities/layer';
-import { findConnectionArrow } from './connection-arrow';
-import { getSelectedNode } from 'features/selection';
-import { updateBlock } from 'features/block-mutation';
+} from "entities/stage";
+import { getNearestBlockInDirection, type Connection } from "entities/block";
+import { getLayer } from "entities/layer";
+import { findConnectionArrow } from "./connection-arrow";
+import { getSelectedNode } from "features/selection";
+import { updateBlock } from "features/block-mutation";
 
 export interface UpdateProps {
   fromNode: Group;
@@ -45,7 +45,7 @@ export const calculateConnectionPoints = (
 };
 
 export const updateConnection = (node: Group) => {
-  const connections = node.getAttr('connections') as Connection[] | undefined;
+  const connections = node.getAttr("connections") as Connection[] | undefined;
   if (!connections) return;
   connections.map((connection) => {
     const calculatedPoints = calculateConnectionPoints(node, connection);
@@ -198,8 +198,14 @@ export const getUpdatedPoints = (props: UpdateProps) => {
   const isToHorizontal =
     props.toSide === ConnectionAnchorSide.LEFT ||
     props.toSide === ConnectionAnchorSide.RIGHT;
+  const isFromVertical =
+    props.fromSide === ConnectionAnchorSide.TOP ||
+    props.fromSide === ConnectionAnchorSide.BOTTOM;
+  const isToVertical =
+    props.toSide === ConnectionAnchorSide.TOP ||
+    props.toSide === ConnectionAnchorSide.BOTTOM;
 
-  if (isFromHorizontal && !isToHorizontal) {
+  if (isFromHorizontal && isToVertical) {
     // Horizontal to vertical: step out horizontally, then go to destination X, then down/up
     points.push(firstStepX, firstStepY);
 
@@ -227,7 +233,7 @@ export const getUpdatedPoints = (props: UpdateProps) => {
     }
 
     points.push(lastStepX, lastStepY);
-  } else if (!isFromHorizontal && isToHorizontal) {
+  } else if (isFromVertical && isToHorizontal) {
     // Vertical to horizontal: step out vertically, then go to destination Y, then left/right
     points.push(firstStepX, firstStepY);
 
@@ -237,28 +243,50 @@ export const getUpdatedPoints = (props: UpdateProps) => {
     const horizontalGap = rightNode.left - leftNode.right;
     const hasHorizontalSpace = horizontalGap >= minOffset;
 
-    // Check if we can go directly to the destination Y coordinate
-    const directX = firstStepX;
-    const pathClear =
-      !verticalLineIntersectsRect(firstStepY, lastStepY, directX, fromBounds) &&
-      !verticalLineIntersectsRect(firstStepY, lastStepY, directX, toBounds);
+    // Check if nodes are horizontally offset enough for a simple L-shaped connection
+    const horizontalOverlap = Math.max(
+      0,
+      Math.min(fromBounds.right, toBounds.right) -
+        Math.max(fromBounds.left, toBounds.left)
+    );
+    const hasHorizontalOffset =
+      horizontalOverlap < Math.min(fromWidth, toWidth) * 0.1;
 
-    if (pathClear) {
-      points.push(directX, lastStepY);
+    // If there's horizontal space and nodes are offset, use simple L-shape
+    if (hasHorizontalSpace && hasHorizontalOffset) {
+      // Use the middle of the gap for routing
+      const routingX = leftNode.right + horizontalGap / 2;
+      points.push(routingX, firstStepY);
+      points.push(routingX, lastStepY);
     } else {
-      if (hasHorizontalSpace) {
-        // Route through the empty space between nodes
-        const routingX = leftNode.right + horizontalGap / 2;
-        points.push(routingX, firstStepY);
-        points.push(routingX, lastStepY);
+      // Check if we can go directly to the destination Y coordinate
+      const directX = firstStepX;
+      const pathClear =
+        !verticalLineIntersectsRect(
+          firstStepY,
+          lastStepY,
+          directX,
+          fromBounds
+        ) &&
+        !verticalLineIntersectsRect(firstStepY, lastStepY, directX, toBounds);
+
+      if (pathClear) {
+        points.push(directX, lastStepY);
       } else {
-        // Route around obstacles
-        const clearX =
-          props.toSide === ConnectionAnchorSide.LEFT
-            ? toBounds.left - minOffset * 2
-            : toBounds.right + minOffset * 2;
-        points.push(clearX, firstStepY);
-        points.push(clearX, lastStepY);
+        if (hasHorizontalSpace) {
+          // Route through the empty space between nodes
+          const routingX = leftNode.right + horizontalGap / 2;
+          points.push(routingX, firstStepY);
+          points.push(routingX, lastStepY);
+        } else {
+          // Route around obstacles
+          const clearX =
+            props.toSide === ConnectionAnchorSide.LEFT
+              ? toBounds.left - minOffset * 2
+              : toBounds.right + minOffset * 2;
+          points.push(clearX, firstStepY);
+          points.push(clearX, lastStepY);
+        }
       }
     }
 
@@ -317,11 +345,11 @@ export const getUpdatedPoints = (props: UpdateProps) => {
     }
 
     points.push(lastStepX, lastStepY);
-  } else {
+  } else if (isFromVertical && isToVertical) {
     // Both vertical: step out, go horizontally to align, then vertically to destination
     points.push(firstStepX, firstStepY);
 
-    const midX = (firstStepX + lastStepX) / 2;
+    const midY = (firstStepY + lastStepY) / 2;
 
     // Check if there's enough horizontal space between the nodes
     const leftNode = fromBounds.left < toBounds.left ? fromBounds : toBounds;
@@ -329,23 +357,25 @@ export const getUpdatedPoints = (props: UpdateProps) => {
     const horizontalGap = rightNode.left - leftNode.right;
     const hasHorizontalSpace = horizontalGap >= minOffset;
 
-    // Check if we need to route around obstacles
-    const needsRouting =
-      verticalLineIntersectsRect(firstStepY, lastStepY, midX, fromBounds) ||
-      verticalLineIntersectsRect(firstStepY, lastStepY, midX, toBounds) ||
-      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, fromBounds) ||
-      horizontalLineIntersectsRect(firstStepX, midX, firstStepY, toBounds) ||
-      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, fromBounds) ||
-      horizontalLineIntersectsRect(midX, lastStepX, lastStepY, toBounds);
+    // Check if the path would intersect either rectangle
+    const verticalIntersects =
+      verticalLineIntersectsRect(firstStepY, midY, firstStepX, fromBounds) ||
+      verticalLineIntersectsRect(firstStepY, midY, firstStepX, toBounds) ||
+      verticalLineIntersectsRect(midY, lastStepY, lastStepX, fromBounds) ||
+      verticalLineIntersectsRect(midY, lastStepY, lastStepX, toBounds);
 
-    if (needsRouting) {
+    const horizontalIntersects =
+      horizontalLineIntersectsRect(firstStepX, lastStepX, midY, fromBounds) ||
+      horizontalLineIntersectsRect(firstStepX, lastStepX, midY, toBounds);
+
+    if (verticalIntersects || horizontalIntersects) {
       if (hasHorizontalSpace) {
         // Route through the empty space between nodes
         const routingX = leftNode.right + horizontalGap / 2;
         points.push(routingX, firstStepY);
         points.push(routingX, lastStepY);
       } else {
-        // Route around both rectangles
+        // Route around both rectangles - find the shortest clear path
         const leftClear = Math.min(fromBounds.left, toBounds.left) - minOffset;
         const rightClear =
           Math.max(fromBounds.right, toBounds.right) + minOffset;
@@ -362,8 +392,8 @@ export const getUpdatedPoints = (props: UpdateProps) => {
         points.push(routingX, lastStepY);
       }
     } else {
-      points.push(midX, firstStepY);
-      points.push(midX, lastStepY);
+      points.push(firstStepX, midY);
+      points.push(lastStepX, midY);
     }
 
     points.push(lastStepX, lastStepY);
@@ -382,37 +412,37 @@ export const createConnection = (e: KonvaEvent, side: ConnectionAnchorSide) => {
   if (!selectedNode) return;
   const nearestBlock = getNearestBlockInDirection(
     stageId,
-    selectedNode.getAttr('id'),
+    selectedNode.getAttr("id"),
     side
   );
   if (!nearestBlock) return;
   const rectFrom = getRectFromGroup(selectedNode as Group);
-  const existingFromConnections = selectedNode.getAttr('connections') || [];
+  const existingFromConnections = selectedNode.getAttr("connections") || [];
   updateBlock(stageId, {
-    id: selectedNode.getAttr('id'),
+    id: selectedNode.getAttr("id"),
     position: selectedNode.position(),
     size: rectFrom.size(),
     connections: [
       ...existingFromConnections,
       {
-        from: selectedNode.getAttr('id'),
-        to: nearestBlock.getAttr('id'),
+        from: selectedNode.getAttr("id"),
+        to: nearestBlock.getAttr("id"),
         fromSide: side,
         toSide: OppositeSides[side],
       },
     ],
   });
   const rectTo = getRectFromGroup(nearestBlock as Group);
-  const existingToConnections = nearestBlock.getAttr('connections') || [];
+  const existingToConnections = nearestBlock.getAttr("connections") || [];
   updateBlock(stageId, {
-    id: nearestBlock.getAttr('id'),
+    id: nearestBlock.getAttr("id"),
     position: nearestBlock.position(),
     size: rectTo.size(),
     connections: [
       ...existingToConnections,
       {
-        from: selectedNode.getAttr('id'),
-        to: nearestBlock.getAttr('id'),
+        from: selectedNode.getAttr("id"),
+        to: nearestBlock.getAttr("id"),
         fromSide: side,
         toSide: OppositeSides[side],
       },
