@@ -1,17 +1,17 @@
-import Konva from 'konva';
-import { type Position } from 'shared/model';
-import { type RectConfig } from 'konva/lib/shapes/Rect';
-import { getLayer } from 'entities/layer';
-import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from '../lib';
-import { basicRectangleConfig } from './rectangle.config';
-import { unSelectAllNodes } from 'features/selection';
-import { snapToGrid } from 'features/grid';
-import { createBlock } from 'features/block-mutation';
-import { BlockTypes, blockConfig } from 'entities/block';
-import { SpaceType } from 'entities/space';
-import { showConnectionAnchors } from 'features/connection/model/connection-anchor';
-import { getStage } from 'entities/stage';
-import { getColor } from 'shared';
+import Konva from "konva";
+import { type Position } from "shared/model";
+import { type RectConfig } from "konva/lib/shapes/Rect";
+import { getLayer } from "entities/layer";
+import { DRAWN_RECTANGLE_ID, RECTANGLE_NAME } from "../lib";
+import { basicRectangleConfig } from "./rectangle.config";
+import { unSelectAllNodes } from "features/selection";
+import { FULL_SIZE, snapToGrid } from "features/grid";
+import { createBlock } from "features/block-mutation";
+import { BlockTypes, blockConfig } from "entities/block";
+import { SpaceType } from "entities/space";
+import { showConnectionAnchors } from "features/connection/model/connection-anchor";
+import { getStage } from "entities/stage";
+import { getColor } from "shared";
 
 export const getDrawnRectangleBox = (stageId: string, id?: string) => {
   const layer = getLayer(stageId);
@@ -28,7 +28,7 @@ export const createRectangle = (stageId: string, config: RectConfig) => {
   });
   if (!config.width && !config.height) {
     // Store the initial position as custom attribute
-    rect.setAttr('start-position', config.position);
+    rect.setAttr("start-position", config.position);
   }
   const layer = getLayer(stageId);
   layer?.add(rect);
@@ -43,7 +43,7 @@ export const updateRectangle = (
   if (!rect) return;
   const spaceType = rect.getStage()?.attrs.type;
   // Get the original starting position
-  const startPosition = rect.getAttr('start-position') as Position;
+  const startPosition = rect.getAttr("start-position") as Position;
   // Calculate width, height, and new position
   let newX = startPosition.x;
   let newY = startPosition.y;
@@ -80,21 +80,19 @@ export const updateRectangle = (
 export const finishDrawingRectangle = (stageId: string, id?: string) => {
   const rect = getDrawnRectangleBox(stageId, id || DRAWN_RECTANGLE_ID);
   if (!rect) return;
+  const position = rect.position();
+  let size = rect.size();
+  if (size.width < FULL_SIZE || size.height < FULL_SIZE)
+    size = { width: blockConfig.width, height: blockConfig.height };
   createBlock(stageId, {
     type: BlockTypes.RECTANGLE,
-    position: {
-      x: rect.x(),
-      y: rect.y(),
-    },
-    size: {
-      width: rect.width(),
-      height: rect.height(),
-    },
+    position,
+    size,
     fill: blockConfig.fill,
     stroke:
       getStage(stageId)?.attrs?.type === SpaceType.FIGJAM
-        ? getColor('--color-gray-300')
-        : 'transparent',
+        ? getColor("--color-gray-300")
+        : "transparent",
     strokeWidth: 1,
     cornerRadius: getStage(stageId)?.attrs?.type === SpaceType.DESIGN ? 0 : 6,
   });
